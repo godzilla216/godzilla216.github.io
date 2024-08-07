@@ -1,4 +1,4 @@
 # godzilla216.github.io
-these are my <blink> projects. <blink/>
+these are my projects.
 
 not all of them are complete
