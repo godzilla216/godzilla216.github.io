@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>100m Dash Racing Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+        #game {
+            width: 800px;
+            margin: 20px auto;
+        }
+        .lane {
+            width: 100%;
+            height: 20px;
+            background-color: #ddd;
+            margin: 10px 0;
+            position: relative;
+            border-radius: 10px;
+        }
+        .runner {
+            width: 20px;
+            height: 20px;
+            background-color: red;
+            border-radius: 50%;
+            position: absolute;
+            left: 0;
+        }
+        #player {
+            background-color: blue;
+        }
+        .stamina-bar {
+            width: 100%;
+            height: 10px;
+            background-color: lightgray;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+        .stamina {
+            height: 100%;
+            background-color: green;
+            width: 100%;
+        }
+        .highlight {
+            border: 2px solid gold;
+        }
+        #controls {
+            margin: 20px 0;
+        }
+        #star-system {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="game">
+        <div id="lanes"></div>
+        <div id="controls">
+            <button id="startRace">Start Race</button>
+            <button id="improveSpeed">Improve Speed ⭐</button>
+            <button id="improveStamina">Improve Stamina ⭐</button>
+            <p>Stars: <span id="stars">0</span></p>
+        </div>
+        <div id="star-system"></div>
+    </div>
+
+    <script>
+        const lanes = 8;
+        const maxSpeed = 3;
+        let playerSpeed = 1;
+        let playerStamina = 100;
+        let playerPosition = 0;
+        let raceInProgress = false;
+        let stars = 0;
+
+        const laneContainer = document.getElementById('lanes');
+
+        for (let i = 0; i < lanes; i++) {
+            let lane = document.createElement('div');
+            lane.classList.add('lane');
+            laneContainer.appendChild(lane);
+
+            let runner = document.createElement('div');
+            runner.classList.add('runner');
+            if (i === 0) {
+                runner.id = 'player';
+                lane.classList.add('highlight');
+            }
+            lane.appendChild(runner);
+
+            let staminaBar = document.createElement('div');
+            staminaBar.classList.add('stamina-bar');
+            lane.appendChild(staminaBar);
+
+            let stamina = document.createElement('div');
+            stamina.classList.add('stamina');
+            staminaBar.appendChild(stamina);
+        }
+
+        const startRaceBtn = document.getElementById('startRace');
+        const improveSpeedBtn = document.getElementById('improveSpeed');
+        const improveStaminaBtn = document.getElementById('improveStamina');
+        const starsDisplay = document.getElementById('stars');
+
+        startRaceBtn.addEventListener('click', startRace);
+        improveSpeedBtn.addEventListener('click', improveSpeed);
+        improveStaminaBtn.addEventListener('click', improveStamina);
+
+        function startRace() {
+            if (raceInProgress) return;
+
+            raceInProgress = true;
+            playerPosition = 0;
+            let runners = document.querySelectorAll('.runner');
+            let staminaBars = document.querySelectorAll('.stamina');
+
+            let raceInterval = setInterval(() => {
+                runners.forEach((runner, index) => {
+                    let speed = (index === 0) ? playerSpeed : Math.random() * maxSpeed;
+                    let currentStamina = staminaBars[index].style.width.replace('%', '');
+                    if (currentStamina > 0) {
+                        let newPosition = parseFloat(runner.style.left || 0) + speed;
+                        if (newPosition > 780) {
+                            newPosition = 780;
+                            if (index === 0) {
+                                calculateStars(index);
+                            }
+                        }
+                        runner.style.left = `${newPosition}px`;
+
+                        if (index === 0) {
+                            playerPosition = newPosition;
+                        }
+
+                        let newStamina = Math.max(0, currentStamina - 0.5);
+                        staminaBars[index].style.width = `${newStamina}%`;
+                    }
+                });
+
+                if (runners.every(runner => parseFloat(runner.style.left) >= 780)) {
+                    clearInterval(raceInterval);
+                    raceInProgress = false;
+                }
+            }, 100);
+        }
+
+        function calculateStars(index) {
+            let placement = index + 1;
+            if (placement === 1) {
+                stars += 3;
+            } else if (placement <= 3) {
+                stars += 2;
+            } else {
+                stars += 1;
+            }
+            starsDisplay.innerText = stars;
+        }
+
+        function improveSpeed() {
+            if (stars >= 1) {
+                playerSpeed += 0.5;
+                stars -= 1;
+                starsDisplay.innerText = stars;
+            }
+        }
+
+        function improveStamina() {
+            if (stars >= 1) {
+                playerStamina += 10;
+                stars -= 1;
+                starsDisplay.innerText = stars;
+            }
+        }
+    </script>
+</body>
+</html>
