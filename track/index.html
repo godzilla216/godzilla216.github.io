@@ -8,173 +8,279 @@
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
-            text-align: center;
+            margin: 0;
+            padding: 20px;
         }
-        #game {
-            width: 800px;
-            margin: 20px auto;
+        .race-track {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
         }
         .lane {
-            width: 100%;
-            height: 20px;
-            background-color: #ddd;
-            margin: 10px 0;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #eee;
             position: relative;
-            border-radius: 10px;
+        }
+        .lane.highlight {
+            background-color: yellow;
         }
         .runner {
             width: 20px;
             height: 20px;
-            background-color: red;
             border-radius: 50%;
+            background-color: red;
             position: absolute;
-            left: 0;
+            transition: transform 0.1s;
         }
-        #player {
-            background-color: blue;
+        .start-button, .speed-up-button, .slow-down-button {
+            display: block;
+            width: 100%;
+            max-width: 200px;
+            margin: 10px auto;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .slow-down-button {
+            background-color: #007bff;
         }
         .stamina-bar {
-            width: 100%;
             height: 10px;
-            background-color: lightgray;
-            border-radius: 5px;
-            overflow: hidden;
-            margin-top: 5px;
-        }
-        .stamina {
-            height: 100%;
-            background-color: green;
+            background-color: #28a745;
             width: 100%;
+            margin-top: 10px;
         }
-        .highlight {
-            border: 2px solid gold;
+        .player-interface {
+            margin-top: 20px;
+            text-align: center;
         }
-        #controls {
+        .stars {
+            margin-top: 10px;
+            font-size: 24px;
+        }
+        .schedule, .divisions {
+            text-align: center;
             margin: 20px 0;
         }
-        #star-system {
-            margin-top: 20px;
+        .timer, .position, .average-placing {
+            font-size: 20px;
+            margin-top: 10px;
+        }
+        .finish-line {
+            position: absolute;
+            top: 0;
+            left: 100%;
+            height: 100%;
+            width: 5px;
+            background-color: red;
+            z-index: 10;
         }
     </style>
 </head>
 <body>
-    <div id="game">
-        <div id="lanes"></div>
-        <div id="controls">
-            <button id="startRace">Start Race</button>
-            <button id="improveSpeed">Improve Speed ⭐</button>
-            <button id="improveStamina">Improve Stamina ⭐</button>
-            <p>Stars: <span id="stars">0</span></p>
-        </div>
-        <div id="star-system"></div>
+    <div class="race-track">
+        <!-- Finish line -->
+        <div class="finish-line"></div>
+
+        <!-- 8 lanes for runners -->
+        <div class="lane highlight" id="lane1"><div class="runner" id="runner1"></div></div>
+        <div class="lane" id="lane2"><div class="runner" id="runner2"></div></div>
+        <div class="lane" id="lane3"><div class="runner" id="runner3"></div></div>
+        <div class="lane" id="lane4"><div class="runner" id="runner4"></div></div>
+        <div class="lane" id="lane5"><div class="runner" id="runner5"></div></div>
+        <div class="lane" id="lane6"><div class="runner" id="runner6"></div></div>
+        <div class="lane" id="lane7"><div class="runner" id="runner7"></div></div>
+        <div class="lane" id="lane8"><div class="runner" id="runner8"></div></div>
     </div>
 
+    <!-- Start, Speed Up, and Slow Down buttons -->
+    <div class="start-button" onclick="startRace()">Start Race</div>
+    <div class="speed-up-button" onmousedown="increaseSpeed()" onmouseup="resetSpeed()">Speed Up</div>
+    <div class="slow-down-button" onmousedown="decreaseSpeed()" onmouseup="resetSpeed()">Slow Down</div>
+
+    <!-- Player Interface -->
+    <div class="player-interface">
+        <div>Stamina</div>
+        <div class="stamina-bar" id="stamina-bar"></div>
+        <div class="stars" id="stars">⭐⭐</div>
+        <div class="timer" id="timer">Time: 0.0s</div>
+        <div class="position" id="position">Current Position: 1st</div>
+        <div class="average-placing" id="average-placing">Average Placing: 1st</div>
+    </div>
+
+    <!-- Schedule and Divisions -->
+    <div class="schedule" id="schedule">Schedule: Race 1</div>
+    <div class="divisions" id="division">Division: High School</div>
+
     <script>
-        const lanes = 8;
-        const maxSpeed = 3;
-        let playerSpeed = 1;
+        const runners = [];
+        let interval, timerInterval;
+        const playerLane = 1;
+        const totalDistance = 100;
         let playerStamina = 100;
-        let playerPosition = 0;
-        let raceInProgress = false;
-        let stars = 0;
+        let playerSpeed = 1;
+        let speedMultiplier = 1;
+        let wins = 0;
+        let totalRaces = 0;
+        let currentTime = 0.0;
+        const racesPerDivision = 10;
+        let currentDivision = "High School";
+        const divisions = ["High School", "D1", "D2", "D3"];
+        const maxStars = 5;
+        let currentStars = 2;
+        let totalPlacing = 0;
+        let runnersSpeeds = [];
 
-        const laneContainer = document.getElementById('lanes');
-
-        for (let i = 0; i < lanes; i++) {
-            let lane = document.createElement('div');
-            lane.classList.add('lane');
-            laneContainer.appendChild(lane);
-
-            let runner = document.createElement('div');
-            runner.classList.add('runner');
-            if (i === 0) {
-                runner.id = 'player';
-                lane.classList.add('highlight');
-            }
-            lane.appendChild(runner);
-
-            let staminaBar = document.createElement('div');
-            staminaBar.classList.add('stamina-bar');
-            lane.appendChild(staminaBar);
-
-            let stamina = document.createElement('div');
-            stamina.classList.add('stamina');
-            staminaBar.appendChild(stamina);
+        for (let i = 1; i <= 8; i++) {
+            runners.push({ id: i, distance: 0, speed: Math.random() * 0.5 + 1, finished: false });
         }
-
-        const startRaceBtn = document.getElementById('startRace');
-        const improveSpeedBtn = document.getElementById('improveSpeed');
-        const improveStaminaBtn = document.getElementById('improveStamina');
-        const starsDisplay = document.getElementById('stars');
-
-        startRaceBtn.addEventListener('click', startRace);
-        improveSpeedBtn.addEventListener('click', improveSpeed);
-        improveStaminaBtn.addEventListener('click', improveStamina);
 
         function startRace() {
-            if (raceInProgress) return;
+            clearInterval(interval);
+            clearInterval(timerInterval);
+            runners.forEach(runner => {
+                runner.distance = 0;
+                runner.finished = false;
+                document.getElementById(`runner${runner.id}`).style.transform = `translateX(0px)`;
+            });
+            playerStamina = 100;
+            currentTime = 0.0;
+            speedMultiplier = 1;
+            updateStaminaBar();
+            updateTimer();
+            updatePosition();
+            updateAveragePlacing();
+            adjustRunnerSpeeds();
+            timerInterval = setInterval(updateTimer, 100);
+            interval = setInterval(runRace, 100);
+        }
 
-            raceInProgress = true;
-            playerPosition = 0;
-            let runners = document.querySelectorAll('.runner');
-            let staminaBars = document.querySelectorAll('.stamina');
+        function adjustRunnerSpeeds() {
+            runners.forEach(runner => {
+                runner.speed = Math.random() * 0.5 + 1; // Random speed between 1 and 1.5
+            });
+        }
 
-            let raceInterval = setInterval(() => {
-                runners.forEach((runner, index) => {
-                    let speed = (index === 0) ? playerSpeed : Math.random() * maxSpeed;
-                    let currentStamina = staminaBars[index].style.width.replace('%', '');
-                    if (currentStamina > 0) {
-                        let newPosition = parseFloat(runner.style.left || 0) + speed;
-                        if (newPosition > 780) {
-                            newPosition = 780;
-                            if (index === 0) {
-                                calculateStars(index);
-                            }
-                        }
-                        runner.style.left = `${newPosition}px`;
-
-                        if (index === 0) {
-                            playerPosition = newPosition;
-                        }
-
-                        let newStamina = Math.max(0, currentStamina - 0.5);
-                        staminaBars[index].style.width = `${newStamina}%`;
+        function runRace() {
+            runners.forEach(runner => {
+                if (runner.distance < totalDistance && !runner.finished) {
+                    let staminaFactor = runner.id === playerLane ? 0.5 + (playerStamina / 200) : 1;
+                    runner.distance += runner.speed * staminaFactor * (runner.id === playerLane ? speedMultiplier : 1);
+                    if (runner.distance >= totalDistance) {
+                        runner.distance = totalDistance;
+                        runner.finished = true;
                     }
-                });
-
-                if (runners.every(runner => parseFloat(runner.style.left) >= 780)) {
-                    clearInterval(raceInterval);
-                    raceInProgress = false;
+                    document.getElementById(`runner${runner.id}`).style.transform = `translateX(${runner.distance * 8}px)`;
+                    if (runner.id === playerLane) {
+                        playerStamina = Math.max(0, playerStamina - (1 * speedMultiplier));
+                        updateStaminaBar();
+                    }
                 }
-            }, 100);
+            });
+
+            updatePosition();
+
+            if (runners.every(runner => runner.finished)) {
+                clearInterval(interval);
+                clearInterval(timerInterval);
+                calculateResults();
+            }
         }
 
-        function calculateStars(index) {
-            let placement = index + 1;
-            if (placement === 1) {
-                stars += 3;
-            } else if (placement <= 3) {
-                stars += 2;
+        function increaseSpeed() {
+            speedMultiplier = 1.5; // Increase speed by 50%
+        }
+
+        function decreaseSpeed() {
+            speedMultiplier = 0.5; // Decrease speed by 50%
+        }
+
+        function resetSpeed() {
+            speedMultiplier = 1; // Reset speed to normal
+        }
+
+        function updateStaminaBar() {
+            document.getElementById('stamina-bar').style.width = `${playerStamina}%`;
+        }
+
+        function updateTimer() {
+            currentTime += 0.1;
+            document.getElementById('timer').textContent = `Time: ${currentTime.toFixed(1)}s`;
+        }
+
+        function updatePosition() {
+            runners.sort((a, b) => b.distance - a.distance);
+            const playerPosition = runners.findIndex(runner => runner.id === playerLane) + 1;
+            document.getElementById('position').textContent = `Current Position: ${ordinal(playerPosition)}`;
+        }
+
+        function ordinal(n) {
+            return n + (["st", "nd", "rd"][((n + 90) % 100 - 10) % 10 - 1] || "th");
+        }
+
+        function calculateResults() {
+            const playerPosition = runners.findIndex(runner => runner.id === playerLane) + 1;
+            totalRaces++;
+            totalPlacing += playerPosition;
+            if (playerPosition === 1) wins++;
+            updateStarSystem(playerPosition);
+            checkDivision();
+            updateAveragePlacing();
+        }
+
+        function updateStarSystem(position) {
+            const avgPosition = totalPlacing / totalRaces;
+            currentStars = Math.min(maxStars, Math.max(1, Math.ceil((5 - avgPosition / 2))));
+            document.getElementById('stars').textContent = '⭐'.repeat(currentStars);
+            playerSpeed = 1 + (currentStars - 2) * 0.2; // Adjust player speed based on stars
+        }
+
+        function checkDivision() {
+            if (totalRaces % racesPerDivision === 0) {
+                if (currentDivision === "High School") {
+                    // Reset average placing when moving from high school
+                    totalPlacing = 0;
+                    const nextDivision = determineNextDivision();
+                    currentDivision = nextDivision;
+                    document.getElementById('division').textContent = `Division: ${currentDivision}`;
+                } else {
+                    // Move to the next division
+                    const nextDivisionIndex = divisions.indexOf(currentDivision) + 1;
+                    if (nextDivisionIndex < divisions.length) {
+                        currentDivision = divisions[nextDivisionIndex];
+                        document.getElementById('division').textContent = `Division: ${currentDivision}`;
+                    }
+                }
+            }
+            updateSchedule();
+        }
+
+        function determineNextDivision() {
+            if (currentStars >= 4) return "D1";
+            if (currentStars === 3) return "D2";
+            return "D3";
+        }
+
+        function updateSchedule() {
+            document.getElementById('schedule').textContent = `Schedule: Race ${totalRaces % racesPerDivision + 1}`;
+        }
+
+        function updateAveragePlacing() {
+            let avgPlacing;
+            if (currentDivision === "High School" || ["D1", "D2", "D3"].includes(currentDivision)) {
+                avgPlacing = (totalPlacing / totalRaces).toFixed(1);
             } else {
-                stars += 1;
+                avgPlacing = 0;
             }
-            starsDisplay.innerText = stars;
-        }
-
-        function improveSpeed() {
-            if (stars >= 1) {
-                playerSpeed += 0.5;
-                stars -= 1;
-                starsDisplay.innerText = stars;
-            }
-        }
-
-        function improveStamina() {
-            if (stars >= 1) {
-                playerStamina += 10;
-                stars -= 1;
-                starsDisplay.innerText = stars;
-            }
+            document.getElementById('average-placing').textContent = `Average Placing: ${ordinal(Math.round(avgPlacing))}`;
         }
     </script>
 </body>
