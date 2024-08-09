@@ -37,20 +37,28 @@
             position: absolute;
             transition: transform 0.1s;
         }
-        .start-button, .speed-up-button, .slow-down-button {
+        .start-button, .speed-up-button, .slow-down-button, .buy-gear-button {
             display: block;
             width: 100%;
             max-width: 200px;
             margin: 10px auto;
             padding: 10px;
-            background-color: #28a745;
             color: white;
             text-align: center;
             cursor: pointer;
             border-radius: 5px;
         }
+        .start-button {
+            background-color: #28a745;
+        }
+        .speed-up-button {
+            background-color: #28a745;
+        }
         .slow-down-button {
             background-color: #007bff;
+        }
+        .buy-gear-button {
+            background-color: #dc3545;
         }
         .stamina-bar {
             height: 10px;
@@ -101,10 +109,11 @@
         <div class="lane" id="lane8"><div class="runner" id="runner8"></div></div>
     </div>
 
-    <!-- Start, Speed Up, and Slow Down buttons -->
+    <!-- Start, Speed Up, Slow Down, and Buy Gear buttons -->
     <div class="start-button" onclick="startRace()">Start Race</div>
     <div class="speed-up-button" onmousedown="increaseSpeed()" onmouseup="resetSpeed()">Speed Up</div>
     <div class="slow-down-button" onmousedown="decreaseSpeed()" onmouseup="resetSpeed()">Slow Down</div>
+    <div class="buy-gear-button" onclick="buyGear()">Buy Gear ($2000)</div>
 
     <!-- Player Interface -->
     <div class="player-interface">
@@ -144,6 +153,7 @@
         let totalPlacing = 0;
         let bankBalance = 0;
         let runnersSpeeds = [];
+        const gearCost = 2000;
 
         for (let i = 1; i <= 8; i++) {
             runners.push({ id: i, distance: 0, speed: Math.random() * 0.5 + 1, finished: false });
@@ -229,10 +239,6 @@
             document.getElementById('position').textContent = `Current Position: ${ordinal(playerPosition)}`;
         }
 
-        function ordinal(n) {
-            return n + (["st", "nd", "rd"][((n + 90) % 100 - 10) % 10 - 1] || "th");
-        }
-
         function calculateResults() {
             const playerPosition = runners.findIndex(runner => runner.id === playerLane) + 1;
             totalRaces++;
@@ -260,7 +266,6 @@
 
         function checkDivision() {
             if (currentDivision === "High School" && totalRaces % racesPerDivision === 0) {
-                // Reset average placing when moving from high school
                 totalPlacing = 0;
                 currentSeason = 1;
                 seasonsRemaining = seasonsPerDivision;
@@ -269,7 +274,6 @@
                 document.getElementById('division').textContent = `Division: ${currentDivision}`;
                 document.getElementById('bank-balance').textContent = `Bank Balance: Ineligible`;
             } else if (totalRaces % racesPerDivision === 0) {
-                // Move to the next division
                 const nextDivisionIndex = divisions.indexOf(currentDivision) + 1;
                 if (nextDivisionIndex < divisions.length) {
                     currentDivision = divisions[nextDivisionIndex];
@@ -321,6 +325,27 @@
             } else {
                 document.getElementById('bank-balance').textContent = `Bank Balance: $${bankBalance}`;
             }
+        }
+
+        function buyGear() {
+            if (currentDivision !== "High School") {
+                if (bankBalance >= gearCost) {
+                    bankBalance -= gearCost;
+                    playerSpeed += 1;
+                    updateBankBalance();
+                    document.getElementById('stars').textContent = '⭐'.repeat(currentStars); // Update stars display
+                } else {
+                    alert("Not enough money to buy gear!");
+                }
+            } else {
+                alert("Gear purchase is not available in High School.");
+            }
+        }
+
+        function ordinal(number) {
+            const suffixes = ["th", "st", "nd", "rd"];
+            const value = number % 100;
+            return number + (suffixes[(value - 20) % 10] || suffixes[value] || suffixes[0]);
         }
     </script>
 </body>
