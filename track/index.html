@@ -70,7 +70,7 @@
             text-align: center;
             margin: 20px 0;
         }
-        .timer, .position, .average-placing {
+        .timer, .position, .average-placing, .bank-balance, .seasons-remaining {
             font-size: 20px;
             margin-top: 10px;
         }
@@ -114,6 +114,8 @@
         <div class="timer" id="timer">Time: 0.0s</div>
         <div class="position" id="position">Current Position: 1st</div>
         <div class="average-placing" id="average-placing">Average Placing: 1st</div>
+        <div class="bank-balance" id="bank-balance">Bank Balance: Ineligible</div>
+        <div class="seasons-remaining" id="seasons-remaining">Seasons Remaining: 5</div>
     </div>
 
     <!-- Schedule and Divisions -->
@@ -131,12 +133,16 @@
         let wins = 0;
         let totalRaces = 0;
         let currentTime = 0.0;
-        const racesPerDivision = 10;
+        const racesPerDivision = 12;
+        const seasonsPerDivision = 5;
+        let currentSeason = 1;
+        let seasonsRemaining = seasonsPerDivision;
         let currentDivision = "High School";
         const divisions = ["High School", "D1", "D2", "D3"];
         const maxStars = 5;
         let currentStars = 2;
         let totalPlacing = 0;
+        let bankBalance = 0;
         let runnersSpeeds = [];
 
         for (let i = 1; i <= 8; i++) {
@@ -158,6 +164,7 @@
             updateTimer();
             updatePosition();
             updateAveragePlacing();
+            updateBankBalance();
             adjustRunnerSpeeds();
             timerInterval = setInterval(updateTimer, 100);
             interval = setInterval(runRace, 100);
@@ -230,10 +237,18 @@
             const playerPosition = runners.findIndex(runner => runner.id === playerLane) + 1;
             totalRaces++;
             totalPlacing += playerPosition;
+            if (playerPosition === 1) {
+                bankBalance += 1000;
+            } else if (playerPosition === 2) {
+                bankBalance += 500;
+            } else if (playerPosition === 3) {
+                bankBalance += 250;
+            }
             if (playerPosition === 1) wins++;
             updateStarSystem(playerPosition);
             checkDivision();
             updateAveragePlacing();
+            updateBankBalance();
         }
 
         function updateStarSystem(position) {
@@ -244,20 +259,21 @@
         }
 
         function checkDivision() {
-            if (totalRaces % racesPerDivision === 0) {
-                if (currentDivision === "High School") {
-                    // Reset average placing when moving from high school
-                    totalPlacing = 0;
-                    const nextDivision = determineNextDivision();
-                    currentDivision = nextDivision;
+            if (currentDivision === "High School" && totalRaces % racesPerDivision === 0) {
+                // Reset average placing when moving from high school
+                totalPlacing = 0;
+                currentSeason = 1;
+                seasonsRemaining = seasonsPerDivision;
+                const nextDivision = determineNextDivision();
+                currentDivision = nextDivision;
+                document.getElementById('division').textContent = `Division: ${currentDivision}`;
+                document.getElementById('bank-balance').textContent = `Bank Balance: Ineligible`;
+            } else if (totalRaces % racesPerDivision === 0) {
+                // Move to the next division
+                const nextDivisionIndex = divisions.indexOf(currentDivision) + 1;
+                if (nextDivisionIndex < divisions.length) {
+                    currentDivision = divisions[nextDivisionIndex];
                     document.getElementById('division').textContent = `Division: ${currentDivision}`;
-                } else {
-                    // Move to the next division
-                    const nextDivisionIndex = divisions.indexOf(currentDivision) + 1;
-                    if (nextDivisionIndex < divisions.length) {
-                        currentDivision = divisions[nextDivisionIndex];
-                        document.getElementById('division').textContent = `Division: ${currentDivision}`;
-                    }
                 }
             }
             updateSchedule();
@@ -271,6 +287,22 @@
 
         function updateSchedule() {
             document.getElementById('schedule').textContent = `Schedule: Race ${totalRaces % racesPerDivision + 1}`;
+            if (currentDivision !== "High School") {
+                const seasonRaceNumber = (totalRaces % (racesPerDivision * seasonsPerDivision)) % racesPerDivision + 1;
+                document.getElementById('schedule').textContent += ` (Season ${currentSeason}, Race ${seasonRaceNumber})`;
+                if (seasonRaceNumber === 1) {
+                    seasonsRemaining--;
+                    if (seasonsRemaining === 0) {
+                        currentSeason++;
+                        if (currentSeason > seasonsPerDivision) {
+                            currentSeason = 1;
+                            seasonsRemaining = seasonsPerDivision;
+                            checkDivision();
+                        }
+                    }
+                    document.getElementById('seasons-remaining').textContent = `Seasons Remaining: ${seasonsRemaining}`;
+                }
+            }
         }
 
         function updateAveragePlacing() {
@@ -281,6 +313,14 @@
                 avgPlacing = 0;
             }
             document.getElementById('average-placing').textContent = `Average Placing: ${ordinal(Math.round(avgPlacing))}`;
+        }
+
+        function updateBankBalance() {
+            if (currentDivision === "High School") {
+                document.getElementById('bank-balance').textContent = `Bank Balance: Ineligible`;
+            } else {
+                document.getElementById('bank-balance').textContent = `Bank Balance: $${bankBalance}`;
+            }
         }
     </script>
 </body>
