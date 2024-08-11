@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metronome</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        .metronome {
+            font-size: 2em;
+            margin-top: 20px;
+        }
+        #imageContainer {
+            margin: 20px auto;
+            width: 80%;
+            max-width: 800px;
+            height: 500px; /* Fixed height for consistent display */
+            position: relative;
+            overflow: hidden;
+            display: none; /* Hide image container initially */
+        }
+        #imageContainer img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0; /* Initially hide images */
+            transition: opacity 1s ease-in-out;
+        }
+        #imageContainer img.visible {
+            opacity: 1; /* Show image when visible class is added */
+        }
+    </style>
+</head>
+<body>
+    <h1>Metronome</h1>
+    <div class="metronome">
+        <p id="bpm">BPM: <span id="currentBpm">60</span></p>
+        <button id="startStopButton" onclick="toggleMetronome()">Start</button>
+    </div>
+
+    <!-- New Input Box and Button -->
+    <div>
+        <input type="text" id="codeInput" placeholder="Enter code" />
+        <button onclick="checkCode()">Submit</button>
+    </div>
+
+    <div id="imageContainer">
+        <img src="https://www.shutterstock.com/image-photo/sexy-blonde-bikini-model-green-600nw-1331202.jpg" id="image1" class="visible">
+        <img src="https://www.demonbikini.com/cdn/shop/products/image_6946d2b3-1313-4ad4-98fe-d6fe3c46adc5.jpg?v=1677762981" id="image2">
+        <img src="https://imagez.tmz.com/image/0e/4by3/2023/04/27/0e44b61c55324bb69de18d4feecbad82_xl.png" id="image3">
+        <img src="https://m.media-amazon.com/images/M/MV5BMTQ3ODE2NTMxMV5BMl5BanBnXkFtZTgwOTIzOTQzMjE@._V1_.jpg" id="image4">
+        <img src="https://w.wallhaven.cc/full/q6/wallhaven-q677r5.jpg" id="image5">
+        <img src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2F66.media.tumblr.com%2F55dc4919de241fbe99915fe3e9a90851%2Ftumblr_phw9vsIYFJ1wntbg1o1_400.gif&f=1&nofb=1&ipt=9534b62a5090fd33e4e9b2db36b94f647aa0dc302f948d4c97518803e50d430a&ipo=images" id="image6">
+    </div>
+
+    <script>
+        let metronome;
+        let bpmChanger;
+        let imageChanger;
+        let isRunning = false;
+        let currentBpm = 60;
+        const intervals = [10000, 15000, 20000, 25000, 30000]; // Different intervals in milliseconds
+
+        const images = [
+            document.getElementById('image1'),
+            document.getElementById('image2'),
+            document.getElementById('image3'),
+            document.getElementById('image4'),
+            document.getElementById('image5'),
+            document.getElementById('image6')
+        ];
+
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        function toggleMetronome() {
+            if (isRunning) {
+                clearInterval(metronome);
+                clearTimeout(bpmChanger);
+                document.getElementById("startStopButton").textContent = "Start";
+                resetImageVisibility(); // Optionally reset images if desired
+            } else {
+                metronome = setInterval(playClick, (60 / currentBpm) * 1000);
+                document.getElementById("startStopButton").textContent = "Stop";
+                changeBpm();
+            }
+            isRunning = !isRunning;
+        }
+
+        function playClick() {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.type = 'square';
+            oscillator.frequency.setValueAtTime(1000, audioContext.currentTime); // Frequency in Hz
+            gainNode.gain.setValueAtTime(1, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.1);
+
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.1);
+        }
+
+        function changeBpm() {
+            const interval = intervals[Math.floor(Math.random() * intervals.length)];
+            bpmChanger = setTimeout(() => {
+                currentBpm = getRandomBpm();
+                document.getElementById("currentBpm").textContent = currentBpm;
+                if (isRunning) {
+                    clearInterval(metronome);
+                    metronome = setInterval(playClick, (60 / currentBpm) * 1000);
+                }
+                changeBpm();
+            }, interval);
+        }
+
+        function getRandomBpm() {
+            return Math.floor(Math.random() * (180 - 40 + 1)) + 40; // Random BPM between 40 and 180
+        }
+
+        // Start image changer only if the correct code is entered
+        function startImageChanger() {
+            document.getElementById('imageContainer').style.display = 'block'; // Show image container
+            const imageInterval = 3000; // Interval to change images (3 seconds)
+            imageChanger = setInterval(changeImage, imageInterval);
+        }
+
+        function changeImage() {
+            const currentImage = images.find(image => image.classList.contains('visible'));
+            const nextIndex = (images.indexOf(currentImage) + 1) % images.length;
+            const nextImage = images[nextIndex];
+
+            currentImage.classList.remove('visible');
+            nextImage.classList.add('visible');
+        }
+
+        function resetImageVisibility() {
+            images.forEach(image => image.classList.remove('visible'));
+            images[0].classList.add('visible'); // Ensure the first image is visible initially
+        }
+
+        // Function to check the entered code
+        function checkCode() {
+            const enteredCode = document.getElementById('codeInput').value;
+            if (enteredCode === 'abcdef') {
+                startImageChanger(); // Start changing images if the code is correct
+                alert("Code accepted! Images will start displaying.");
+            } else {
+                alert("Invalid code. Please try again.");
+            }
+        }
+    </script>
+</body>
+</html>
