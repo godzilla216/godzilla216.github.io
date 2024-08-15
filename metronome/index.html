@@ -36,6 +36,10 @@
         #imageContainer img.visible {
             opacity: 1; /* Show image when visible class is added */
         }
+        #stopwatch {
+            font-size: 1.5em;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -44,6 +48,8 @@
         <p id="bpm">BPM: <span id="currentBpm">60</span></p>
         <button id="startStopButton" onclick="toggleMetronome()">Start</button>
     </div>
+
+    <div id="stopwatch">Time: <span id="timeElapsed">0:00</span></div>  <!-- Stopwatch Display -->
 
     <!-- New Input Box and Button -->
     <div>
@@ -73,6 +79,8 @@
         let isRunning = false;
         let currentBpm = 60;
         const intervals = [10000, 15000, 20000, 25000, 30000]; // Different intervals in milliseconds
+        let stopwatchInterval;
+        let elapsedTime = 0; // Time in seconds
 
         const images = [
             document.getElementById('image1'),
@@ -95,14 +103,27 @@
             if (isRunning) {
                 clearInterval(metronome);
                 clearTimeout(bpmChanger);
+                clearInterval(stopwatchInterval); // Stop the stopwatch
                 document.getElementById("startStopButton").textContent = "Start";
                 resetImageVisibility(); // Optionally reset images if desired
             } else {
                 metronome = setInterval(playClick, (60 / currentBpm) * 1000);
                 document.getElementById("startStopButton").textContent = "Stop";
                 changeBpm();
+                startStopwatch(); // Start the stopwatch
             }
             isRunning = !isRunning;
+        }
+
+        function startStopwatch() {
+            elapsedTime = 0;
+            document.getElementById("timeElapsed").textContent = "0:00";
+            stopwatchInterval = setInterval(() => {
+                elapsedTime++;
+                const minutes = Math.floor(elapsedTime / 60);
+                const seconds = elapsedTime % 60;
+                document.getElementById("timeElapsed").textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            }, 1000);
         }
 
         function playClick() {
@@ -135,7 +156,7 @@
         }
 
         function getRandomBpm() {
-            return Math.floor(Math.random() * (280 - 40 + 1)) + 40; // Random BPM between 40 and 180
+            return Math.floor(Math.random() * (300 - 40 + 1)) + 40; // Random BPM between 40 and 180
         }
 
         // Start image changer only if the correct code is entered
