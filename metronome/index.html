@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Metronome & Images</title>
+    <title>Metronome</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -18,16 +18,25 @@
             margin: 20px auto;
             width: 80%;
             max-width: 800px;
-            display: none; /* Hide image container initially */
+            height: 500px; 
+            position: relative;
+            display: none; 
         }
         #imageContainer img {
-            width: 100%; /* Make image responsive */
-            height: auto; /* Maintain aspect ratio */
-            opacity: 0; /* Initially hide images */
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: auto;
+            height: 100%;
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            transform: translate(-50%, -50%);
+            opacity: 0; 
             transition: opacity 1s ease-in-out;
         }
         #imageContainer img.visible {
-            opacity: 1; /* Show image when visible class is added */
+            opacity: 1; 
         }
         #stopwatch {
             font-size: 1.5em;
@@ -42,7 +51,7 @@
         <button id="startStopButton" onclick="toggleMetronome()">Start</button>
     </div>
 
-    <div id="stopwatch">Time: <span id="timeElapsed">0:00</span></div>
+    <div id="stopwatch">Time: <span id="timeElapsed">0:00</span></div> 
 
     <div>
         <input type="text" id="codeInput" placeholder="Enter code" />
@@ -50,57 +59,138 @@
     </div>
 
     <div id="imageContainer">
-        <img id="displayedImage" src="" class="visible" alt="Dynamic Image">
+        <img src="https://www.shutterstock.com/image-photo/sexy-blonde-bikini-model-green-600nw-1331202.jpg" id="image1" class="visible">
+        <img src="https://www.demonbikini.com/cdn/shop/products/image_6946d2b3-1313-4ad4-98fe-d6fe3c46adc5.jpg?v=1677762981" id="image2">
+        <img src="https://imagez.tmz.com/image/0e/4by3/2023/04/27/0e44b61c55324bb69de18d4feecbad82_xl.png" id="image3">
+        <img src="https://m.media-amazon.com/images/M/MV5BMTQ3ODE2NTMxMV5BMl5BanBnXkFtZTgwOTIzOTQzMjE@._V1_.jpg" id="image4">
+        <img src="https://w.wallhaven.cc/full/q6/wallhaven-q677r5.jpg" id="image5">
+        <img src="https://static-pixabay.com/images/0/2011/03/04/09/25/dog-39748_640.jpg" id="image6">
+        <img src="https://64.media.tumblr.com/e589670062490754e0fd07e998121e0a/tumblr_oyywp2Vjw91vqi9npo1_500.jpg" id="image7">
+        <img src="https://thumb-p1.xhcdn.com/a/IHGoJO9yoRG48RAa0ux2yw/000/081/023/041_1000.gif" id="image8">
+        <img src="https://static-ca-cdn.eporner.com/gallery/9y/uN/saWssnJuN9y/7132869-mandy-muse-booty-shakes-claps-fucks-gif.gif" id="image9">
+        <img src="https://i.redd.it/xrcv48qelgac1.jpeg" id="image10">
+        <img src="https://swimsuit.si.com/.image/t_share/MTk3ODYxNTkwMDkwMDY1Nzgy/livvy_4953_wmweb.jpg" id="image11">
+        <img src="https://nypost.com/wp-content/uploads/sites/2/2023/08/NYPICHPDPICT000010241948-1.jpg" id="image12">
     </div>
 
     <script>
-        let isRunning = false;
+        let metronome;
+        let bpmChanger;
         let imageChanger;
-        
-        // Array of image URLs
-        const imageUrls = [
-            "https://www.shutterstock.com/image-photo/sexy-blonde-bikini-model-green-600nw-1331202.jpg",
-            "https://www.demonbikini.com/cdn/shop/products/image_6946d2b3-1313-4ad4-98fe-d6fe3c46adc5.jpg?v=1677762981",
-            "https://imagez.tmz.com/image/0e/4by3/2023/04/27/0e44b61c55324bb69de18d4feecbad82_xl.png",
-            "https://m.media-amazon.com/images/M/MV5BMTQ3ODE2NTMxMV5BMl5BanBnXkFtZTgwOTIzOTQzMjE@._V1_.jpg",
-            "https://w.wallhaven.cc/full/q6/wallhaven-q677r5.jpg",
-            "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2F66.media.tumblr.com%2F55dc4919de241fbe99915fe3e9a90851%2Ftumblr_phw9vsIYFJ1wntbg1o1_400.gif&f=1&nofb=1",
-            "https://64.media.tumblr.com/e589670062490754e0fd07e998121e0a/tumblr_oyywp2Vjw91vqi9npo1_500.jpg",
-            "https://thumb-p1.xhcdn.com/a/IHGoJO9yoRG48RAa0ux2yw/000/081/023/041_1000.gif",
-            "https://static-ca-cdn.eporner.com/gallery/9y/uN/saWssnJuN9y/7132869-mandy-muse-booty-shakes-claps-fucks-gif.gif",
-            "https://i.redd.it/xrcv48qelgac1.jpeg",
-            "https://swimsuit.si.com/.image/t_share/MTk3ODYxNTkwMDkwMDY1Nzgy/livvy_4953_wmweb.jpg",
-            "https://nypost.com/wp-content/uploads/sites/2/2023/08/NYPICHPDPICT000010241948-1.jpg"
+        let isRunning = false;
+        let currentBpm = 60;
+        const intervals = [10000, 15000, 20000, 25000, 30000];
+        let stopwatchInterval;
+        let elapsedTime = 0;
+
+        const images = [
+            document.getElementById('image1'),
+            document.getElementById('image2'),
+            document.getElementById('image3'),
+            document.getElementById('image4'),
+            document.getElementById('image5'),
+            document.getElementById('image6'),
+            document.getElementById('image7'),
+            document.getElementById('image8'),
+            document.getElementById('image9'),
+            document.getElementById('image10'),
+            document.getElementById('image11'),
+            document.getElementById('image12')
         ];
+
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        function toggleMetronome() {
+            if (isRunning) {
+                clearInterval(metronome);
+                clearTimeout(bpmChanger);
+                clearInterval(stopwatchInterval);
+                clearInterval(imageChanger); // Ensure image changer stops
+                resetImageVisibility();
+                document.getElementById("imageContainer").style.display = 'none'; // Hide image container
+                document.getElementById("startStopButton").textContent = "Start";
+            } else {
+                metronome = setInterval(playClick, (60 / currentBpm) * 1000);
+                document.getElementById("startStopButton").textContent = "Stop";
+                changeBpm();
+                startStopwatch();
+            }
+            isRunning = !isRunning;
+        }
+
+        function startStopwatch() {
+            elapsedTime = 0;
+            document.getElementById("timeElapsed").textContent = "0:00";
+            stopwatchInterval = setInterval(() => {
+                elapsedTime++;
+                const minutes = Math.floor(elapsedTime / 60);
+                const seconds = elapsedTime % 60;
+                document.getElementById("timeElapsed").textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            }, 1000);
+        }
+
+        function playClick() {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.type = 'square';
+            oscillator.frequency.setValueAtTime(1000, audioContext.currentTime);
+            gainNode.gain.setValueAtTime(1, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.1);
+
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.1);
+        }
+
+        function changeBpm() {
+            const interval = intervals[Math.floor(Math.random() * intervals.length)];
+            bpmChanger = setTimeout(() => {
+                currentBpm = getRandomBpm();
+                document.getElementById("currentBpm").textContent = currentBpm;
+                if (isRunning) {
+                    clearInterval(metronome);
+                    metronome = setInterval(playClick, (60 / currentBpm) * 1000);
+                }
+                changeBpm();
+            }, interval);
+        }
+
+        function getRandomBpm() {
+            return Math.floor(Math.random() * (300 - 40 + 1)) + 40;
+        }
+
+        function startImageChanger() {
+            document.getElementById('imageContainer').style.display = 'block'; // Show image container
+            resetImageVisibility();
+            const imageInterval = 6000; // Change images every 6 seconds
+            imageChanger = setInterval(changeImage, imageInterval);
+        }
+
+        function changeImage() {
+            const currentImage = images.find(image => image.classList.contains('visible'));
+            const nextIndex = (images.indexOf(currentImage) + 1) % images.length;
+            const nextImage = images[nextIndex];
+
+            currentImage.classList.remove('visible');
+            nextImage.classList.add('visible');
+        }
+
+        function resetImageVisibility() {
+            images.forEach(image => image.classList.remove('visible'));
+            images[0].classList.add('visible'); 
+        }
 
         function checkCode() {
             const enteredCode = document.getElementById('codeInput').value;
             if (enteredCode === 'abcdef') {
-                document.getElementById('imageContainer').style.display = 'block'; // Show image container
                 startImageChanger();
                 alert("Code accepted! Images will start displaying.");
             } else {
                 alert("Invalid code. Please try again.");
             }
-        }
-
-        function startImageChanger() {
-            const displayedImage = document.getElementById('displayedImage');
-            let currentIndex = 0; // Track the current image index
-
-            displayedImage.src = imageUrls[currentIndex]; // Set the initial image source
-            
-            // Change image every 16 seconds
-            imageChanger = setInterval(() => {
-                currentIndex = (currentIndex + 1) % imageUrls.length; // Loop back to the start
-                displayedImage.classList.remove('visible'); // Hide current image
-                displayedImage.src = imageUrls[currentIndex]; // Update the source for next image
-
-                // Allow time for the image to load before making it visible
-                displayedImage.onload = () => {
-                    displayedImage.classList.add('visible'); // Show new image
-                };
-            }, 16000); // Change interval
         }
     </script>
 </body>
