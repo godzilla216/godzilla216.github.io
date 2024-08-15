@@ -135,14 +135,14 @@
         }
 
         function getRandomBpm() {
-            return Math.floor(Math.random() * (180 - 40 + 1)) + 40; // Random BPM between 40 and 180
+            return Math.floor(Math.random() * (280 - 40 + 1)) + 40; // Random BPM between 40 and 180
         }
 
         // Start image changer only if the correct code is entered
         function startImageChanger() {
             document.getElementById('imageContainer').style.display = 'block'; // Show image container
             resetImageVisibility(); // Reset image visibility to the first image
-            const imageInterval = 6000; // Interval to change images (6 seconds)
+            const imageInterval = 16000; // Interval to change images (6 seconds)
             imageChanger = setInterval(changeImage, imageInterval);
         }
 
