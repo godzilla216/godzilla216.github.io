@@ -77,6 +77,12 @@
         <img src="https://i.ebayimg.com/images/g/I5IAAOSwnq5lqxBn/s-l1200.webp" id="image16">
         <img src="https://pbs.twimg.com/media/Fn-50oHWAAEehS-.png" id="image17">
         <img src="https://i.pinimg.com/1200x/ab/bb/c7/abbbc712c5daefe1668504c568912f73.jpg" id="image18">
+        
+        <!-- New Images -->
+        <img src="https://imgs.search.brave.com/idukmH0Ff446iSldxxEPIDRpgjG-KXk9lGpmlXGUwH0/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZWxl/YnJpdHlmYWtlczR1/LmNvbS93cC1jb250/ZW50L3VwbG9hZHMv/Y2VsZWJyaXRpZXMv/ZS9lbW1hLXdhdHNv/bi9udWRlLWZha2Vz/L2VtbWEtd2F0c29u/LWN1bS1mYWNpYWwt/ZmFrZS0wMTMuanBn" id="image19">
+        <img src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fs6.dpic.me%2F02228%2Fd0ueawyuj4py.jpg&f=1&nofb=1&ipt=5fddee0ffeb40ea19ad84722401cdc83faf7c29eacb02df33bd91ac59501d656&ipo=images" id="image20">
+        <img src="https://th.bing.com/th/id/OIP.ex6HZgZ4HneYgF3C8bZ5MAHaE8?rs=1&pid=ImgDetMain" id="image21">
+        <img src="https://th.bing.com/th/id/OIP.Efdb6naIsR48u3fmdn7pdwHaJV?rs=1&pid=ImgDetMain" id="image22">
     </div>
 
     <script>
@@ -104,10 +110,14 @@
             document.getElementById('image12'),
             document.getElementById('image13'),
             document.getElementById('image14'),
-            document.getElementById('image15'), // New images added
+            document.getElementById('image15'),
             document.getElementById('image16'),
             document.getElementById('image17'),
-            document.getElementById('image18')
+            document.getElementById('image18'),
+            document.getElementById('image19'), // New images added
+            document.getElementById('image20'),
+            document.getElementById('image21'),
+            document.getElementById('image22'),
         ];
 
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -117,9 +127,9 @@
                 clearInterval(metronome);
                 clearTimeout(bpmChanger);
                 clearInterval(stopwatchInterval);
-                clearInterval(imageChanger); // Ensure image changer stops
+                clearInterval(imageChanger);
                 resetImageVisibility();
-                document.getElementById("imageContainer").style.display = 'none'; // Hide image container
+                document.getElementById("imageContainer").style.display = 'none';
                 document.getElementById("startStopButton").textContent = "Start";
             } else {
                 metronome = setInterval(playClick, (60 / currentBpm) * 1000);
@@ -175,9 +185,9 @@
         }
 
         function startImageChanger() {
-            document.getElementById('imageContainer').style.display = 'block'; // Show image container
+            document.getElementById('imageContainer').style.display = 'block'; 
             resetImageVisibility();
-            const imageInterval = 6000; // Change images every 6 seconds
+            const imageInterval = 6000; 
             imageChanger = setInterval(changeImage, imageInterval);
         }
 
