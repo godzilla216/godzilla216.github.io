@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Sandbox with Syntax Highlighting</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.0/codemirror.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #4CAF50;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 800px;
+            margin: auto;
+        }
+        .CodeMirror {
+            width: 100%;
+            height: auto;
+            border: 2px solid #4CAF50;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            font-size: 16px;
+        }
+        #sandbox {
+            width: 100%;
+            height: 300px;
+            border: 2px solid #4CAF50;
+            border-radius: 5px;
+            margin-top: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            background-color: white;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            font-size: 16px;
+            margin-top: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>HTML Sandbox</h1>
+    <textarea id="editor" placeholder="Write your HTML code here..."></textarea>
+    <button onclick="runCode()">Run Code</button>
+    <iframe id="sandbox" sandbox="allow-same-origin"></iframe>
+    <div class="footer">
+        <p>Created for experimentation and learning!</p>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.0/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.0/mode/xml/xml.min.js"></script>
+<script>
+    // Initialize CodeMirror
+    const editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
+        mode: "xml",
+        lineNumbers: true,
+        theme: "default",
+        viewportMargin: Infinity,
+        lineWrapping: true
+    });
+
+    function runCode() {
+        const htmlCode = editor.getValue();
+        const sandbox = document.getElementById('sandbox').contentWindow.document;
+
+        // Open the document for writing
+        sandbox.open();
+        // Write the HTML code inside the sandbox
+        sandbox.write(htmlCode);
+        // Close the document
+        sandbox.close();
+    }
+</script>
+
+</body>
+</html>
