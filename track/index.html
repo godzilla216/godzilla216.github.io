@@ -43,10 +43,13 @@
             transition: transform 0.1s;
         }
 
-        .start-button,
-        .speed-up-button,
-        .slow-down-button,
-        .buy-gear-button {
+        .school-logo {
+            width: 40px;
+            height: auto;
+            margin-right: 10px;
+        }
+
+        .button {
             display: block;
             width: 100%;
             max-width: 200px;
@@ -56,6 +59,8 @@
             text-align: center;
             cursor: pointer;
             border-radius: 5px;
+            text-decoration: none;
+            border: none;
         }
 
         .start-button {
@@ -90,7 +95,7 @@
         }
 
         .options-tab {
-            display: none; /* Hide by default */
+            display: none;
             position: fixed;
             right: 20px;
             bottom: 80px;
@@ -99,7 +104,7 @@
             border-radius: 5px;
             padding: 10px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-            z-index: 100; /* Make sure it appears above other content */
+            z-index: 100;
         }
 
         .options-tab button {
@@ -115,7 +120,7 @@
         }
 
         .options-tab button:hover {
-            background-color: #218838; /* Darker green on hover */
+            background-color: #218838;
         }
 
         .stamina-bar {
@@ -159,32 +164,110 @@
             background-color: red;
             z-index: 10;
         }
+
+        .school-selection {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .school-option {
+            display: flex;
+            align-items: center;
+            margin: 10px;
+            cursor: pointer;
+        }
+
+        .school-option img {
+            width: 50px;
+            height: auto;
+            margin-right: 10px;
+        }
     </style>
 </head>
 
 <body>
-    <div class="race-track">
-        <!-- Finish line -->
-        <div class="finish-line"></div>
-
-        <!-- 8 lanes for runners -->
-        <div class="lane highlight" id="lane1"><div class="runner" id="runner1"></div></div>
-        <div class="lane" id="lane2"><div class="runner" id="runner2"></div></div>
-        <div class="lane" id="lane3"><div class="runner" id="runner3"></div></div>
-        <div class="lane" id="lane4"><div class="runner" id="runner4"></div></div>
-        <div class="lane" id="lane5"><div class="runner" id="runner5"></div></div>
-        <div class="lane" id="lane6"><div class="runner" id="runner6"></div></div>
-        <div class="lane" id="lane7"><div class="runner" id="runner7"></div></div>
-        <div class="lane" id="lane8"><div class="runner" id="runner8"></div></div>
+    <div class="school-selection" id="schoolSelection">
+        <h1>Select Your High School</h1>
+        <div class="school-option" onclick="selectSchool('MHS Knights', 'https://thesoutherneronline.com/wp-content/uploads/2021/05/Screen-MHS-Knights-WHC-FC-900x881.jpg')">
+            <img src="https://thesoutherneronline.com/wp-content/uploads/2021/05/Screen-MHS-Knights-WHC-FC-900x881.jpg" alt="MHS Knights">
+            <span>MHS Knights</span>
+        </div>
+        <div class="school-option" onclick="selectSchool('FC Eagles', 'https://i.pinimg.com/originals/a8/10/c1/a810c1c8e51d312b322c275f6b453e3c.png')">
+            <img src="https://i.pinimg.com/originals/a8/10/c1/a810c1c8e51d312b322c275f6b453e3c.png" alt="FC Eagles">
+            <span>FC Eagles</span>
+        </div>
+        <div class="school-option" onclick="selectSchool('XYZ Panthers', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSl3vShva1cnkN-pS9e5gP-0IJbdNAFrgcIng&s')">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSl3vShva1cnkN-pS9e5gP-0IJbdNAFrgcIng&s" alt="XYZ Panthers">
+            <span>XYZ Panthers</span>
+        </div>
+        <div class="school-option" onclick="selectSchool('ABC Wildcats', 'https://3.files.edl.io/1828/21/11/30/174425-78b47b62-1925-47df-abf1-b7fce2cbe531.png')">
+            <img src="https://3.files.edl.io/1828/21/11/30/174425-78b47b62-1925-47df-abf1-b7fce2cbe531.png" alt="ABC Wildcats">
+            <span>ABC Wildcats</span>
+        </div>
+        <div class="school-option" onclick="selectSchool('Canyon Cougars', 'https://www.canyonhighschool.org/uploaded/SCHOOLS/390-CanyonHS/About/Logos/CanyonHS_tertiary.jpg')">
+            <img src="https://www.canyonhighschool.org/uploaded/SCHOOLS/390-CanyonHS/About/Logos/CanyonHS_tertiary.jpg" alt="Canyon Cougars">
+            <span>Canyon Cougars</span>
+        </div>
+        <div class="school-option" onclick="selectSchool('Riverbend Bears', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQzv1WCdeHwl-ZYLHcKegjV3_61boBDSucJMw&s')">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQzv1WCdeHwl-ZYLHcKegjV3_61boBDSucJMw&s" alt="Riverbend Bears">
+            <span>Riverbend Bears</span>
+        </div>
+        <div class="school-option" onclick="selectSchool('Johnston Knights', 'https://johnstoncsd.b-cdn.net/wp-content/uploads/2022/09/JohnstonMastermark.jpg')">
+            <img src="https://johnstoncsd.b-cdn.net/wp-content/uploads/2022/09/JohnstonMastermark.jpg" alt="Johnston Knights">
+            <span>Johnston Knights</span>
+        </div>
+        <div class="school-option" onclick="selectSchool('Sunset Hawks', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtnBgDY02pF0ROl8ChyxQHmA-rDfiUKcoUBQ&s')">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtnBgDY02pF0ROl8ChyxQHmA-rDfiUKcoUBQ&s" alt="Sunset Hawks">
+            <span>Sunset Hawks</span>
+        </div>
     </div>
 
-    <!-- Start, Speed Up, Slow Down, and Buy Gear buttons -->
-    <div class="start-button" onclick="startRace()">Start Race</div>
-    <div class="speed-up-button" onmousedown="increaseSpeed()" onmouseup="resetSpeed()">Speed Up</div>
-    <div class="slow-down-button" onmousedown="decreaseSpeed()" onmouseup="resetSpeed()">Slow Down</div>
-    <div class="buy-gear-button" onclick="buyGear()">Buy Gear ($2000)</div>
+    <div class="race-track" id="raceTrack" style="display: none;">
+        <div class="finish-line"></div>
 
-    <!-- Settings Wheel -->
+        <!-- Lanes for runners -->
+        <div class="lane" id="lane1">
+            <img src="" class="school-logo" id="schoolLogo1" alt="">
+            <div class="runner" id="runner1"></div>
+        </div>
+        <div class="lane" id="lane2">
+            <img src="" class="school-logo" id="schoolLogo2" alt="">
+            <div class="runner" id="runner2"></div>
+        </div>
+        <div class="lane" id="lane3">
+            <img src="" class="school-logo" id="schoolLogo3" alt="">
+            <div class="runner" id="runner3"></div>
+        </div>
+        <div class="lane" id="lane4">
+            <img src="" class="school-logo" id="schoolLogo4" alt="">
+            <div class="runner" id="runner4"></div>
+        </div>
+        <div class="lane" id="lane5">
+            <img src="" class="school-logo" id="schoolLogo5" alt="">
+            <div class="runner" id="runner5"></div>
+        </div>
+        <div class="lane" id="lane6">
+            <img src="" class="school-logo" id="schoolLogo6" alt="">
+            <div class="runner" id="runner6"></div>
+        </div>
+        <div class="lane" id="lane7">
+            <img src="" class="school-logo" id="schoolLogo7" alt="">
+            <div class="runner" id="runner7"></div>
+        </div>
+        <div class="lane" id="lane8">
+            <img src="" class="school-logo" id="schoolLogo8" alt="">
+            <div class="runner" id="runner8"></div>
+        </div>
+    </div>
+
+    <div class="start-button button" onclick="startRace()">Start Race</div>
+    <div class="speed-up-button button" onmousedown="increaseSpeed()" onmouseup="resetSpeed()">Speed Up</div>
+    <div class="slow-down-button button" onmousedown="decreaseSpeed()" onmouseup="resetSpeed()">Slow Down</div>
+    <div class="buy-gear-button button" onclick="buyGear()">Buy Gear ($2000)</div>
+
     <div class="settings-wheel" onclick="toggleOptions()">
         ⚙️
     </div>
@@ -212,9 +295,19 @@
     <div class="divisions" id="division">Division: High School</div>
 
     <script>
+        const availableSchools = [
+            { name: 'MHS Knights', logo: 'https://thesoutherneronline.com/wp-content/uploads/2021/05/Screen-MHS-Knights-WHC-FC-900x881.jpg' },
+            { name: 'FC Eagles', logo: 'https://i.pinimg.com/originals/a8/10/c1/a810c1c8e51d312b322c275f6b453e3c.png' },
+            { name: 'XYZ Panthers', logo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSl3vShva1cnkN-pS9e5gP-0IJbdNAFrgcIng&s' },
+            { name: 'ABC Wildcats', logo: 'https://3.files.edl.io/1828/21/11/30/174425-78b47b62-1925-47df-abf1-b7fce2cbe531.png' },
+            { name: 'Canyon Cougars', logo: 'https://www.canyonhighschool.org/uploaded/SCHOOLS/390-CanyonHS/About/Logos/CanyonHS_tertiary.jpg' },
+            { name: 'Riverbend Bears', logo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQzv1WCdeHwl-ZYLHcKegjV3_61boBDSucJMw&s' },
+            { name: 'Johnston Knights', logo: 'https://johnstoncsd.b-cdn.net/wp-content/uploads/2022/09/JohnstonMastermark.jpg' },
+            { name: 'Sunset Hawks', logo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtnBgDY02pF0ROl8ChyxQHmA-rDfiUKcoUBQ&s' }
+        ];
+        
         const runners = [];
         let interval, timerInterval;
-        const playerLane = 1;
         const totalDistance = 100;
         let playerStamina = 100;
         let playerSpeed = 1;
@@ -233,9 +326,33 @@
         let totalPlacing = 0;
         let bankBalance = 0;
         const gearCost = 2000;
+        let lastPlayerPosition = 1; // Store the last position of the player
+        let playerLane; // Declare variable for player lane
+        let selectedSchool = ''; // Store selected school name
+        let selectedSchoolLogo = ''; // Store selected school logo
 
         for (let i = 1; i <= 8; i++) {
             runners.push({ id: i, distance: 0, speed: Math.random() * 0.5 + 1, finished: false });
+        }
+
+        function selectSchool(schoolName, schoolLogo) {
+            selectedSchool = schoolName;
+            selectedSchoolLogo = schoolLogo;
+
+            // Hide school selection and show race track
+            document.getElementById('schoolSelection').style.display = 'none';
+            document.getElementById('raceTrack').style.display = 'block';
+
+            // Highlight player's lane immediately after selection
+            highlightPlayerLane();
+        }
+
+        function highlightPlayerLane() {
+            // Clear existing highlights
+            document.querySelectorAll('.lane').forEach(lane => lane.classList.remove('highlight'));
+
+            // Highlight the selected player's lane
+            document.getElementById(`lane${lastPlayerPosition}`).classList.add('highlight');
         }
 
         function startRace() {
@@ -246,6 +363,29 @@
                 runner.finished = false;
                 document.getElementById(`runner${runner.id}`).style.transform = `translateX(0px)`;
             });
+
+            // Set player lane based on last position
+            playerLane = lastPlayerPosition;
+            const playerRunner = runners.find(runner => runner.id === playerLane);
+            playerRunner.distance = 0;
+
+            // Highlight the player's lane
+            highlightPlayerLane();
+
+            // Set logos: Only player's lane shows their selected school logo; others are random
+            for (let i = 1; i <= 8; i++) {
+                if (i === playerLane) {
+                    document.getElementById(`schoolLogo${i}`).src = selectedSchoolLogo; // Player's selected logo
+                } else {
+                    // Select a random school logo that is not the player's
+                    let randomSchool;
+                    do {
+                        randomSchool = availableSchools[Math.floor(Math.random() * availableSchools.length)];
+                    } while (randomSchool.logo === selectedSchoolLogo); // Ensure not to select the player's logo
+                    document.getElementById(`schoolLogo${i}`).src = randomSchool.logo;
+                }
+            }
+
             playerStamina = 100;
             currentTime = 0.0;
             speedMultiplier = 1;
@@ -292,15 +432,15 @@
         }
 
         function increaseSpeed() {
-            speedMultiplier = 1.5; // Increase speed by 50%
+            speedMultiplier = 1.5;
         }
 
         function decreaseSpeed() {
-            speedMultiplier = 0.5; // Decrease speed by 50%
+            speedMultiplier = 0.5;
         }
 
         function resetSpeed() {
-            speedMultiplier = 1; // Reset speed to normal
+            speedMultiplier = 1;
         }
 
         function updateStaminaBar() {
@@ -322,6 +462,9 @@
             const playerPosition = runners.findIndex(runner => runner.id === playerLane) + 1;
             totalRaces++;
             totalPlacing += playerPosition;
+
+            lastPlayerPosition = playerPosition;
+
             if (playerPosition === 1) {
                 bankBalance += 1000;
             } else if (playerPosition === 2) {
@@ -340,7 +483,7 @@
             const avgPosition = totalPlacing / totalRaces;
             currentStars = Math.min(maxStars, Math.max(1, Math.ceil((5 - avgPosition / 2))));
             document.getElementById('stars').textContent = '⭐'.repeat(currentStars);
-            playerSpeed = 1 + (currentStars - 2) * 0.2; // Adjust player speed based on stars
+            playerSpeed = 1 + (currentStars - 2) * 0.2;
         }
 
         function checkDivision() {
@@ -412,7 +555,7 @@
                     bankBalance -= gearCost;
                     playerSpeed += 1;
                     updateBankBalance();
-                    document.getElementById('stars').textContent = '⭐'.repeat(currentStars); // Update stars display
+                    document.getElementById('stars').textContent = '⭐'.repeat(currentStars);
                 } else {
                     alert("Not enough money to buy gear!");
                 }
@@ -430,7 +573,10 @@
                 currentStars,
                 currentDivision,
                 currentSeason,
-                seasonsRemaining
+                seasonsRemaining,
+                lastPlayerPosition,
+                selectedSchool,
+                selectedSchoolLogo // Save the selected school and logo
             };
             localStorage.setItem('racingGame', JSON.stringify(gameState));
             alert('Game saved successfully!');
@@ -448,6 +594,31 @@
                 currentDivision = gameState.currentDivision;
                 currentSeason = gameState.currentSeason;
                 seasonsRemaining = gameState.seasonsRemaining;
+                lastPlayerPosition = gameState.lastPlayerPosition;
+                selectedSchool = gameState.selectedSchool; // Load the selected school
+                selectedSchoolLogo = gameState.selectedSchoolLogo; // Load the logo
+
+                document.getElementById('schoolSelection').style.display = 'none';
+                document.getElementById('raceTrack').style.display = 'block';
+
+                // Reset all lanes
+                for (let i = 1; i <= 8; i++) {
+                    document.getElementById(`schoolLogo${i}`).src = ''; // Clear logos initially
+                }
+
+                // Set player's selected logo
+                document.getElementById(`schoolLogo${lastPlayerPosition}`).src = selectedSchoolLogo;
+
+                // Randomly assign logos to other lanes
+                for (let i = 1; i <= 8; i++) {
+                    if (i !== lastPlayerPosition) {
+                        let randomSchool;
+                        do {
+                            randomSchool = availableSchools[Math.floor(Math.random() * availableSchools.length)];
+                        } while (randomSchool.logo === selectedSchoolLogo); // Ensure not to select the player's logo
+                        document.getElementById(`schoolLogo${i}`).src = randomSchool.logo; // Random school logo
+                    }
+                }
 
                 // Update UI elements based on loaded data
                 updateBankBalance();
@@ -474,6 +645,12 @@
             const value = number % 100;
             return number + (suffixes[(value - 20) % 10] || suffixes[value] || suffixes[0]);
         }
+
+        // Show the selection screen on page load
+        window.onload = function () {
+            document.getElementById('schoolSelection').style.display = 'flex';
+            document.getElementById('raceTrack').style.display = 'none';
+        };
     </script>
 </body>
 
