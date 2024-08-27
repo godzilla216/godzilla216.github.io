@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,12 +12,14 @@
             margin: 0;
             padding: 20px;
         }
+
         .race-track {
             width: 100%;
             max-width: 800px;
             margin: 0 auto;
             position: relative;
         }
+
         .lane {
             display: flex;
             justify-content: flex-start;
@@ -26,9 +29,11 @@
             background-color: #eee;
             position: relative;
         }
+
         .lane.highlight {
             background-color: yellow;
         }
+
         .runner {
             width: 20px;
             height: 20px;
@@ -37,7 +42,11 @@
             position: absolute;
             transition: transform 0.1s;
         }
-        .start-button, .speed-up-button, .slow-down-button, .buy-gear-button {
+
+        .start-button,
+        .speed-up-button,
+        .slow-down-button,
+        .buy-gear-button {
             display: block;
             width: 100%;
             max-width: 200px;
@@ -48,40 +57,99 @@
             cursor: pointer;
             border-radius: 5px;
         }
+
         .start-button {
             background-color: #28a745;
         }
+
         .speed-up-button {
             background-color: #28a745;
         }
+
         .slow-down-button {
             background-color: #007bff;
         }
+
         .buy-gear-button {
             background-color: #dc3545;
         }
+
+        .settings-wheel {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            width: 50px;
+            height: 50px;
+            background-color: #ffc107;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .options-tab {
+            display: none; /* Hide by default */
+            position: fixed;
+            right: 20px;
+            bottom: 80px;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            z-index: 100; /* Make sure it appears above other content */
+        }
+
+        .options-tab button {
+            display: block;
+            margin: 5px auto;
+            padding: 10px;
+            width: 100%;
+            border: none;
+            background-color: #28a745;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .options-tab button:hover {
+            background-color: #218838; /* Darker green on hover */
+        }
+
         .stamina-bar {
             height: 10px;
             background-color: #28a745;
             width: 100%;
             margin-top: 10px;
         }
+
         .player-interface {
             margin-top: 20px;
             text-align: center;
         }
+
         .stars {
             margin-top: 10px;
             font-size: 24px;
         }
-        .schedule, .divisions {
+
+        .schedule,
+        .divisions {
             text-align: center;
             margin: 20px 0;
         }
-        .timer, .position, .average-placing, .bank-balance, .seasons-remaining {
+
+        .timer,
+        .position,
+        .average-placing,
+        .bank-balance,
+        .seasons-remaining {
             font-size: 20px;
             margin-top: 10px;
         }
+
         .finish-line {
             position: absolute;
             top: 0;
@@ -93,6 +161,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="race-track">
         <!-- Finish line -->
@@ -114,6 +183,17 @@
     <div class="speed-up-button" onmousedown="increaseSpeed()" onmouseup="resetSpeed()">Speed Up</div>
     <div class="slow-down-button" onmousedown="decreaseSpeed()" onmouseup="resetSpeed()">Slow Down</div>
     <div class="buy-gear-button" onclick="buyGear()">Buy Gear ($2000)</div>
+
+    <!-- Settings Wheel -->
+    <div class="settings-wheel" onclick="toggleOptions()">
+        ⚙️
+    </div>
+
+    <!-- Options Tab -->
+    <div class="options-tab" id="optionsTab">
+        <button onclick="saveGame()">Save Game</button>
+        <button onclick="loadGame()">Load Game</button>
+    </div>
 
     <!-- Player Interface -->
     <div class="player-interface">
@@ -152,7 +232,6 @@
         let currentStars = 2;
         let totalPlacing = 0;
         let bankBalance = 0;
-        let runnersSpeeds = [];
         const gearCost = 2000;
 
         for (let i = 1; i <= 8; i++) {
@@ -342,6 +421,54 @@
             }
         }
 
+        function saveGame() {
+            const gameState = {
+                totalRaces,
+                totalPlacing,
+                playerStamina,
+                bankBalance,
+                currentStars,
+                currentDivision,
+                currentSeason,
+                seasonsRemaining
+            };
+            localStorage.setItem('racingGame', JSON.stringify(gameState));
+            alert('Game saved successfully!');
+        }
+
+        function loadGame() {
+            const savedGame = localStorage.getItem('racingGame');
+            if (savedGame) {
+                const gameState = JSON.parse(savedGame);
+                totalRaces = gameState.totalRaces;
+                totalPlacing = gameState.totalPlacing;
+                playerStamina = gameState.playerStamina;
+                bankBalance = gameState.bankBalance;
+                currentStars = gameState.currentStars;
+                currentDivision = gameState.currentDivision;
+                currentSeason = gameState.currentSeason;
+                seasonsRemaining = gameState.seasonsRemaining;
+
+                // Update UI elements based on loaded data
+                updateBankBalance();
+                updateAveragePlacing();
+                document.getElementById('stamina-bar').style.width = `${playerStamina}%`;
+                document.getElementById('stars').textContent = '⭐'.repeat(currentStars);
+                document.getElementById('division').textContent = `Division: ${currentDivision}`;
+                document.getElementById('seasons-remaining').textContent = `Seasons Remaining: ${seasonsRemaining}`;
+                document.getElementById('schedule').textContent = `Schedule: Race ${totalRaces % racesPerDivision + 1}`;
+
+                alert('Game loaded successfully!');
+            } else {
+                alert('No saved game found.');
+            }
+        }
+
+        function toggleOptions() {
+            const optionsTab = document.getElementById('optionsTab');
+            optionsTab.style.display = optionsTab.style.display === 'none' || optionsTab.style.display === '' ? 'block' : 'none';
+        }
+
         function ordinal(number) {
             const suffixes = ["th", "st", "nd", "rd"];
             const value = number % 100;
@@ -349,4 +476,5 @@
         }
     </script>
 </body>
+
 </html>
