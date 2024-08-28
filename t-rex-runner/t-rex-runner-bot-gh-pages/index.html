@@ -104,6 +104,31 @@
             }
         });
     </script>
+         <script>
+        // Function to simulate key press
+        function simulateKeyPress(keyCode) {
+            var event = new KeyboardEvent('keydown', {
+                bubbles: true,
+                cancelable: true,
+                keyCode: keyCode
+            });
+            document.dispatchEvent(event);
+        }
+
+        // Overriding the gameOver method in the Runner class
+        var originalGameOver = Runner.prototype.gameOver;
+        Runner.prototype.gameOver = function() {
+            originalGameOver.apply(this, arguments); // Call the original gameOver method
+
+            // Simulate pressing the "Enter" key to restart the game
+            setTimeout(function() {
+                simulateKeyPress(13); // 13 is the keyCode for Enter
+            }, 500); // 500ms delay before restarting, adjust if necessary
+        };
+
+        // Start the game
+        new Runner('.interstitial-wrapper');
+    </script>
 </body>
 </html>
     </body>
