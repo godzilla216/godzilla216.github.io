@@ -92,7 +92,20 @@
           <input type="checkbox" id="botStatus" />
           <span>Activate Bot?</span>
         </div>
-        <script src="scripts/runner.js"></script>
-        <script src="scripts/bot.js"></script>
+    <!-- Other parts of your HTML -->
+
+    <script src="scripts/runner.js"></script>
+    <script src="scripts/bot.js"></script>
+    <script>
+        document.getElementById('botStatus').addEventListener('change', function() {
+            if (this.checked) {
+                this.style.display = 'none';
+                document.querySelector('#options span').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
+
     </body>
 </html>
