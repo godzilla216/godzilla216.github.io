@@ -209,30 +209,31 @@
         FOCUS: 'focus',
         LOAD: 'load'
     };
-    Runner.prototype = {
-        /**
-         * Setting individual settings for debugging.
-         * @param {string} setting
-         * @param {*} value
-         */
-        updateConfigSetting: function(setting, value) {
-            if (setting in this.config && value != undefined) {
-                this.config[setting] = value;
-                switch (setting) {
-                    case 'GRAVITY':
-                    case 'MIN_JUMP_HEIGHT':
-                    case 'SPEED_DROP_COEFFICIENT':
-                        this.tRex.config[setting] = value;
-                        break;
-                    case 'INITIAL_JUMP_VELOCITY':
-                        this.tRex.setJumpVelocity(value);
-                        break;
-                    case 'SPEED':
-                        this.setSpeed(value);
-                        break;
-                }
-            }
-        },
+    Runner.prototype.gameOver = function() {
+    this.playSound(this.soundFx.HIT);
+    vibrate(200);
+    this.stop();
+    this.crashed = true;
+    this.distanceMeter.acheivement = false;
+
+    this.tRex.update(100, Trex.status.CRASHED);
+    // Game over panel.
+    if (!this.gameOverPanel) {
+        this.gameOverPanel = new GameOverPanel(this.canvas,
+            this.images.TEXT_SPRITE, this.images.RESTART,
+            this.dimensions);
+    } else {
+        this.gameOverPanel.draw();
+    }
+    // Update the high score.
+    if (this.distanceRan > this.highestScore) {
+        this.highestScore = Math.ceil(this.distanceRan);
+        this.distanceMeter.setHighScore(this.highestScore);
+    }
+    // Reset the time clock.
+    this.time = performance.now();
+};
+
 
         /**
          * Load and cache the image assets from the page.
