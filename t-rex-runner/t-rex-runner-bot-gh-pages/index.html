@@ -104,8 +104,33 @@
             }
         });
     </script>
+     <script>
+    // Assuming 'onGameOver' is called when the player loses
+    function onGameOver() {
+        setTimeout(function() {
+            startGame();
+        }, 1000); // Wait 1 second before restarting the game
+    }
+
+    function startGame() {
+        // Code to start the game. This could be a function call
+        // or a simulated click on the restart button, depending on how your game works.
+        document.querySelector('.restart-button').click();
+    }
+
+    // Add your existing event listeners here, like the one to hide the checkbox
+    document.getElementById('botStatus').addEventListener('change', function() {
+        if (this.checked) {
+            this.style.display = 'none';
+            document.querySelector('#options span').style.display = 'none';
+        }
+    });
+
+    // Add the onGameOver event listener (assuming the game triggers an event when you lose)
+    // You may need to customize this based on how your game detects "game over"
+    document.addEventListener('gameOver', onGameOver);
+</script>
 </body>
 </html>
-
     </body>
 </html>
