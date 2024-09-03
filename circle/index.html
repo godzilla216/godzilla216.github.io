@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <p1>Circles dont exist.</p1>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slow Growing Triangles</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #222;
+        }
+        canvas {
+            background-color: white;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="circleCanvas" width="500" height="500"></canvas>
+
+    <script>
+        const canvas = document.getElementById('circleCanvas');
+        const ctx = canvas.getContext('2d');
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const radius = 200;
+        let numTriangles = 0;
+        const maxTriangles = 60;
+        const speed = 0.05; // Slower increase rate
+
+        function drawTriangle(angle1, angle2) {
+            const x1 = centerX + radius * Math.cos(angle1);
+            const y1 = centerY + radius * Math.sin(angle1);
+            const x2 = centerX + radius * Math.cos(angle2);
+            const y2 = centerY + radius * Math.sin(angle2);
+
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.closePath();
+            ctx.strokeStyle = 'black';
+            ctx.stroke();
+            ctx.fillStyle = 'lightblue';
+            ctx.fill();
+        }
+
+        function drawCircleWithTriangles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+
+            for (let i = 0; i < numTriangles; i++) {
+                const angle1 = (i * 2 * Math.PI) / numTriangles;
+                const angle2 = ((i + 1) * 2 * Math.PI) / numTriangles;
+                drawTriangle(angle1, angle2);
+            }
+        }
+
+        function update() {
+            if (numTriangles < maxTriangles) {
+                numTriangles += speed;
+                if (numTriangles > maxTriangles) {
+                    numTriangles = maxTriangles;
+                }
+                drawCircleWithTriangles();
+                setTimeout(() => requestAnimationFrame(update), 50); // Slow down the frame rate
+            }
+        }
+
+        update(); // Start the animation
+    </script>
+</body>
+</html>
