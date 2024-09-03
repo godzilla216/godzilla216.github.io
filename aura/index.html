@@ -16,7 +16,6 @@
         h1 {
             font-size: 3rem;
             margin-bottom: 20px;
-            position: relative;
             display: inline-block;
             text-shadow: 0 0 10px rgba(255,255,255,0.8);
         }
@@ -45,7 +44,7 @@
             gap: 10px;
             margin-bottom: 20px;
         }
-        #biometrics-input input[type="number"] {
+        #biometrics-input input[type="number"], #bet-input {
             font-size: 1rem;
             padding: 10px;
             width: 100px;
@@ -66,15 +65,6 @@
         }
         #start-button:hover, #bet-button:hover {
             background-color: #218838;
-        }
-        #bet-input {
-            font-size: 1rem;
-            padding: 10px;
-            width: 100px;
-            border-radius: 5px;
-            border: 1px solid #fff;
-            background-color: #555;
-            color: #fff;
         }
         #bet-button:disabled {
             background-color: #6c757d;
@@ -181,55 +171,24 @@
         }
 
         function applyAction(value, action) {
-            let result = value;
             switch (action) {
-                case "/2":
-                    result = Math.round(result / 2);
-                    break;
-                case "x2":
-                    result = Math.round(result * 2);
-                    break;
-                case "x10":
-                    result = Math.round(result * 10);
-                    break;
-                case "+1000":
-                    result = Math.round(result + 1000);
-                    break;
-                case "-100000":
-                    result = Math.round(result - 100000);
-                    break;
-                case "/3":
-                    result = Math.round(result / 3);
-                    break;
-                case "x3":
-                    result = Math.round(result * 3);
-                    break;
-                case "x5":
-                    result = Math.round(result * 5);
-                    break;
-                case "+500":
-                    result = Math.round(result + 500);
-                    break;
-                case "-50000":
-                    result = Math.round(result - 50000);
-                    break;
-                case "+250":
-                    result = Math.round(result + 250);
-                    break;
-                case "-25000":
-                    result = Math.round(result - 25000);
-                    break;
-                case "x1.5":
-                    result = Math.round(result * 1.5);
-                    break;
-                case "-1":
-                    result = Math.round(result - 1);
-                    break;
-                case "+100":
-                    result = Math.round(result + 100);
-                    break;
+                case "/2": return Math.round(value / 2);
+                case "x2": return Math.round(value * 2);
+                case "x10": return Math.round(value * 10);
+                case "+1000": return Math.round(value + 1000);
+                case "-100000": return Math.round(value - 100000);
+                case "/3": return Math.round(value / 3);
+                case "x3": return Math.round(value * 3);
+                case "x5": return Math.round(value * 5);
+                case "+500": return Math.round(value + 500);
+                case "-50000": return Math.round(value - 50000);
+                case "+250": return Math.round(value + 250);
+                case "-25000": return Math.round(value - 25000);
+                case "x1.5": return Math.round(value * 1.5);
+                case "-1": return Math.round(value - 1);
+                case "+100": return Math.round(value + 100);
+                default: return value;
             }
-            return result;
         }
 
         function calculateAura(bmi) {
@@ -238,8 +197,9 @@
             if (bmi < 18.5) return 1500;
             if (bmi < 25) return 2000;
             if (bmi < 30) return 1000;
-            if (bmi < 35) return -344457755677;
-            if (bmi < 40) return fat;
+            if (bmi < 35) return 0; // Instead of undefined, provide a fallback value
+            if (bmi < 40) return -1000; // Added logical value for this case
+            return -5000; // Fallback for extremely high BMI
         }
 
         function updateGlowEffect(aura) {
@@ -258,7 +218,7 @@
                 const result = slotElement.innerText;
                 const finalValue = applyAction(value, result);
                 callback(finalValue);
-            }, 1500); // Adjust this duration as needed
+            }, 1500); // Duration for spinning the slot
         }
 
         document.getElementById('start-button').addEventListener('click', function() {
@@ -271,15 +231,13 @@
                 return;
             }
 
-            // Convert height to meters for BMI calculation
+            // Calculate BMI
             let heightInMeters = ((feet * 30.48) + (inches * 2.54)) / 100;
             let bmi = weight / (heightInMeters * heightInMeters);
 
             // Calculate aura based on BMI
             aura = calculateAura(bmi);
-
             updateAuraDisplay();
-            updateGlowEffect(aura);
 
             document.getElementById('bet-input').disabled = false;
             document.getElementById('bet-button').disabled = false;
@@ -315,9 +273,6 @@
                             document.getElementById('bet-button').disabled = true;
                             document.getElementById('bet-input').disabled = true;
                         }
-
-                        // Update glow effect based on updated aura
-                        updateGlowEffect(aura);
                     });
                 });
             });
