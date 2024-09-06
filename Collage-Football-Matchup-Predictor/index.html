@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="shortcut icon" type="image/png" href="Assets/Nebraska.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Football Matchup Predictor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            animation: fadeIn 2s ease-in-out;
+        }
+        .team {
+            display: inline-block;
+            margin: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        .team:hover {
+            transform: scale(1.05);
+        }
+        .team img {
+            width: 150px;
+            height: auto;
+            transition: opacity 0.3s ease;
+        }
+        .team img:hover {
+            opacity: 0.8;
+        }
+        .team p {
+            margin: 10px 0 0;
+            font-weight: bold;
+        }
+        .team .rating {
+            font-size: 1.2em;
+            color: #555;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .ovr-circle {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #333;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+        }
+        .ovr-bar-container {
+            width: 100%;
+            height: 10px;
+            background-color: #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+        .ovr-bar {
+            height: 100%;
+            background-color: #4caf50;
+            transition: width 0.3s ease, background-color 0.3s ease;
+        }
+        .score-table {
+            width: 100%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background-color: #fff;
+            animation: fadeIn 2s ease-in-out;
+        }
+        .score-table th, .score-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+            transition: background-color 0.3s ease;
+        }
+        .score-table th {
+            background-color: #f4f4f4;
+            font-weight: bold;
+        }
+        .score-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .score-table tr:hover {
+            background-color: #e0e0e0;
+        }
+        form {
+            margin-top: 20px;
+        }
+        select, button {
+            font-size: 1em;
+            padding: 10px;
+            margin: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        select:hover, button:hover {
+            background-color: #ddd;
+            transform: scale(1.05);
+        }
+        .prediction-result, .final-scores {
+            margin: 20px 0;
+            font-size: 1.2em;
+            animation: slideIn 1s ease-in-out;
+        }
+        .final-scores {
+            font-weight: bold;
+        }
+        table {
+            display: none;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 140%;
+            background-image: url('Assets/Background.avif');
+            background-size: cover;
+            background-position: center;
+            filter: blur(15px);
+            z-index: -1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Football Matchup Predictor</h1>
+        <div id="teamsContainer"></div>
+
+        <h2>Predict the Winner</h2>
+        <form id="predictionForm">
+            <div class="team">
+                <label for="team1">Team 1:</label>
+                <select id="team1" onchange="updateSelectedTeam('team1')">
+                    <option value="">Select Team</option>
+                </select>
+            </div>
+            <p>@</p>
+            <div class="team">
+                <label for="team2">Team 2:</label>
+                <select id="team2" onchange="updateSelectedTeam('team2')">
+                    <option value="">Select Team</option>
+                </select>
+            </div>
+            <button type="button" onclick="predictWinner()">Predict</button>
+        </form>
+
+        <div class="prediction-result" id="predictionResult"></div>
+        <div class="final-scores" id="finalScores"></div>
+        <table class="score-table" id="quarterScores">
+            <thead>
+                <tr>
+                    <th>Quarter</th>
+                    <th id="team1Name">Team 1</th>
+                    <th id="team2Name">Team 2</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1st Quarter</td>
+                    <td id="team1Q1">0</td>
+                    <td id="team2Q1">0</td>
+                </tr>
+                <tr>
+                    <td>2nd Quarter</td>
+                    <td id="team1Q2">0</td>
+                    <td id="team2Q2">0</td>
+                </tr>
+                <tr>
+                    <td>3rd Quarter</td>
+                    <td id="team1Q3">0</td>
+                    <td id="team2Q3">0</td>
+                </tr>
+                <tr>
+                    <td>4th Quarter</td>
+                    <td id="team1Q4">0</td>
+                    <td id="team2Q4">0</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        let teams = [];
+        let ratings = {};
+        let selectedTeam1 = '';
+        let selectedTeam2 = '';
+
+        async function loadTeams() {
+            try {
+                const response = await fetch('teams.json');
+                teams = await response.json();
+
+                const teamsContainer = document.getElementById('teamsContainer');
+                const team1Select = document.getElementById('team1');
+                const team2Select = document.getElementById('team2');
+
+                teams.forEach(team => {
+                    // Populate the teamsContainer with team details
+                    const teamDiv = document.createElement('div');
+                    teamDiv.classList.add('team');
+                    teamDiv.setAttribute('onclick', `selectTeam('${team.id}')`);
+
+                    const logo = document.createElement('img');
+                    logo.src = team.logo;
+                    logo.alt = team.name;
+
+                    const name = document.createElement('p');
+                    name.textContent = team.rank ? `${team.name} (${team.rank})` : team.name;
+
+                    const ratingDiv = document.createElement('div');
+                    ratingDiv.classList.add('rating');
+
+                    const ovrCircle = document.createElement('span');
+                    ovrCircle.classList.add('ovr-circle');
+                    ovrCircle.textContent = team.rating;
+
+                    const ovrBarContainer = document.createElement('div');
+                    ovrBarContainer.classList.add('ovr-bar-container');
+
+                    const ovrBar = document.createElement('div');
+                    ovrBar.classList.add('ovr-bar');
+                    ovrBar.style.width = `${team.rating}%`;
+                    ovrBar.style.backgroundColor = team.rating >= 80 ? '#4caf50' : team.rating >= 60 ? 'yellow' : 'red';
+
+                    ovrBarContainer.appendChild(ovrBar);
+                    ratingDiv.appendChild(ovrCircle);
+                    ratingDiv.appendChild(ovrBarContainer);
+
+                    teamDiv.appendChild(logo);
+                    teamDiv.appendChild(name);
+                    teamDiv.appendChild(ratingDiv);
+                    teamsContainer.appendChild(teamDiv);
+
+                    // Populate the team selection dropdowns
+                    const option = document.createElement('option');
+                    option.value = team.id;
+                    option.textContent = team.name;
+                    team1Select.appendChild(option.cloneNode(true));
+                    team2Select.appendChild(option);
+
+                    // Save team ratings
+                    ratings[team.id] = team.rating;
+                });
+            } catch (error) {
+                console.error('Error loading teams:', error);
+            }
+        }
+
+        function selectTeam(teamId) {
+            if (!selectedTeam1) {
+                selectedTeam1 = teamId;
+                document.getElementById('team1').value = teamId;
+                document.getElementById('team1').dispatchEvent(new Event('change'));
+            } else if (!selectedTeam2) {
+                selectedTeam2 = teamId;
+                document.getElementById('team2').value = teamId;
+                document.getElementById('team2').dispatchEvent(new Event('change'));
+            }
+        }
+
+        function updateSelectedTeam(id) {
+            const value = document.getElementById(id).value;
+            if (id === 'team1') {
+                selectedTeam1 = value;
+            } else if (id === 'team2') {
+                selectedTeam2 = value;
+            }
+        }
+
+        function getScore(rating) {
+            const baseScore = Math.floor(rating * 0.4);
+            return baseScore + Math.floor(Math.random() * 10);
+        }
+
+        function predictWinner() {
+            const team1 = document.getElementById('team1').value;
+            const team2 = document.getElementById('team2').value;
+
+            if (!team1 || !team2) {
+                alert('Please select both teams!');
+                return;
+            }
+
+            const rating1 = ratings[team1];
+            const rating2 = ratings[team2];
+
+            const score1 = getScore(rating1);
+            const score2 = getScore(rating2);
+
+            let result = '';
+            if (score1 > score2) {
+                result = `Team 1 (${team1.charAt(0).toUpperCase() + team1.slice(1)}) is predicted to win!`;
+            } else if (score1 < score2) {
+                result = `Team 2 (${team2.charAt(0).toUpperCase() + team2.slice(1)}) is predicted to win!`;
+            } else {
+                result = 'It\'s a tie!';
+            }
+
+            const scores = `Final Score: ${team1.charAt(0).toUpperCase() + team1.slice(1)} ${score1} - ${score2} ${team2.charAt(0).toUpperCase() + team2.slice(1)}`;
+
+            document.getElementById('predictionResult').textContent = result;
+            document.getElementById('finalScores').textContent = scores;
+
+            // Display quarter scores
+            displayQuarterScores(team1, team2, score1, score2);
+        }
+
+        function displayQuarterScores(team1, team2, score1, score2) {
+            const team1Name = team1.charAt(0).toUpperCase() + team1.slice(1);
+            const team2Name = team2.charAt(0).toUpperCase() + team2.slice(1);
+
+            const quarterScores = document.getElementById('quarterScores');
+            document.getElementById('team1Name').textContent = team1Name;
+            document.getElementById('team2Name').textContent = team2Name;
+
+            const scores = {
+                [team1]: [Math.floor(score1 / 4), Math.floor(score1 / 4), Math.floor(score1 / 4), score1 - Math.floor(score1 / 4) * 3],
+                [team2]: [Math.floor(score2 / 4), Math.floor(score2 / 4), Math.floor(score2 / 4), score2 - Math.floor(score2 / 4) * 3]
+            };
+
+            document.getElementById('team1Q1').textContent = scores[team1][0];
+            document.getElementById('team1Q2').textContent = scores[team1][1];
+            document.getElementById('team1Q3').textContent = scores[team1][2];
+            document.getElementById('team1Q4').textContent = scores[team1][3];
+
+            document.getElementById('team2Q1').textContent = scores[team2][0];
+            document.getElementById('team2Q2').textContent = scores[team2][1];
+            document.getElementById('team2Q3').textContent = scores[team2][2];
+            document.getElementById('team2Q4').textContent = scores[team2][3];
+
+            quarterScores.style.display = 'table';
+        }
+
+        window.onload = loadTeams;
+    </script>
+</body>
+</html>

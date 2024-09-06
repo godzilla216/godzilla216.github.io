@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teams Creator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+            margin-top: 20px;
+        }
+        input, button {
+            padding: 10px;
+            font-size: 1em;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        button {
+            background-color: #4caf50;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .teams-list {
+            margin-top: 20px;
+        }
+        .team {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #fff;
+            padding: 10px;
+            border: 1px solid #ddd;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+        .team p {
+            margin: 0;
+        }
+        .delete-btn, .edit-btn {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        .edit-btn {
+            background-color: blue;
+            margin-right: 10px;
+        }
+        .delete-btn:hover, .edit-btn:hover {
+            background-color: darkred;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Teams Creator</h1>
+
+        <form id="teamForm">
+            <input type="hidden" id="editIndex">
+            <input type="text" id="teamName" placeholder="Team Name" required>
+            <input type="text" id="teamLogo" placeholder="Logo URL" required>
+            <input type="number" id="teamRank" placeholder="Rank (Optional)" min="1">
+            <input type="number" id="teamRating" placeholder="Rating (1-100)" min="1" max="100" required>
+            <button type="button" onclick="saveTeam()">Save Team</button>
+        </form>
+
+        <div class="teams-list" id="teamsList"></div>
+
+        <button type="button" onclick="generateJSON()">Download Updated JSON</button>
+        <button type="button" onclick="copyJSONToClipboard()">Copy JSON to Clipboard</button>
+    </div>
+
+    <script>
+        let teams = [];
+        let editMode = false;
+
+        // Load teams from the teams.json file when the page loads
+        async function loadTeamsFromJSON() {
+            try {
+                const response = await fetch('teams.json');
+                teams = await response.json();
+                displayTeams();
+            } catch (error) {
+                console.error('Error loading teams.json:', error);
+                document.getElementById('teamsList').textContent = 'Error loading teams.';
+            }
+        }
+
+        // Add or edit a team to the list
+        function saveTeam() {
+            const teamName = document.getElementById('teamName').value;
+            const teamLogo = document.getElementById('teamLogo').value;
+            const teamRank = document.getElementById('teamRank').value;
+            const teamRating = document.getElementById('teamRating').value;
+            const editIndex = document.getElementById('editIndex').value;
+
+            if (!teamName || !teamLogo || !teamRating) {
+                alert('Please fill in the required fields.');
+                return;
+            }
+
+            const newTeam = {
+                id: teamName.toLowerCase().replace(/\s+/g, ''),
+                name: teamName,
+                rank: teamRank ? parseInt(teamRank) : null,
+                rating: parseInt(teamRating),
+                logo: teamLogo
+            };
+
+            if (editMode && editIndex !== '') {
+                // If editing, update the existing team at the edit index
+                teams[editIndex] = newTeam;
+                editMode = false;
+            } else {
+                // If adding a new team, push it to the array
+                teams.push(newTeam);
+            }
+
+            displayTeams();
+            clearForm();
+        }
+
+        // Display teams in the list
+        function displayTeams() {
+            const teamsList = document.getElementById('teamsList');
+            teamsList.innerHTML = '';
+
+            teams.forEach((team, index) => {
+                const teamDiv = document.createElement('div');
+                teamDiv.classList.add('team');
+                
+                const teamInfo = document.createElement('p');
+                teamInfo.textContent = `${team.name} (Rating: ${team.rating}, Rank: ${team.rank || 'N/A'})`;
+                
+                const editBtn = document.createElement('button');
+                editBtn.textContent = 'Edit';
+                editBtn.classList.add('edit-btn');
+                editBtn.onclick = () => editTeam(index);
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = 'Delete';
+                deleteBtn.classList.add('delete-btn');
+                deleteBtn.onclick = () => deleteTeam(index);
+
+                teamDiv.appendChild(teamInfo);
+                teamDiv.appendChild(editBtn);
+                teamDiv.appendChild(deleteBtn);
+                teamsList.appendChild(teamDiv);
+            });
+        }
+
+        // Clear form fields
+        function clearForm() {
+            document.getElementById('teamName').value = '';
+            document.getElementById('teamLogo').value = '';
+            document.getElementById('teamRank').value = '';
+            document.getElementById('teamRating').value = '';
+            document.getElementById('editIndex').value = '';
+        }
+
+        // Delete a team from the list
+        function deleteTeam(index) {
+            teams.splice(index, 1);
+            displayTeams();
+        }
+
+        // Edit an existing team
+        function editTeam(index) {
+            const team = teams[index];
+            document.getElementById('teamName').value = team.name;
+            document.getElementById('teamLogo').value = team.logo;
+            document.getElementById('teamRank').value = team.rank || '';
+            document.getElementById('teamRating').value = team.rating;
+            document.getElementById('editIndex').value = index;
+            editMode = true;
+        }
+
+        // Generate and download the updated JSON file
+        function generateJSON() {
+            if (teams.length === 0) {
+                alert('No teams to generate.');
+                return;
+            }
+
+            const dataStr = JSON.stringify(teams, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'updated-teams.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Copy JSON to clipboard
+        function copyJSONToClipboard() {
+            if (teams.length === 0) {
+                alert('No teams to copy.');
+                return;
+            }
+
+            const dataStr = JSON.stringify(teams, null, 2);
+            navigator.clipboard.writeText(dataStr)
+                .then(() => alert('JSON copied to clipboard!'))
+                .catch(err => alert('Failed to copy JSON: ', err));
+        }
+
+        // Load teams from the JSON file when the page loads
+        window.onload = loadTeamsFromJSON;
+    </script>
+</body>
+</html>
