@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cookie Clicker Style Idle Game</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            text-align: center;
+            background: url('https://static.wikia.nocookie.net/cookieclicker/images/5/5a/PerfectCookie.png/revision/latest?cb=20130827014912') no-repeat center center fixed;
+            background-size: cover;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+        }
+        #container {
+            margin: 50px auto;
+            width: 90%;
+            max-width: 1200px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 15px;
+        }
+        #points {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+        .button {
+            background: #ffb6c1;
+            border: none;
+            color: #000;
+            padding: 15px 30px;
+            font-size: 1.5em;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        .button:hover {
+            background: #ff8c8c;
+        }
+        .section {
+            margin-top: 20px;
+        }
+        #achievements {
+            margin-top: 30px;
+        }
+        .achievement {
+            font-size: 1.5em;
+            color: #ffeb3b;
+        }
+        .worker-info {
+            margin-top: 20px;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>Cookie Clicker Style Idle Game</h1>
+        <div id="points">0</div>
+        <button id="generatePoints" class="button">Click Me!</button>
+        <div class="section">
+            <button id="upgrade" class="button">Upgrade Point Generation</button>
+            <p>Upgrade Cost: <span id="upgradeCost">10</span> points</p>
+        </div>
+        <div class="section">
+            <button id="hireWorker" class="button">Hire Worker (1000 points)</button>
+            <button id="hireEngineer" class="button">Hire Engineer (5000 points)</button>
+        </div>
+        <div class="worker-info">
+            <p>Workers: <span id="workerCount">0</span></p>
+            <p>Engineers: <span id="engineerCount">0</span></p>
+        </div>
+        <div id="achievements">
+            <h2>Achievements</h2>
+            <p id="achievement1" class="achievement" style="display:none;">🎉 Milestone 1: 1000 Points!</p>
+            <p id="achievement2" class="achievement" style="display:none;">🎉 Milestone 2: 5000 Points!</p>
+        </div>
+    </div>
+
+    <script>
+        // Initialize game state
+        let points = parseInt(localStorage.getItem('points')) || 0;
+        let pointsPerClick = parseInt(localStorage.getItem('pointsPerClick')) || 1;
+        let upgradeCost = parseInt(localStorage.getItem('upgradeCost')) || 10;
+        let workerCount = parseInt(localStorage.getItem('workerCount')) || 0;
+        let engineerCount = parseInt(localStorage.getItem('engineerCount')) || 0;
+
+        const pointsDisplay = document.getElementById('points');
+        const upgradeInfo = document.getElementById('upgradeCost');
+        const generatePointsButton = document.getElementById('generatePoints');
+        const upgradeButton = document.getElementById('upgrade');
+        const hireWorkerButton = document.getElementById('hireWorker');
+        const hireEngineerButton = document.getElementById('hireEngineer');
+        const workerCountDisplay = document.getElementById('workerCount');
+        const engineerCountDisplay = document.getElementById('engineerCount');
+        const achievement1 = document.getElementById('achievement1');
+        const achievement2 = document.getElementById('achievement2');
+
+        function updateDisplay() {
+            pointsDisplay.textContent = points;
+            upgradeInfo.textContent = upgradeCost;
+            workerCountDisplay.textContent = workerCount;
+            engineerCountDisplay.textContent = engineerCount;
+
+            // Show or hide the Hire Worker and Hire Engineer buttons based on points
+            hireWorkerButton.style.display = points >= 1000 ? 'inline-block' : 'none';
+            hireEngineerButton.style.display = points >= 5000 ? 'inline-block' : 'none';
+
+            // Show achievements based on points
+            if (points >= 1000) {
+                achievement1.style.display = 'block';
+            }
+            if (points >= 5000) {
+                achievement2.style.display = 'block';
+            }
+        }
+
+        function saveGameState() {
+            localStorage.setItem('points', points);
+            localStorage.setItem('pointsPerClick', pointsPerClick);
+            localStorage.setItem('upgradeCost', upgradeCost);
+            localStorage.setItem('workerCount', workerCount);
+            localStorage.setItem('engineerCount', engineerCount);
+        }
+
+        function hireWorker() {
+            if (points >= 1000) {
+                points -= 1000;
+                workerCount++;
+                updateDisplay();
+                saveGameState();
+
+                // Start worker point generation
+                setInterval(() => {
+                    if (workerCount > 0) {
+                        points += workerCount; // Each worker generates 1 point per second
+                        updateDisplay();
+                        saveGameState();
+                    }
+                }, 1000);
+            }
+        }
+
+        function hireEngineer() {
+            if (points >= 5000) {
+                points -= 5000;
+                engineerCount++;
+                updateDisplay();
+                saveGameState();
+
+                // Start engineer point generation
+                setInterval(() => {
+                    if (engineerCount > 0) {
+                        points += 2 * engineerCount; // Each engineer generates 2 points per second
+                        updateDisplay();
+                        saveGameState();
+                    }
+                }, 1000);
+            }
+        }
+
+        generatePointsButton.addEventListener('click', () => {
+            points += pointsPerClick;
+            updateDisplay();
+            saveGameState();
+        });
+
+        upgradeButton.addEventListener('click', () => {
+            if (points >= upgradeCost) {
+                points -= upgradeCost;
+                pointsPerClick++;
+                upgradeCost = Math.floor(upgradeCost * 1.5); // Increase cost for next upgrade
+                updateDisplay();
+                saveGameState();
+            }
+        });
+
+        hireWorkerButton.addEventListener('click', hireWorker);
+        hireEngineerButton.addEventListener('click', hireEngineer);
+
+        updateDisplay(); // Initialize display
+
+        // Restore worker and engineer state if previously hired
+        setInterval(() => {
+            if (workerCount > 0) {
+                points += workerCount;
+                updateDisplay();
+                saveGameState();
+            }
+            if (engineerCount > 0) {
+                points += 2 * engineerCount;
+                updateDisplay();
+                saveGameState();
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
