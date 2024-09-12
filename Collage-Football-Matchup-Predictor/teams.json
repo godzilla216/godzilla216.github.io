@@ -4,97 +4,97 @@
     "name": "Kstate",
     "rank": 18,
     "rating": 87,
-    "logo": "/Assets/kstate.png"
+    "logo": "Assets/kstate.png"
   },
   {
     "id": "usc",
     "name": "USC",
     "rank": null,
     "rating": 89,
-    "logo": "/Assets/usc.png"
+    "logo": "Assets/usc.png"
   },
   {
     "id": "KU",
     "name": "KU",
     "rank": 23,
     "rating": 87,
-    "logo": "/Assets/ku.png"
+    "logo": "Assets/ku.png"
   },
   {
     "id": "alabama",
     "name": "Alabama",
     "rank": 4,
     "rating": 95,
-    "logo": "/Assets/alabama.svg"
+    "logo": "Assets/alabama.svg"
   },
   {
     "id": "Kennesawst",
     "name": "Kennesaw State",
     "rank": null,
     "rating": 50,
-    "logo": "/Assets/kennesawst.png"
+    "logo": "Assets/kennesawst.png"
   },
   {
     "id": "utsa",
     "name": "UTSA",
     "rank": null,
     "rating": 77,
-    "logo": "/Assets/utsa.svg"
+    "logo": "Assets/utsa.svg"
   },
   {
     "id": "nebraska",
     "name": "Nebraska",
     "rank": null,
     "rating": 86,
-    "logo": "/Assets/Nebraska.png"
+    "logo": "Assets/Nebraska.png"
   },
   {
     "id": "maryland",
     "name": "Maryland",
     "rank": null,
     "rating": 80,
-    "logo": "/Assets/mayarland.png"
+    "logo": "Assets/mayarland.png"
   },
   {
     "id": "texas",
     "name": "Texas",
     "rank": 3,
     "rating": 90,
-    "logo": "/Assets/texas.png"
+    "logo": "Assets/texas.png"
   },
   {
     "id": "ku",
     "name": "KU",
     "rank": 19,
     "rating": 87,
-    "logo": "/Assets/ku.png"
+    "logo": "Assets/ku.png"
   },
   {
     "id": "georgia",
     "name": "Georgia",
     "rank": 1,
     "rating": 98,
-    "logo": "/Assets/Georgia.png"
+    "logo": "Assets/Georgia.png"
   },
   {
     "id": "ohiostate",
     "name": "Ohio State",
     "rank": 2,
     "rating": 94,
-    "logo": "/Assets/OhioState.png"
+    "logo": "Assets/OhioState.png"
   },
   {
     "id": "olemiss",
     "name": "Ole Miss",
     "rank": 6,
     "rating": 94,
-    "logo": "/Assets/Ole Miss.webp"
+    "logo": "Assets/Ole Miss.webp"
   },
   {
     "id": "oregon",
     "name": "Oregon",
     "rank": 7,
     "rating": 95,
-    "logo": "/Assets/Oregon"
+    "logo": "Assets/Oregon"
   }
 ]
