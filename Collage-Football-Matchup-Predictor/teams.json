@@ -4,14 +4,14 @@
     "name": "Kstate",
     "rank": 18,
     "rating": 87,
-    "logo": "Collage-Football-Matchup-Predictor/Assets/kstate.png"
+    "logo": "Assets/kstate.png"
   },
   {
     "id": "usc",
     "name": "USC",
     "rank": null,
     "rating": 89,
-    "logo": "Collage-Football-Matchup-Predictor/Assetsusc.png"
+    "logo": "Assets/usc.png"
   },
   {
     "id": "KU",
