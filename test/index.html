@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Feedback System</title>
+</head>
+<body>
+
+<h2>Feedback</h2>
+
+<!-- Feedback Form -->
+<form method="POST" action="feedback.php">
+    <button type="submit" name="type" value="like">Like</button>
+    <button type="submit" name="type" value="dislike">Dislike</button>
+</form>
+
+<!-- Display feedback counts -->
+<div>
+    <?php include 'feedback.php'; ?>
+</div>
+
+</body>
+</html>
