@@ -1,8 +1,8 @@
 <?php
 // Database connection
 $servername = "localhost";
-$username = "root"; // Replace with your MySQL username
-$password = "";     // Replace with your MySQL password
+$username = "sql3732083"; // Replace with your MySQL username
+$password = "WbflrUYGHn";     // Replace with your MySQL password
 $dbname = "feedback_system"; // Replace with your database name
 
 $conn = new mysqli($servername, $username, $password, $dbname);
