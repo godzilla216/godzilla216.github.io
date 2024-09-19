@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeoGuessr Knockoff</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            text-align: center;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        #map, #pano {
+            width: 100%;
+            height: 400px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none; /* Hide initially */
+        }
+        #result {
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 15px;
+            cursor: pointer;
+        }
+        #score {
+            font-size: 20px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>GeoGuessr Knockoff</h1>
+        <div id="pano"></div>
+        <div id="map"></div>
+        <button id="toggleView">Show Map</button>
+        <button id="submit">Submit Guess</button>
+        <button id="nextLocation" style="display:none;">Next Location</button>
+        <div id="result"></div>
+        <div id="score">Score: 0</div>
+    </div>
+    
+    <script>
+        const locations = [
+            { lat: 48.8566, lng: 2.3522 }, // Paris
+            { lat: 34.0522, lng: -118.2437 }, // Los Angeles
+            { lat: 51.5074, lng: -0.1278 }, // London
+            { lat: 35.6895, lng: 139.6917 }, // Tokyo
+            { lat: -33.8688, lng: 151.2093 }, // Sydney
+            { lat: 55.7558, lng: 37.6173 }, // Moscow
+            { lat: 37.7749, lng: -122.4194 }, // San Francisco
+            { lat: 41.9028, lng: 12.4964 }, // Rome
+            { lat: 39.9042, lng: 116.4074 }, // Beijing
+            { lat: -22.9068, lng: -43.1729 }, // Rio de Janeiro
+            { lat: 52.5200, lng: 13.4050 }, // Berlin
+            { lat: 55.6761, lng: 12.5683 }, // Copenhagen
+            { lat: 59.9343, lng: 30.3351 }, // St. Petersburg
+            { lat: 60.1695, lng: 24.9354 }, // Helsinki
+            { lat: 38.7223, lng: -9.1393 }, // Lisbon
+        ];
+
+        const defaultLocation = { lat: 48.8566, lng: 2.3522 }; // Set a consistent starting location
+        let correctLocation = getRandomLocation(); // Get a random location from the array
+        let userGuessMarker, panorama, map, line, isStreetView = true;
+        let score = 0;
+        let userGuessLocation; // Store user's guess location
+
+        function getRandomLocation() {
+            return locations[Math.floor(Math.random() * locations.length)];
+        }
+
+        function initMap() {
+            panorama = new google.maps.StreetViewPanorama(
+                document.getElementById('pano'), {
+                    position: defaultLocation, // Start with default location
+                    pov: { heading: 165, pitch: 0 },
+                    zoom: 1
+                }
+            );
+
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: defaultLocation, // Start with default location
+                zoom: 4, // Start zoomed out
+            });
+
+            panorama.addListener('click', (event) => {
+                placeGuessMarker(event.latLng);
+            });
+
+            map.addListener('click', (event) => {
+                placeGuessMarker(event.latLng);
+            });
+
+            document.getElementById('pano').style.display = 'block';
+        }
+
+        function placeGuessMarker(location) {
+            // Remove previous marker if it exists
+            if (userGuessMarker) {
+                userGuessMarker.setMap(null);
+            }
+            userGuessMarker = new google.maps.Marker({
+                position: location,
+                map: isStreetView ? panorama : map,
+                title: 'Your Guess',
+            });
+
+            // Store the user's guess location
+            userGuessLocation = location;
+        }
+
+        document.getElementById('submit').addEventListener('click', function() {
+            if (!userGuessMarker) {
+                alert('Please make a guess first!');
+                return;
+            }
+            const resultDiv = document.getElementById('result');
+            const distance = google.maps.geometry.spherical.computeDistanceBetween(
+                userGuessLocation, new google.maps.LatLng(correctLocation.lat, correctLocation.lng)
+            );
+
+            // Adjust points based on distance
+            let pointsAwarded;
+            if (distance < 1000) {
+                pointsAwarded = 5000; // 0-1 km
+                resultDiv.innerHTML = "<p style='color: green;'>Very close! 🎉</p>";
+            } else if (distance < 5000) {
+                pointsAwarded = Math.round(5000 * (1 - (distance - 1000) / 4000)); // 1-5 km
+                resultDiv.innerHTML = "<p style='color: orange;'>Not bad! You're within 5 km.</p>";
+            } else if (distance <= 2500000) { // 2,500 km
+                pointsAwarded = Math.round(5000 * (1 - (distance - 5000) / 2000000)); // 5 km to 2,500 km
+                resultDiv.innerHTML = "<p style='color: red;'>Far off! But you still get points!</p>";
+            } else {
+                pointsAwarded = 0; // No points for beyond 2,500 km
+                resultDiv.innerHTML = "<p style='color: red;'>Too far! No points awarded.</p>";
+            }
+
+            // Draw line to the correct location
+            if (line) {
+                line.setMap(null); // Remove previous line if it exists
+            }
+            line = new google.maps.Polyline({
+                path: [userGuessLocation, correctLocation],
+                geodesic: true,
+                strokeColor: '#FF0000',
+                strokeOpacity: 0.7,
+                strokeWeight: 2,
+            });
+            line.setMap(isStreetView ? panorama : map); // Show line on the correct view
+
+            score += Math.min(pointsAwarded, 5000); // Cap score at 5,000 points
+            document.getElementById('score').innerText = `Score: ${score}`;
+
+            // Hide the submit button and show the Next Location button
+            this.style.display = 'none';
+            document.getElementById('nextLocation').style.display = 'block';
+        });
+
+        document.getElementById('nextLocation').addEventListener('click', function() {
+            // Remove the line and marker before going to the next location
+            if (line) line.setMap(null);
+            if (userGuessMarker) userGuessMarker.setMap(null);
+
+            // Get a new random location and set it
+            correctLocation = getRandomLocation();
+            panorama.setPosition(correctLocation);
+            map.setCenter(correctLocation);
+
+            // Show the submit button again and hide the Next Location button
+            document.getElementById('submit').style.display = 'block';
+            this.style.display = 'none';
+            document.getElementById('result').innerHTML = ''; // Clear previous results
+        });
+
+        document.getElementById('toggleView').addEventListener('click', function() {
+            isStreetView = !isStreetView;
+            document.getElementById('pano').style.display = isStreetView ? 'block' : 'none';
+            document.getElementById('map').style.display = isStreetView ? 'none' : 'block';
+            this.innerText = isStreetView ? 'Show Map' : 'Show Street View';
+        });
+    </script>
+    
+    <script async src="https://maps.googleapis.com/maps/api/js?key=&libraries=geometry&callback=initMap"></script>
+</body>
+</html>
