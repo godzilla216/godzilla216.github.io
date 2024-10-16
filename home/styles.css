@@ -1,0 +1,235 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    animation: fadeIn 1s ease-in-out;
+}
+#text1 {
+    text-align: center;
+}
+
+#content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+    max-width: 100%;
+    height: 80vh; /* Adjust the height as needed */
+    overflow-y: scroll; /* Ensure vertical scrolling */
+}
+
+/* Styling for the scrollbar */
+#content::-webkit-scrollbar {
+    width: 8px; /* Width of the scrollbar */
+}
+
+#content::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Track color */
+}
+
+#content::-webkit-scrollbar-thumb {
+    background: #888; /* Scrollbar color */
+    border-radius: 10px; /* Rounded corners for the scrollbar */
+}
+
+#content::-webkit-scrollbar-thumb:hover {
+    background: #555; /* Darker color on hover */
+}
+
+#center-text {
+    text-align: center;
+}
+
+/* Comment box styles */
+.comment-box {
+    display: flex;
+    align-items: flex-start;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    word-wrap: break-word;
+}
+
+.comment-box .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-image: url('https://icons.veryicon.com/png/o/miscellaneous/taiwu-network-icon-library/not-logged-in-1.png'); /* Replace with actual avatar URL */
+    background-size: cover;
+    background-position: center;
+    margin-right: 10px;
+}
+
+.comment-box .content {
+    flex: 1;
+}
+
+.comment-box .username {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.comment-box .text {
+    font-size: 14px;
+    color: #333;
+}
+
+.comment-box .timestamp {
+    font-size: 12px;
+    color: #888;
+    margin-top: 5px;
+}
+
+.comment-container {
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically (if needed) */
+    margin: 20px 0; /* Optional: Add some vertical space */
+    flex-direction: column; /* Optional: Stack items vertically if needed */
+}
+
+.iframe-container {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.centered-iframe {
+    display: block; /* Make it a block element */
+    margin: 0 auto; /* Center horizontally */
+    width: 100%; /* Ensure it fits within smaller screens */
+    max-width: 640px; /* Set a max-width for larger screens */
+    height: 800px; /* Adjust as needed */
+    border: none;
+}
+
+.navbar {
+    background-color: #333;
+    overflow: hidden;
+}
+
+.navbar a {
+    float: left;
+    display: block;
+    color: #f2f2f2;
+    text-align: center;
+    padding: 14px 20px;
+    text-decoration: none;
+    transition: background-color 0.3s, transform 0.3s;
+    cursor: pointer; /* Added for better UX */
+}
+
+.navbar a:hover {
+    background-color: #ddd;
+    color: black;
+    transform: scale(1.1);
+}
+
+.header {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 0;
+    text-align: center;
+    animation: slideDown 0.5s ease-in-out;
+    position: relative;
+    z-index: 1;
+}
+
+.main {
+    padding: 16px;
+    position: relative;
+    z-index: 1;
+}
+#particles-js {
+    position: fixed; /* Keep it fixed */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1; /* Behind everything else */
+}
+.projects {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: center; /* Centering items vertically */
+}
+
+.project {
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin: 10px;
+    padding: 20px;
+    width: 300px;
+    text-align: center;
+    transform: translateY(20px);
+    opacity: 0;
+    animation: fadeInUp 1s ease-in-out forwards;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.project:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.project a {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    height: 100%;
+    width: 100%;
+}
+
+.project h2 {
+    margin: 0 0 10px;
+}
+
+.project p {
+    margin: 0;
+}
+
+.project:nth-child(2) {
+    animation-delay: 0.3s;
+}
+
+.project:nth-child(3) {
+    animation-delay: 0.6s;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
