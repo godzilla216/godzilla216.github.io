@@ -20,19 +20,16 @@ const sabrin = document.getElementById('sabrin');
 const fireForemanButton = document.getElementById('fireForemanButton');
 const draftedList = document.getElementById('draftedList');
 const popup = document.getElementById('popup');
-const slaveCountDisplay = document.getElementById('slaveCount'); // Add this line to get the slave count display element
+const slaveCountDisplay = document.getElementById('slaveCount');
 
-let slaveCount = 0; // Initialize slave count variable
+let slaveCount = 0;
 
 function updateSlaveCount() {
   slaveCountDisplay.textContent = `Slaves: ${slaveCount} out of 15`;
 }
 
 function scrollToTop() {
-  window.scrollTo({
-    top: 0,
-    behavior: 'smooth'
-  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function getRandomName() {
@@ -51,19 +48,9 @@ function deductCost(cost) {
 
 function checkMortality() {
   draftedPlayers.forEach((player, index) => {
-    if (player.health > 100) {
-      const healthOver100 = player.health - 100;
-      const multiplier = 1 + (healthOver100 * 0.15);
-      player.moneyMultiplier = multiplier;
-    } else {
-      player.moneyMultiplier = 1;
-    }
-
-    player.health -= Math.floor(Math.random() * 10); // Decrease health randomly
-
+    player.health -= Math.floor(Math.random() * 10);
     if (player.health <= 0) {
-      accountBalance -= 2000; // Penalty for killing a slave
-      accountDisplay.textContent = `Account Balance: $${Math.round(accountBalance)}`;
+      accountBalance -= 2000; // Penalty for death
       draftedPlayers.splice(index, 1);
       const playerItem = draftedList.querySelectorAll('li')[index];
       playerItem.remove();
@@ -71,84 +58,78 @@ function checkMortality() {
     } else {
       const playerItem = draftedList.querySelectorAll('li')[index];
       const healthBar = playerItem.querySelector('.health-bar');
-      const healthPercentage = playerItem.querySelector('.health-percentage');
       healthBar.style.width = `${player.health}%`;
-      healthPercentage.textContent = `${player.health}%`;
-      if (player.health < 30) {
-        healthBar.classList.remove('progress');
-        healthBar.classList.add('danger');
-      }
     }
   });
 }
 
 function restPlayers() {
   draftedPlayers.forEach((player) => {
-    player.health += 5;
-    if (player.health > 100) {
-      player.health = 100;
-    }
+    player.health = Math.min(player.health + 5, 100);
   });
 }
 
 function showPopup(message) {
   popup.textContent = message;
   popup.style.display = 'block';
-  setTimeout(() => {
-    popup.style.display = 'none';
-  }, 2000);
+  setTimeout(() => { popup.style.display = 'none'; }, 2000);
 }
+
+function saveGame() {
+  const gameState = { day, owner, accountBalance, draftedPlayers, extraRationsActive, foremanActive, slaveCount };
+  localStorage.setItem('gameState', JSON.stringify(gameState));
+}
+
+function loadGame() {
+  const savedState = localStorage.getItem('gameState');
+  if (savedState) {
+    const gameState = JSON.parse(savedState);
+    day = gameState.day;
+    owner = gameState.owner;
+    accountBalance = gameState.accountBalance;
+    draftedPlayers = gameState.draftedPlayers;
+    extraRationsActive = gameState.extraRationsActive;
+    foremanActive = gameState.foremanActive;
+    slaveCount = gameState.slaveCount;
+    updateDisplays();
+  }
+}
+
+function updateDisplays() {
+  dayDisplay.textContent = `Day: ${day}`;
+  ownerDisplay.textContent = `Owner: ${owner}`;
+  accountDisplay.textContent = `Account Balance: $${Math.round(accountBalance)}`;
+  draftedList.innerHTML = ''; // Clear the list
+  draftedPlayers.forEach(player => {
+    const playerItem = document.createElement('li');
+    playerItem.textContent = `${player.name} - Health: ${player.health}`;
+    const healthBar = document.createElement('div');
+    healthBar.classList.add('health-bar', 'progress');
+    healthBar.style.width = `${player.health}%`;
+    playerItem.appendChild(healthBar);
+    draftedList.appendChild(playerItem);
+  });
+  updateSlaveCount();
+}
+
+// Load game when the page is opened
+loadGame();
 
 draftButton.addEventListener('click', () => {
   if (draftedPlayers.length < 15) {
     const playerCost = Math.floor(Math.random() * 2000) + 1;
     if (deductCost(playerCost)) {
       const playerName = getRandomName();
-      const playerHealth = 100; // Initial health
-      draftedPlayers.push({ name: playerName, cost: playerCost, health: playerHealth, moneyMultiplier: 1 });
-      slaveCount++; // Increment slave count when buying a slave
-      updateSlaveCount(); // Call function to update slave count display
-      const playerItem = document.createElement('li');
-      const healthBar = document.createElement('div');
-      healthBar.classList.add('health-bar', 'progress');
-      healthBar.style.width = '100%';
-      const healthPercentage = document.createElement('div');
-      healthPercentage.classList.add('health-percentage');
-      healthPercentage.textContent = '100%';
-      const freeButton = document.createElement('button');
-      freeButton.classList.add('free-button');
-      freeButton.textContent = 'Free';
-      freeButton.addEventListener('click', () => {
-        accountBalance += 250;
-        accountDisplay.textContent = `Account Balance: $${Math.round(accountBalance)}`;
-        draftedPlayers = draftedPlayers.filter(player => player.name !== playerName);
-        playerItem.remove();
-        slaveCount--; // Decrement slave count when freeing a slave
-        updateSlaveCount(); // Call function to update slave count display
-        showPopup(`You freed ${playerName} and received $250.`);
-      });
-      playerItem.textContent = `${playerName} - $${playerCost} `;
-      playerItem.appendChild(freeButton);
-      playerItem.appendChild(healthBar);
-      playerItem.appendChild(healthPercentage);
-      draftedList.appendChild(playerItem);
-      scrollToTop(); // Scroll to top after adding a slave
+      draftedPlayers.push({ name: playerName, health: 100 });
+      slaveCount++;
+      updateDisplays();
+      scrollToTop();
+      saveGame(); // Save after drafting
     } else {
       showPopup("You do not have enough funds.");
     }
   } else {
     showPopup("You have reached the maximum limit of 15 slaves.");
-  }
-});
-
-fireForemanButton.addEventListener('click', () => {
-  if (foremanActive) {
-    foremanActive = false;
-    slaveCount--; // Decrement slave count when firing a foreman
-    updateSlaveCount(); // Call function to update slave count display
-    showPopup("Foreman fired. Total production decreased by 90% and no additional health deduction.");
-  } else {
-    showPopup("You do not have an active foreman to fire.");
   }
 });
 
@@ -159,37 +140,40 @@ workButton.addEventListener('click', () => {
     let earningPerSlave = Math.floor(Math.random() * 1000) + 1;
     if (extraRationsActive) {
       earningPerSlave *= 1.5; // Increase earnings by 50%
-      extraRationsActive = false;
+      extraRationsActive = false; // Reset after use
     }
-    
+
     if (foremanActive) {
       earningPerSlave *= 1.9; // Increase earnings by 90%
       draftedPlayers.forEach((player) => {
-        player.health -= Math.floor(player.health * 0.05); // Deduct an additional 5% health
+        player.health -= Math.floor(player.health * 0.05); // Deduct health
       });
     }
 
     draftedPlayers.forEach((player) => {
-      accountBalance += earningPerSlave * player.moneyMultiplier;
+      accountBalance += earningPerSlave;
     });
 
     accountDisplay.textContent = `Account Balance: $${Math.round(accountBalance)}`;
     checkMortality();
     workButton.disabled = false;
+    saveGame(); // Save after work
   }, 2000);
 });
 
 breakButton.addEventListener('click', () => {
   restPlayers();
-  showPopup("Your slaves have earned a break and gained extra health. Press OK to continue to the next day.");
+  showPopup("Your slaves have earned a break and gained extra health.");
   day++;
-  dayDisplay.textContent = `Day: ${day}`;
+  updateDisplays();
+  saveGame(); // Save after break
 });
 
 extraRationsButton.addEventListener('click', () => {
   if (deductCost(1500)) {
     extraRationsActive = true;
     showPopup("Extra rations provided. Slaves will work at increased rates for 1 day.");
+    saveGame(); // Save after using extra rations
   } else {
     showPopup("You do not have enough funds to provide extra rations.");
   }
@@ -198,7 +182,8 @@ extraRationsButton.addEventListener('click', () => {
 foremanButton.addEventListener('click', () => {
   if (deductCost(3000)) {
     foremanActive = true;
-    showPopup("Foreman hired. Total production increased by 90%, but an additional 5% health will be deducted after each day.");
+    showPopup("Foreman hired. Total production increased by 90%.");
+    saveGame(); // Save after hiring foreman
   } else {
     showPopup("You do not have enough funds to hire a foreman.");
   }
@@ -206,39 +191,32 @@ foremanButton.addEventListener('click', () => {
 
 ironMikeButton.addEventListener('click', () => {
   if (deductCost(500000)) {
-    draftedPlayers.push({ name: 'Mike Tyson', cost: 0, health: 7000, moneyMultiplier: 9 });
-    const playerItem = document.createElement('li');
-    const healthBar = document.createElement('div');
-    healthBar.classList.add('health-bar', 'progress');
-    healthBar.style.width = '100%';
-    const healthPercentage = document.createElement('div');
-    healthPercentage.classList.add('health-percentage');
-    healthPercentage.textContent = '100%';
-    playerItem.textContent = `Mike Tyson - 7000 health, earns 9x money`;
-    playerItem.appendChild(healthBar);
-    playerItem.appendChild(healthPercentage);
-    draftedList.appendChild(playerItem);
+    draftedPlayers.push({ name: 'Mike Tyson', health: 7000 });
     showPopup("You now have Mike Tyson on your team!");
+    updateDisplays();
+    saveGame(); // Save after hiring Iron Mike
   } else {
     showPopup("You do not have enough funds to get Iron Mike.");
   }
 });
+
 sabrin.addEventListener('click', () => {
   if (deductCost(600000)) {
-    draftedPlayers.push({ name: 'Mike Tyson', cost: 0, health: 9000, moneyMultiplier: 21 });
-    const playerItem = document.createElement('li');
-    const healthBar = document.createElement('div');
-    healthBar.classList.add('health-bar', 'progress');
-    healthBar.style.width = '100%';
-    const healthPercentage = document.createElement('div');
-    healthPercentage.classList.add('health-percentage');
-    healthPercentage.textContent = '100%';
-    playerItem.textContent = `sabrin - 9000 health, earns 21x money`;
-    playerItem.appendChild(healthBar);
-    playerItem.appendChild(healthPercentage);
-    draftedList.appendChild(playerItem);
+    draftedPlayers.push({ name: 'sabrin', health: 9000 });
     showPopup("You now have sabrin on your team!");
+    updateDisplays();
+    saveGame(); // Save after hiring sabrin
   } else {
-    showPopup("You do not have enough funds to get Iron sabrin.");
+    showPopup("You do not have enough funds to get sabrin.");
+  }
+});
+
+fireForemanButton.addEventListener('click', () => {
+  if (foremanActive) {
+    foremanActive = false;
+    showPopup("Foreman fired. Total production decreased by 90%.");
+    saveGame(); // Save after firing foreman
+  } else {
+    showPopup("You do not have an active foreman to fire.");
   }
 });
