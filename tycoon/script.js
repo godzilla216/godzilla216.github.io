@@ -99,11 +99,6 @@ function showPopup(message) {
   }, 2000);
 }
 
-document.getElementById('dieSlaveButton').addEventListener('click', () => {
-  updateSlaveCount('die');
-});
-
-
 draftButton.addEventListener('click', () => {
   if (draftedPlayers.length < 15) {
     const playerCost = Math.floor(Math.random() * 2000) + 1;
@@ -247,4 +242,3 @@ sabrin.addEventListener('click', () => {
     showPopup("You do not have enough funds to get Iron sabrin.");
   }
 });
-
