@@ -20,15 +20,18 @@
   <button id="breakButton">Give a Break</button>
   <button id="extraRationsButton">Extra Rations ($1,500)</button>
   <button id="foremanButton">Get Foreman ($3000)</button>
-  
+
   <!-- Dropdown for Special Slaves -->
-  <label for="specialSlaves">Special Slaves:</label>
-  <select id="specialSlaves">
-    <option value="">Select a special slave</option>
-    <option value="sabrin">Buy Sabrin ($600,000)</option>
-    <option value="ironMike">Buy Iron Mike ($500,000)</option>
-  </select>
-  
+  <div>
+    <label for="specialSlaves">Special Slaves:</label>
+    <select id="specialSlaves">
+      <option value="">Select a special slave</option>
+      <option value="sabrin">Buy Sabrin ($600,000)</option>
+      <option value="ironMike">Buy Iron Mike ($500,000)</option>
+    </select>
+    <button id="buySpecialSlave">Buy</button>
+  </div>
+
   <button id="fireForemanButton">Fire Foreman</button>
   <button class="scroll-to-top">Go to Top</button>
   <!-- Hamburger menu button -->
@@ -61,13 +64,33 @@ document.getElementById('closeMenu').addEventListener('click', () => {
 });
 
 // Handle Special Slaves purchase
-document.getElementById('specialSlaves').addEventListener('change', function() {
-  const selectedValue = this.value;
-  if (selectedValue) {
-    alert(`You selected to buy ${selectedValue === 'sabrin' ? 'Sabrin' : 'Iron Mike'}.`);
-    // Add further logic to handle the purchase, deduct from account, etc.
-    this.value = ''; // Reset dropdown
+document.getElementById('buySpecialSlave').addEventListener('click', function() {
+  const selectedValue = document.getElementById('specialSlaves').value;
+  let price;
+  
+  if (selectedValue === 'sabrin') {
+    price = 600000;
+  } else if (selectedValue === 'ironMike') {
+    price = 500000;
+  } else {
+    alert('Please select a special slave.');
+    return;
   }
+
+  // Check if there's enough balance
+  const accountBalance = parseInt(document.getElementById('account').textContent.replace(/\D/g, ''));
+  if (accountBalance >= price) {
+    alert(`You bought ${selectedValue === 'sabrin' ? 'Sabrin' : 'Iron Mike'} for $${price}.`);
+    // Deduct from account balance and update UI
+    document.getElementById('account').textContent = `Account Balance: $${accountBalance - price}`;
+    // Optionally, update the slave count or drafted list
+    document.getElementById('slaveCount').textContent = `Number of Slaves: ${parseInt(document.getElementById('slaveCount').textContent.replace(/\D/g, '')) + 1}`;
+  } else {
+    alert('Insufficient funds.');
+  }
+
+  // Reset dropdown
+  document.getElementById('specialSlaves').value = '';
 });
 </script>
 </body>
