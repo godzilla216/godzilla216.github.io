@@ -20,9 +20,16 @@
   <button id="breakButton">Give a Break</button>
   <button id="extraRationsButton">Extra Rations ($1,500)</button>
   <button id="foremanButton">Get Foreman ($3000)</button>
-  <button id="ironMikeButton">Get Iron Mike ($500,000)</button>
+  
+  <!-- Dropdown for Special Slaves -->
+  <label for="specialSlaves">Special Slaves:</label>
+  <select id="specialSlaves">
+    <option value="">Select a special slave</option>
+    <option value="sabrin">Buy Sabrin ($600,000)</option>
+    <option value="ironMike">Buy Iron Mike ($500,000)</option>
+  </select>
+  
   <button id="fireForemanButton">Fire Foreman</button>
-  <button id="sabrin">Get Sabrin $600,000</button>
   <button class="scroll-to-top">Go to Top</button>
   <!-- Hamburger menu button -->
   <button id="toggleMenu" class="hamburger-menu">☰</button>
@@ -51,6 +58,16 @@ document.getElementById('toggleMenu').addEventListener('click', () => {
 
 document.getElementById('closeMenu').addEventListener('click', () => {
   document.getElementById('slavesMenu').classList.remove('show-menu');
+});
+
+// Handle Special Slaves purchase
+document.getElementById('specialSlaves').addEventListener('change', function() {
+  const selectedValue = this.value;
+  if (selectedValue) {
+    alert(`You selected to buy ${selectedValue === 'sabrin' ? 'Sabrin' : 'Iron Mike'}.`);
+    // Add further logic to handle the purchase, deduct from account, etc.
+    this.value = ''; // Reset dropdown
+  }
 });
 </script>
 </body>
