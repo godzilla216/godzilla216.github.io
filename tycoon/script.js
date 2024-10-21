@@ -1,4 +1,4 @@
-const names = ['Tom', 'Jerry', 'Peter', 'Alice', 'Bob', 'Eve', 'Charlie', 'Olivia', 'Max', 'Quandale', 'Luna'];
+const names = ['Patrick', 'Loraine', 'Tom', 'Jerry', 'Peter', 'Alice', 'Bob', 'Eve', 'Charlie', 'Olivia', 'Max', 'Quandale', 'Luna'];
 
 let day = 1;
 let owner = "You";
