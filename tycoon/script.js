@@ -99,27 +99,6 @@ function showPopup(message) {
   }, 2000);
 }
 
-// Function to free or remove a slave
-function updateSlaveCount(action) {
-  const slaveCountElement = document.getElementById('slaveCount');
-  let currentCount = parseInt(slaveCountElement.textContent.replace(/\D/g, ''));
-
-  if (action === 'free' || action === 'die') {
-    if (currentCount > 0) {
-      currentCount--;
-      slaveCountElement.textContent = `Number of Slaves: ${currentCount}`;
-      alert(`A slave has been ${action}d. Total slaves: ${currentCount}`);
-    } else {
-      alert('No slaves to free or remove.');
-    }
-  }
-}
-
-// Example usage when a slave is freed or dies
-document.getElementById('freeSlaveButton').addEventListener('click', () => {
-  updateSlaveCount('free');
-});
-
 document.getElementById('dieSlaveButton').addEventListener('click', () => {
   updateSlaveCount('die');
 });
