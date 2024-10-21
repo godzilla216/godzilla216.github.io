@@ -16,7 +16,7 @@ const breakButton = document.getElementById('breakButton');
 const extraRationsButton = document.getElementById('extraRationsButton');
 const foremanButton = document.getElementById('foremanButton');
 const ironMikeButton = document.getElementById('ironMikeButton');
-const sabrin = document.getElementById('sabrin');
+const sabrinButton = document.getElementById('sabrin');
 const fireForemanButton = document.getElementById('fireForemanButton');
 const draftedList = document.getElementById('draftedList');
 const popup = document.getElementById('popup');
@@ -55,6 +55,7 @@ function checkMortality() {
       const playerItem = draftedList.querySelectorAll('li')[index];
       playerItem.remove();
       showPopup(`${player.name} died from poor health. Penalty: $2000.`);
+      updateSlaveCount();
     } else {
       const playerItem = draftedList.querySelectorAll('li')[index];
       const healthBar = playerItem.querySelector('.health-bar');
@@ -102,12 +103,27 @@ function updateDisplays() {
   draftedList.innerHTML = ''; // Clear the list
   draftedPlayers.forEach(player => {
     const playerItem = document.createElement('li');
-    playerItem.textContent = `${player.name} - Health: ${player.health}`;
+    playerItem.textContent = `${player.name} - Health: ${player.health} `;
     const healthBar = document.createElement('div');
     healthBar.classList.add('health-bar', 'progress');
     healthBar.style.width = `${player.health}%`;
     playerItem.appendChild(healthBar);
+    const freeButton = document.createElement('button');
+    freeButton.classList.add('free-button');
+    freeButton.textContent = 'Free';
+    playerItem.appendChild(freeButton);
     draftedList.appendChild(playerItem);
+    
+    freeButton.addEventListener('click', () => {
+      accountBalance += 250; // Gain $250 for freeing a slave
+      accountDisplay.textContent = `Account Balance: $${Math.round(accountBalance)}`;
+      draftedPlayers = draftedPlayers.filter(p => p.name !== player.name);
+      playerItem.remove();
+      slaveCount--;
+      updateSlaveCount(); // Update slave count display
+      showPopup(`You freed ${player.name} and received $250.`);
+      saveGame(); // Save after freeing a slave
+    });
   });
   updateSlaveCount();
 }
@@ -200,7 +216,7 @@ ironMikeButton.addEventListener('click', () => {
   }
 });
 
-sabrin.addEventListener('click', () => {
+sabrinButton.addEventListener('click', () => {
   if (deductCost(600000)) {
     draftedPlayers.push({ name: 'sabrin', health: 9000 });
     showPopup("You now have sabrin on your team!");
@@ -208,15 +224,5 @@ sabrin.addEventListener('click', () => {
     saveGame(); // Save after hiring sabrin
   } else {
     showPopup("You do not have enough funds to get sabrin.");
-  }
-});
-
-fireForemanButton.addEventListener('click', () => {
-  if (foremanActive) {
-    foremanActive = false;
-    showPopup("Foreman fired. Total production decreased by 90%.");
-    saveGame(); // Save after firing foreman
-  } else {
-    showPopup("You do not have an active foreman to fire.");
   }
 });
