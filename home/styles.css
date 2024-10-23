@@ -69,11 +69,11 @@ body {
 }
 
 .comment-box .username {
-    font-weight: bold;
-    margin-bottom: 5px;
+    font-weight: normal; /* Change to normal */
 }
 
 .comment-box .text {
+    font-weight: bold; /* Bold the comment text */
     font-size: 14px;
     color: #333;
 }
