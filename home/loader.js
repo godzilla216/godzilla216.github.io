@@ -18,7 +18,7 @@
 
 // Function to censor cuss words in a comment or username
 function censorCussWords(text) {
-    const cussWords = ['fuck', 'bitch', 'nigger', 'nigga', 'dick', 'KKK', 'vagina', 'shit', 'pornhub', 'gay']; // Add more cuss words here
+    const cussWords = ['fuck', 'bitch', 'nigger', 'nigga', 'dick', 'KKK', 'vagina', 'shit', 'pornhub', 'gay', 'retard']; // Add more cuss words here
     let censoredText = text;
 
     cussWords.forEach(word => {
