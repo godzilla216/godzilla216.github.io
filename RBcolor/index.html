@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Colors Editor</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        td input[type="color"], td input[type="text"] {
+            width: 100%;
+            border: none;
+            background-color: transparent;
+            text-align: center;
+        }
+        #generatedText {
+            width: 100%;
+            height: 150px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Team Colors Editor</h1>
+<p>Edit the data directly in the table below. Changes will be saved locally.</p>
+
+<table id="teamTable">
+    <thead>
+        <tr>
+            <th>UID</th>
+            <th>Name</th>
+            <th>TLA</th>
+            <th>Home Helmet</th>
+            <th>Home Logo</th>
+            <th>Home Shirt</th>
+            <th>Home Sleeve</th>
+            <th>Home Pants</th>
+            <th>Home Stripe</th>
+            <th>Home Socks1</th>
+            <th>Home Socks2</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Table rows will be dynamically added here -->
+    </tbody>
+</table>
+
+<button onclick="generateText()">Generate Copyable Text</button>
+<textarea id="generatedText" readonly placeholder="Generated text will appear here..."></textarea>
+
+<script>
+// Complete data with all 32 teams
+const initialData = [
+    { uid: 0, name: "Buffalo", tla: "BUF", home_helmet: "#ffffff", home_logo: "#003087", home_shirt: "#003087", home_sleeve: "#c8102e", home_pants: "#ffffff", home_stripe: "#c8102e", home_socks1: "#003087", home_socks2: "#003087" },
+    { uid: 1, name: "Miami", tla: "MIA", home_helmet: "#ffffff", home_logo: "#008c95", home_shirt: "#008c95", home_sleeve: "#008c95", home_pants: "#ffffff", home_stripe: "#008c95", home_socks1: "#007e86", home_socks2: "#007e86" },
+    { uid: 2, name: "New England", tla: "N.E", home_helmet: "#8d9093", home_logo: "#0c2340", home_shirt: "#0c2340", home_sleeve: "#c8102e", home_pants: "#0c2340", home_stripe: "#ffffff", home_socks1: "#e6e6e6", home_socks2: "#0b203a" },
+    { uid: 3, name: "New York J", tla: "NYJ", home_helmet: "#115740", home_logo: "#ffffff", home_shirt: "#115740", home_sleeve: "#ffffff", home_pants: "#ffffff", home_stripe: "#115740", home_socks1: "#e6e6e6", home_socks2: "#0f4e3a" },
+    { uid: 4, name: "Denver", tla: "DEN", home_helmet: "#0c2340", home_logo: "#ffffff", home_shirt: "#fc4c02", home_sleeve: "#fc4c02", home_pants: "#ffffff", home_stripe: "#0c2340", home_socks1: "#e6e6e6", home_socks2: "#0b203a" },
+    { uid: 5, name: "Kansas City", tla: "K.C", home_helmet: "#c8102e", home_logo: "#ffffff", home_shirt: "#c8102e", home_sleeve: "#ffffff", home_pants: "#ffffff", home_stripe: "#c8102e", home_socks1: "#e6e6e6", home_socks2: "#b40e29" },
+    { uid: 6, name: "Los Angeles C", tla: "LAC", home_helmet: "#ffffff", home_logo: "#ffb81c", home_shirt: "#0072ce", home_sleeve: "#ffb81c", home_pants: "#ffffff", home_stripe: "#ffb81c", home_socks1: "#e6e6e6", home_socks2: "#0072ce" },
+    { uid: 7, name: "Las Vegas", tla: "L.V", home_helmet: "#87909a", home_logo: "#010101", home_shirt: "#010101", home_sleeve: "#a2aaad", home_pants: "#a2aaad", home_stripe: "#010101", home_socks1: "#e6e6e6", home_socks2: "#1a1a1a" },
+    { uid: 8, name: "Baltimore", tla: "BAL", home_helmet: "#010101", home_logo: "#24125f", home_shirt: "#24125f", home_sleeve: "#010101", home_pants: "#ffffff", home_stripe: "#24125f", home_socks1: "#e6e6e6", home_socks2: "#010101" },
+    { uid: 9, name: "Cincinnati", tla: "CIN", home_helmet: "#dc4405", home_logo: "#010101", home_shirt: "#010101", home_sleeve: "#dc4405", home_pants: "#ffffff", home_stripe: "#dc4405", home_socks1: "#010101", home_socks2: "#010101" },
+    { uid: 10, name: "Cleveland", tla: "CLE", home_helmet: "#f95602", home_logo: "#ffffff", home_shirt: "#563624", home_sleeve: "#f95602", home_pants: "#ffffff", home_stripe: "#f95602", home_socks1: "#ffffff", home_socks2: "#4e2a2a" },
+    { uid: 11, name: "Pittsburgh", tla: "PIT", home_helmet: "#010101", home_logo: "#ffb81c", home_shirt: "#ffb81c", home_sleeve: "#010101", home_pants: "#ffffff", home_stripe: "#010101", home_socks1: "#e6e6e6", home_socks2: "#010101" },
+    { uid: 12, name: "Houston", tla: "HOU", home_helmet: "#03202f", home_logo: "#ffffff", home_shirt: "#03202f", home_sleeve: "#03202f", home_pants: "#ffffff", home_stripe: "#c8102e", home_socks1: "#e6e6e6", home_socks2: "#1c1c2a" },
+    { uid: 13, name: "Indianapolis", tla: "IND", home_helmet: "#003a70", home_logo: "#ffffff", home_shirt: "#003a70", home_sleeve: "#003a70", home_pants: "#ffffff", home_stripe: "#003a70", home_socks1: "#e6e6e6", home_socks2: "#0c2340" },
+    { uid: 14, name: "Jacksonville", tla: "JAX", home_helmet: "#d7a22a", home_logo: "#ffffff", home_shirt: "#006778", home_sleeve: "#d7a22a", home_pants: "#000000", home_stripe: "#ffffff", home_socks1: "#ffffff", home_socks2: "#444d4e" },
+    { uid: 15, name: "Tennessee", tla: "TEN", home_helmet: "#4b92db", home_logo: "#ffffff", home_shirt: "#4b92db", home_sleeve: "#ffffff", home_pants: "#0c2340", home_stripe: "#ffffff", home_socks1: "#0c2340", home_socks2: "#0c2340" },
+    { uid: 16, name: "Dallas", tla: "DAL", home_helmet: "#8a8d8f", home_logo: "#003a70", home_shirt: "#003a70", home_sleeve: "#ffffff", home_pants: "#b0b7bc", home_stripe: "#ffffff", home_socks1: "#e6e6e6", home_socks2: "#0b203a" },
+    { uid: 17, name: "New York G", tla: "NYG", home_helmet: "#0b2a54", home_logo: "#ffffff", home_shirt: "#192f6b", home_sleeve: "#ffffff", home_pants: "#ffffff", home_stripe: "#0b2a54", home_socks1: "#192f6b", home_socks2: "#192f6b" },
+    { uid: 18, name: "Philadelphia", tla: "PHI", home_helmet: "#004953", home_logo: "#ffffff", home_shirt: "#004953", home_sleeve: "#ffffff", home_pants: "#ffffff", home_stripe: "#004953", home_socks1: "#e6e6e6", home_socks2: "#005454" },
+    { uid: 19, name: "Washington", tla: "WSH", home_helmet: "#5c2f2f", home_logo: "#ffffff", home_shirt: "#5c2f2f", home_sleeve: "#ffffff", home_pants: "#ffffff", home_stripe: "#5c2f2f", home_socks1: "#e6e6e6", home_socks2: "#5b2121" },
+    { uid: 20, name: "Chicago", tla: "CHI", home_helmet: "#010101", home_logo: "#ff7312", home_shirt: "#010101", home_sleeve: "#ffffff", home_pants: "#ffffff", home_stripe: "#010101", home_socks1: "#ffffff", home_socks2: "#010101" },
+    { uid: 21, name: "Detroit", tla: "DET", home_helmet: "#0076b6", home_logo: "#ffffff", home_shirt: "#006bb6", home_sleeve: "#ffffff", home_pants: "#ffffff", home_stripe: "#0076b6", home_socks1: "#e6e6e6", home_socks2: "#0b78a8" },
+    { uid: 22, name: "Green Bay", tla: "G.B", home_helmet: "#203731", home_logo: "#ffffff", home_shirt: "#203731", home_sleeve: "#ffb81c", home_pants: "#ffb81c", home_stripe: "#ffffff", home_socks1: "#e6e6e6", home_socks2: "#1f5a2c" },
+    { uid: 23, name: "Minnesota", tla: "MIN", home_helmet: "#4f2a87", home_logo: "#ffffff", home_shirt: "#4f2a87", home_sleeve: "#ffffff", home_pants: "#ffffff", home_stripe: "#4f2a87", home_socks1: "#e6e6e6", home_socks2: "#3b2478" },
+    { uid: 24, name: "Atlanta", tla: "ATL", home_helmet: "#010101", home_logo: "#a6192e", home_shirt: "#010101", home_sleeve: "#ffffff", home_pants: "#ffffff", home_stripe: "#a6192e", home_socks1: "#e6e6e6", home_socks2: "#010101" },
+    { uid: 25, name: "Carolina", tla: "CAR", home_helmet: "#a2aaad", home_logo: "#0085ca", home_shirt: "#0085ca", home_sleeve: "#ffffff", home_pants: "#ffffff", home_stripe: "#0085ca", home_socks1: "#e6e6e6", home_socks2: "#0076b6" },
+    { uid: 26, name: "New Orleans", tla: "N.O", home_helmet: "#d3bc8d", home_logo: "#000000", home_shirt: "#010101", home_sleeve: "#d3bc8d", home_pants: "#010101", home_stripe: "#d3bc8d", home_socks1: "#ffffff", home_socks2: "#1c1c1a" },
+    { uid: 27, name: "Tampa Bay", tla: "T.B", home_helmet: "#010101", home_logo: "#d50a0a", home_shirt: "#d50a0a", home_sleeve: "#010101", home_pants: "#010101", home_stripe: "#d50a0a", home_socks1: "#e6e6e6", home_socks2: "#1c1c1a" },
+    { uid: 28, name: "Arizona", tla: "ARI", home_helmet: "#ffffff", home_logo: "#a6192e", home_shirt: "#a6192e", home_sleeve: "#ffffff", home_pants: "#ffffff", home_stripe: "#010101", home_socks1: "#e6e6e6", home_socks2: "#a6192e" },
+    { uid: 29, name: "Los Angeles R", tla: "LAR", home_helmet: "#ffc72c", home_logo: "#ffffff", home_shirt: "#003594", home_sleeve: "#ffffff", home_pants: "#ffffff", home_stripe: "#ffc72c", home_socks1: "#e6e6e6", home_socks2: "#003594" },
+    { uid: 30, name: "San Francisco", tla: "S.F", home_helmet: "#b3995d", home_logo: "#010101", home_shirt: "#aa0000", home_sleeve: "#ffffff", home_pants: "#b3995d", home_stripe: "#010101", home_socks1: "#ffffff", home_socks2: "#9e5c1f" },
+    { uid: 31, name: "Seattle", tla: "SEA", home_helmet: "#4b92db", home_logo: "#ffffff", home_shirt: "#002244", home_sleeve: "#a5acaf", home_pants: "#002244", home_stripe: "#69be28", home_socks1: "#e6e6e6", home_socks2: "#002244" }
+];
+
+// Initialize the table with all 32 teams
+function initializeTable(data) {
+    const tbody = document.querySelector("#teamTable tbody");
+    tbody.innerHTML = ""; // Clear existing rows
+    data.forEach(team => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${team.uid}</td>
+            <td><input type="text" value="${team.name}" data-uid="${team.uid}" data-field="name"></td>
+            <td><input type="text" value="${team.tla}" data-uid="${team.uid}" data-field="tla"></td>
+            <td><input type="color" value="${team.home_helmet}" data-uid="${team.uid}" data-field="home_helmet"></td>
+            <td><input type="color" value="${team.home_logo}" data-uid="${team.uid}" data-field="home_logo"></td>
+            <td><input type="color" value="${team.home_shirt}" data-uid="${team.uid}" data-field="home_shirt"></td>
+            <td><input type="color" value="${team.home_sleeve}" data-uid="${team.uid}" data-field="home_sleeve"></td>
+            <td><input type="color" value="${team.home_pants}" data-uid="${team.uid}" data-field="home_pants"></td>
+            <td><input type="color" value="${team.home_stripe}" data-uid="${team.uid}" data-field="home_stripe"></td>
+            <td><input type="color" value="${team.home_socks1}" data-uid="${team.uid}" data-field="home_socks1"></td>
+            <td><input type="color" value="${team.home_socks2}" data-uid="${team.uid}" data-field="home_socks2"></td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+// Generate copyable text based on current table data
+function generateText() {
+    const textarea = document.getElementById("generatedText");
+    const rows = Array.from(document.querySelectorAll("#teamTable tbody tr"));
+    const text = rows.map(row => {
+        const inputs = row.querySelectorAll("input");
+        return Array.from(inputs).map(input => input.value).join(", ");
+    }).join("\n");
+    textarea.value = text;
+}
+
+// Initialize table on page load
+window.addEventListener("DOMContentLoaded", () => initializeTable(initialData));
+
+</script>
+
+</body>
+</html>
