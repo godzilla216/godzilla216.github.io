@@ -4,7 +4,7 @@ ui_Back	Back
 ui_Home	Home
 ui_Dilemma	Dilemma
 ui_Continue	Continue
-ui_Play	Play
+ui_Play	Kick off
 ui_Message	Message
 ui_Select	Select
 ui_Profile	Profile
