@@ -236,8 +236,8 @@ msg_NewSeason	A new season begins!
 match_Recovered	Recovered
 match_Turnover	Turnover
 match_Safety	Safety
-matchmsg_PATor2	1 or 2 point conversion?
-match_1pt	1 pt
+matchmsg_PATor2	pat or 2 point conversion?
+match_1pt	pat
 match_2pt	2 pt
 match_Scored	Scored
 ui_ChooseTeam	Choose Team
