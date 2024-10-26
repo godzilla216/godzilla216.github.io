@@ -2,7 +2,7 @@ uid	name	tla	div_0_name	div_1_name	tier	divisions	active	real_life_tier_name	rea
 2	Atlantic	Atl	A	C	1	2	0	FBS	Atlantic Coast	3	champ
 3	America	Ame	American	Not Used	1	1	1	FBS	American	2	champ
 4	Conf. 12	C12	C12	Not Used	1	1	1	FBS	Big 12	3	champ
-5	Large X	L.X	West	East	1	2	1	FBS	Big 10	3	champ
+5	Big 10	L.X	West	East	1	2	1	FBS	Big 10	3	champ
 6	United S.	U.S	East	West	1	1	1	FBS	Conference USA	2	champ
 7	Independents	Ind	Independents	Not Used	1	1	1	FBS	Independents	0	no_completion
 8	Midwest	Mid	East	West	1	2	1	FBS	Mid-American	2	champ
