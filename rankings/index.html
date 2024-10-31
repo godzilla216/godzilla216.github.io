@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top 25 Countries Power Rankings</title>
+    <style>
+        /* Basic styling for the page */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        header {
+            background-color: #003366;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        .ranking-table {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: white;
+            border-collapse: collapse;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .ranking-table th, .ranking-table td {
+            padding: 15px;
+            text-align: left;
+        }
+        .ranking-table th {
+            background-color: #003366;
+            color: white;
+            font-size: 1.2em;
+        }
+        .ranking-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        /* Hover effect for table rows */
+        .ranking-table tr:hover {
+            background-color: #e0f7fa;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>AP Top 25 Countries Power Rankings</h1>
+</header>
+
+<table class="ranking-table" id="rankingTable">
+    <tr>
+        <th>Rank</th>
+        <th>Country</th>
+        <th>Power</th>
+        <th>Notes</th>
+    </tr>
+</table>
+
+<script>
+    let countries = [];
+
+    const START_TIME = new Date('2024-10-31T15:00:00'); // Fixed start time: October 31, 2024, at 3:00 PM
+
+    function formatNumber(num) {
+        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    function updatePower() {
+        countries.forEach(country => {
+            country.power += country.speed;
+        });
+
+        const sortedCountries = countries.sort((a, b) => b.power - a.power).slice(0, 25);
+        const table = document.getElementById("rankingTable");
+        table.innerHTML = `
+            <tr>
+                <th>Rank</th>
+                <th>Country</th>
+                <th>Power</th>
+                <th>Notes</th>
+            </tr>
+        `;
+        sortedCountries.forEach((country, index) => {
+            const row = table.insertRow();
+            row.innerHTML = `
+                <td>${index + 1}</td>
+                <td>${country.name}</td>
+                <td>${formatNumber(country.power)}</td>
+                <td>${country.notes}</td>
+            `;
+        });
+        
+        const currentTime = Math.floor((Date.now() - START_TIME) / 1000); // Elapsed time in seconds
+        localStorage.setItem('countryPowerData', JSON.stringify({ countries, currentTime }));
+    }
+
+    async function loadCountries() {
+        try {
+            const response = await fetch('countries.json');
+            countries = await response.json();
+
+            const savedData = localStorage.getItem('countryPowerData');
+            if (savedData) {
+                const { countries: savedCountries, currentTime } = JSON.parse(savedData);
+                const elapsedTime = Math.floor((Date.now() - START_TIME) / 1000);
+                const timeDifference = elapsedTime - currentTime;
+
+                savedCountries.forEach((country, index) => {
+                    countries[index].power += countries[index].speed * timeDifference;
+                });
+            }
+            
+            setInterval(updatePower, 10);
+        } catch (error) {
+            console.error('Error loading countries:', error);
+        }
+    }
+
+    loadCountries();
+</script>
+
+</body>
+</html>
