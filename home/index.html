@@ -19,39 +19,56 @@
     <div class="header">
         <h1>Games Az</h1>
         <p>Here you can find games</p>
-    </div>
-
-    <div class="main">
-        <section id="projects">
-            <h2>Games</h2>
-            <div class="game-links">
-                <a id="retro-bowl" href="https://sites.google.com/view/games-az/retro-bowl" target="_blank" rel="noopener noreferrer">
-                    <img src="RetroBowl.png" width="24%" height="24%" alt="retro bowl">
-                </a>
-                <a href="https://sites.google.com/view/games-az/slope" target="_blank" rel="noopener noreferrer">
-                    <img src="slope.jpg" width="24%" height="24%" alt="slope">
-                </a>
-                <a href="https://sites.google.com/view/games-az/basket-random" target="_blank" rel="noopener noreferrer">
-                    <img src="BasketRandom.png" width="24%" height="24%" alt="basket random">
-                </a>
-                <a href="https://sites.google.com/view/games-az/retro-bowl-collage" target="_blank" rel="noopener noreferrer">
-                    <img src="RetroBowlC.png" width="24%" height="24%" alt="retro-bowl-collage">  
-                </a>
-               </div>
-        </section>
-        <div class="comment-container">
-            <div id="content">    
-                Loading content...
+        
+        <!-- Countdown Timer -->
+        <div class="countdown-container">
+            <h2>Countdown to Beta Launch!</h2>
+            <div id="countdown">
+                <div class="time-box">
+                    <span id="days">00</span><br>Days
+                </div>
+                <div class="time-box">
+                    <span id="hours">00</span><br>Hours
+                </div>
+                <div class="time-box">
+                    <span id="minutes">00</span><br>Minutes
+                </div>
+                <div class="time-box">
+                    <span id="seconds">00</span><br>Seconds
+                </div>
             </div>
         </div>
     </div>
-        <section id="comments">
-            <h2 id="text1">Leave a Comment <h2>
-            <iframe class="centered-iframe" src="https://docs.google.com/forms/d/e/1FAIpQLSeWMU9aZqYKtQ0ow2idpOMVcbXKSuxbFyykPiSkq-iNjvJ7Sg/viewform?embedded=true" 
-                    width="640" height="800" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
-        </section>
+
+    <!-- Remaining Content -->
+    <div class="main">
+        <!-- Your existing content here -->
+    </div>
 
     <script src="particles-init.js"></script>
     <script src="loader.js"></script>
+    <script>
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const christmas = new Date("December 25, 2024 00:00:00").getTime();
+            const timeLeft = christmas - now;
+
+            const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+            document.getElementById("days").innerText = days;
+            document.getElementById("hours").innerText = hours;
+            document.getElementById("minutes").innerText = minutes;
+            document.getElementById("seconds").innerText = seconds;
+
+            if (timeLeft < 0) {
+                document.getElementById("countdown").innerHTML = "The Beta is live!";
+            }
+        }
+
+        setInterval(updateCountdown, 1000);
+    </script>
 </body>
 </html>
