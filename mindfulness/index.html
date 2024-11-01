@@ -122,6 +122,23 @@
             color: var(--input-text-dark);
         }
 
+        input[type="number"] {
+            width: calc(100% - 20px); /* Adjusted width for a longer text bar */
+            padding: 0.5rem;
+            margin-top: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: var(--input-bg-light);
+            color: var(--input-text-light);
+            box-sizing: border-box;
+            transition: background-color 1s ease, color 1s ease;
+        }
+
+        body.dark-theme input[type="number"] {
+            background-color: var(--input-bg-dark);
+            color: var(--input-text-dark);
+        }
+
         .button {
             padding: 0.8rem;
             background-color: var(--button-bg-light);
