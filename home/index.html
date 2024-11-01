@@ -6,6 +6,33 @@
     <title>Games Az</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
+    <style>
+        /* Countdown Timer Styles */
+        .countdown-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #countdown {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .time-box {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 15px 10px;
+            border-radius: 10px;
+            text-align: center;
+            color: #f7d794;
+            width: 80px;
+        }
+
+        .time-box span {
+            font-size: 1.5em;
+            color: #ffffff;
+        }
+    </style>
 </head>
 <body>
     <div id="particles-js"></div>
@@ -40,10 +67,37 @@
         </div>
     </div>
 
-    <!-- Remaining Content -->
     <div class="main">
-        <!-- Your existing content here -->
+        <section id="projects">
+            <h2>Games</h2>
+            <div class="game-links">
+                <a id="retro-bowl" href="https://sites.google.com/view/games-az/retro-bowl" target="_blank" rel="noopener noreferrer">
+                    <img src="RetroBowl.png" width="24%" height="24%" alt="retro bowl">
+                </a>
+                <a href="https://sites.google.com/view/games-az/slope" target="_blank" rel="noopener noreferrer">
+                    <img src="slope.jpg" width="24%" height="24%" alt="slope">
+                </a>
+                <a href="https://sites.google.com/view/games-az/basket-random" target="_blank" rel="noopener noreferrer">
+                    <img src="BasketRandom.png" width="24%" height="24%" alt="basket random">
+                </a>
+                <a href="https://sites.google.com/view/games-az/retro-bowl-collage" target="_blank" rel="noopener noreferrer">
+                    <img src="RetroBowlC.png" width="24%" height="24%" alt="retro-bowl-collage">  
+                </a>
+            </div>
+        </section>
+
+        <div class="comment-container">
+            <div id="content">    
+                Loading content...
+            </div>
+        </div>
     </div>
+
+    <section id="comments">
+        <h2 id="text1">Leave a Comment</h2>
+        <iframe class="centered-iframe" src="https://docs.google.com/forms/d/e/1FAIpQLSeWMU9aZqYKtQ0ow2idpOMVcbXKSuxbFyykPiSkq-iNjvJ7Sg/viewform?embedded=true" 
+                width="640" height="800" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
+    </section>
 
     <script src="particles-init.js"></script>
     <script src="loader.js"></script>
