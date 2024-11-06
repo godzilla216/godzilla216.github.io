@@ -258,3 +258,69 @@ body {
     font-size: 1.5em;
     color: #ffffff;
 }
+
+/* Dark Mode Toggle Button */
+.dark-mode-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+}
+
+.dark-mode-toggle input[type="checkbox"] {
+    display: none;
+}
+
+.dark-mode-toggle label {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    background-color: #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s;
+}
+
+.dark-mode-toggle label .sun,
+.dark-mode-toggle label .moon {
+    font-size: 1.5em;
+    transition: opacity 0.3s;
+}
+
+.dark-mode-toggle label .sun {
+    color: #FFA500;
+}
+
+.dark-mode-toggle label .moon {
+    color: #333;
+    opacity: 0;
+}
+
+.dark-mode input[type="checkbox"]:checked + label .sun {
+    opacity: 0;
+}
+
+.dark-mode input[type="checkbox"]:checked + label .moon {
+    opacity: 1;
+}
+
+body.dark-mode {
+    background-color: #1a1a1a;
+    color: #f7d794;
+}
+
+body.dark-mode .navbar,
+body.dark-mode .discord-invite,
+body.dark-mode .time-box {
+    background-color: #333;
+}
+
+body.dark-mode .time-box span {
+    color: #f7d794;
+}
+
+body.dark-mode .modal-content {
+    background-color: #333;
+}
