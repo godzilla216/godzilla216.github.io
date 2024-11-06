@@ -274,7 +274,14 @@ body {
     z-index: 9999; /* Ensure it's above everything else */
 }
 
-/* Spinner with black outline */
+/* Container for the spinner and black box below it */
+.loader .spinner-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Spinner with blue border */
 .loader .spinner {
     border: 8px solid #f3f3f3; /* Light gray border */
     border-top: 8px solid #3498db; /* Blue color for the spinner */
@@ -282,10 +289,15 @@ body {
     width: 60px;
     height: 60px;
     animation: spin 1.5s linear infinite; /* Spinning animation */
+}
 
-    /* Adding a black outline to make the spinner more visible */
-    border: 8px solid #000; /* Black outline around the spinner */
-    border-top: 8px solid #3498db; /* Blue top border for the spinning effect */
+/* Black box below the spinner */
+.loader .black-box {
+    width: 100px; /* Width of the black box */
+    height: 20px; /* Height of the black box */
+    background-color: black;
+    margin-top: 15px; /* Space between spinner and black box */
+    border-radius: 5px; /* Optional: rounded corners for the box */
 }
 
 /* Spinning animation */
@@ -313,4 +325,3 @@ body:not(.loading) .loader {
     visibility: hidden; /* Hide the loader */
     opacity: 0;
 }
-
