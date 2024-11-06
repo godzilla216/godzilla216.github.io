@@ -36,13 +36,28 @@
         /* Discord Invite Styles */
         .discord-invite {
             text-align: center;
-            margin-top: 30px;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #7289DA; /* Discord's brand color */
+            color: #ffffff;
+            border-radius: 10px;
         }
 
         .discord-invite img {
             width: 50px;
             height: 50px;
             vertical-align: middle;
+            margin-right: 10px;
+        }
+
+        .discord-invite a {
+            color: #ffffff;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .discord-invite a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -79,6 +94,14 @@
         </div>
     </div>
 
+    <!-- Discord Invite Section -->
+    <div class="discord-invite">
+        <p>If you're interested in making assets for a game, join our Discord community!</p>
+        <a href="https://discord.gg/betrj3pX7C" target="_blank" rel="noopener noreferrer">
+            <img src="discord.png" alt="Discord Logo"> Join Our Discord
+        </a>
+    </div>
+
     <div class="main">
         <section id="projects">
             <h2>Games</h2>
@@ -110,14 +133,6 @@
         <iframe class="centered-iframe" src="https://docs.google.com/forms/d/e/1FAIpQLSeWMU9aZqYKtQ0ow2idpOMVcbXKSuxbFyykPiSkq-iNjvJ7Sg/viewform?embedded=true" 
                 width="640" height="800" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
     </section>
-
-    <!-- Discord Invite Section -->
-    <div class="discord-invite">
-        <p>If you're interested in making assets for a game, join our Discord community!</p>
-        <a href="https://discord.gg/betrj3pX7C" target="_blank" rel="noopener noreferrer">
-            <img src="discord.png" alt="Discord Logo"> Join Our Discord
-        </a>
-    </div>
 
     <script src="particles-init.js"></script>
     <script src="loader.js"></script>
