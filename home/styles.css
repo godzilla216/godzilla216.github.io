@@ -259,68 +259,74 @@ body {
     color: #ffffff;
 }
 
-/* Dark Mode Toggle Button */
+/* Dark Mode Toggle Styles */
 .dark-mode-toggle {
-    position: fixed;
-    top: 20px;
-    right: 20px;
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
 }
 
-.dark-mode-toggle input[type="checkbox"] {
-    display: none;
+.dark-mode-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
 }
 
 .dark-mode-toggle label {
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 50px;
-    height: 50px;
-    background-color: #fff;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    border-radius: 34px;
+    transition: 0.4s;
+}
+
+.dark-mode-toggle label .slider {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    right: 4px;
+    bottom: 4px;
+    background-color: white;
     border-radius: 50%;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    transition: background-color 0.3s;
+    transition: 0.4s;
 }
 
-.dark-mode-toggle label .sun,
-.dark-mode-toggle label .moon {
-    font-size: 1.5em;
-    transition: opacity 0.3s;
+.dark-mode-toggle input:checked + label {
+    background-color: #7289DA; /* Discord-like color for night mode */
 }
 
-.dark-mode-toggle label .sun {
-    color: #FFA500;
+.dark-mode-toggle input:checked + label .slider {
+    transform: translateX(26px);
 }
 
-.dark-mode-toggle label .moon {
-    color: #333;
-    opacity: 0;
-}
-
-.dark-mode input[type="checkbox"]:checked + label .sun {
-    opacity: 0;
-}
-
-.dark-mode input[type="checkbox"]:checked + label .moon {
-    opacity: 1;
-}
-
+/* Dark Mode Styling */
 body.dark-mode {
-    background-color: #1a1a1a;
-    color: #f7d794;
-}
-
-body.dark-mode .navbar,
-body.dark-mode .discord-invite,
-body.dark-mode .time-box {
     background-color: #333;
+    color: #fff;
+    transition: background-color 0.4s, color 0.4s;
 }
 
-body.dark-mode .time-box span {
-    color: #f7d794;
+body.dark-mode .countdown-container,
+body.dark-mode .discord-invite {
+    background-color: #555;
 }
 
-body.dark-mode .modal-content {
-    background-color: #333;
+/* Optional: Change the sun/moon icon for dark mode */
+.sun,
+.moon {
+    display: none;
 }
+
+body.dark-mode .sun {
+    display: inline;
+}
+
+body:not(.dark-mode) .moon {
+    display: inline;
+}
+
