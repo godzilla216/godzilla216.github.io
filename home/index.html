@@ -7,50 +7,6 @@
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
     <style>
-        /* Full-screen Loading Spinner */
-        .loader {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%); /* Center the loader */
-            display: none; /* Hide loader by default */
-        }
-
-        /* Spinner styles */
-        .spinner {
-            border: 8px solid #f3f3f3; /* Light gray border */
-            border-top: 8px solid #3498db; /* Blue color for the spinner */
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 2s linear infinite;
-        }
-
-        /* Black box below the spinner */
-        .black-box {
-            width: 100px;
-            height: 20px;
-            background-color: black;
-            margin-top: 15px;
-            border-radius: 5px;
-        }
-
-        /* Spinning animation */
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Initially hide all content until loading is complete */
-        body.loading * {
-            visibility: hidden; /* Hide all content */
-        }
-
-        /* When loading is complete, show content */
-        body:not(.loading) * {
-            visibility: visible; /* Show all content */
-        }
-
         /* Countdown Timer Styles */
         .countdown-container {
             text-align: center;
@@ -103,16 +59,45 @@
         .discord-invite a:hover {
             text-decoration: underline;
         }
+
+        /* Loading Spinner Styles */
+        .loader {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Hide spinner when page is loaded */
+        body.loading #loader {
+            display: block;
+        }
+
+        body:not(.loading) #loader {
+            display: none;
+        }
     </style>
 </head>
-<body class="loading">
+    <body class="loading">
     <!-- Full-screen Loading Spinner -->
     <div id="loader" class="loader">
-        <div class="spinner"></div>
-        <div class="black-box"></div>
+        <div class="spinner-container">
+            <div class="spinner"></div>
+            <!-- Black box below the spinner -->
+            <div class="black-box"></div>
+        </div>
     </div>
 
-    <!-- Page content (hidden until loading is complete) -->
     <div id="particles-js"></div>
 
     <div class="navbar">
