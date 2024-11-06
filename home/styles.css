@@ -274,6 +274,7 @@ body {
     z-index: 9999; /* Ensure it's above everything else */
 }
 
+/* Spinner with black outline */
 .loader .spinner {
     border: 8px solid #f3f3f3; /* Light gray border */
     border-top: 8px solid #3498db; /* Blue color for the spinner */
@@ -281,6 +282,10 @@ body {
     width: 60px;
     height: 60px;
     animation: spin 1.5s linear infinite; /* Spinning animation */
+
+    /* Adding a black outline to make the spinner more visible */
+    border: 8px solid #000; /* Black outline around the spinner */
+    border-top: 8px solid #3498db; /* Blue top border for the spinning effect */
 }
 
 /* Spinning animation */
@@ -308,3 +313,4 @@ body:not(.loading) .loader {
     visibility: hidden; /* Hide the loader */
     opacity: 0;
 }
+
