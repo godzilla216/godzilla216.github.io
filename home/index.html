@@ -59,6 +59,25 @@
         .discord-invite a:hover {
             text-decoration: underline;
         }
+
+        /* Random Game Button Styles */
+        .random-game-button {
+            display: block;
+            width: 200px;
+            padding: 15px;
+            margin: 30px auto;
+            background-color: #3498db;
+            color: #fff;
+            text-align: center;
+            font-size: 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .random-game-button:hover {
+            background-color: #2980b9;
+        }
     </style>
 </head>
 <body>
@@ -73,7 +92,7 @@
     <div class="header">
         <h1>Games Az</h1>
         <p>Here you can find games</p>
-            <!-- Dark Mode Toggle Button -->
+        <!-- Dark Mode Toggle Button -->
         <div class="dark-mode-toggle">
             <input type="checkbox" id="dark-mode-switch">
             <label for="dark-mode-switch">
@@ -126,6 +145,10 @@
                     <img src="RetroBowlC.png" width="24%" height="24%" alt="retro-bowl-collage">  
                 </a>
             </div>
+
+            <!-- Random Game Button -->
+            <a href="#" class="random-game-button" id="random-game-btn">Random Game</a>
+
         </section>
 
         <div class="comment-container">
@@ -145,5 +168,23 @@
     <script src="Toggle.js"></script>
     <script src="loader.js"></script>
     <script src="Countdown.js"></script>
+    
+    <script>
+        // JavaScript to select a random game
+        document.getElementById('random-game-btn').addEventListener('click', function() {
+            // Array of game URLs
+            const gameLinks = [
+                "https://sites.google.com/view/games-az/retro-bowl",
+                "https://sites.google.com/view/games-az/slope",
+                "https://sites.google.com/view/games-az/basket-random",
+                "https://sites.google.com/view/games-az/retro-bowl-collage",
+                "https://sites.google.com/view/games-az/slope-2"
+            ];
+            
+            // Randomly pick a game
+            const randomIndex = Math.floor(Math.random() * gameLinks.length);
+            window.open(gameLinks[randomIndex], "_blank");
+        });
+    </script>
 </body>
 </html>
