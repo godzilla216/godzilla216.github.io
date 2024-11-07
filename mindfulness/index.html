@@ -310,14 +310,16 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="stressLevel">Stress Level (1-10):</label>
-                    <input type="number" id="stressLevel" min="1" max="10" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="sleepQuality">Sleep Quality (1-10):</label>
-                    <input type="number" id="sleepQuality" min="1" max="10" required>
-                </div>
+                <label for="stressLevel">Stress Level (1-10):</label>
+                <input type="number" id="stressLevel" min="1" max="10" required>
+                <small>Note: 1 is the best (least stress), and 10 is the worst (most stress).</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="sleepQuality">Sleep Quality (1-10):</label>
+                <input type="number" id="sleepQuality" min="1" max="10" required>
+                <small>Note: 1 is the worst (least sleep quality), and 10 is the best (most restful sleep).</small>
+            </div>
 
                 <button type="button" class="button" onclick="calculateScore()">Calculate Score</button>
             </form>
