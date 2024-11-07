@@ -443,8 +443,9 @@
             const maxHeartRate = 150;
             const baseScore = 100;
             
-            let score = baseScore - (heartRate / maxHeartRate * 30) - (stressLevel * 5) + (sleepQuality * 5);
+            let score = baseScore - (heartRate / maxHeartRate * 30) - (stressLevel * 10) + (sleepQuality * 10);
             score = Math.round(Math.max(0, Math.min(score, 100)));
+
 
             document.getElementById('scoreResult').innerText = `Your Mindfulness Score: ${score}/100`;
 
