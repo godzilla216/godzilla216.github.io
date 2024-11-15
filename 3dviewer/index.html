@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>STL File Viewer</title>
+  <title>STL File Viewer with Movement</title>
   <style>
     body { margin: 0; }
     canvas { display: block; }
@@ -33,13 +33,40 @@
     light.position.set(1, 1, 1).normalize();
     scene.add(light);
 
+    // Variables for the model and movement speed
+    let model;
+    const moveSpeed = 1;  // Adjust speed as needed
+
     // Load and display the STL file
     const loader = new THREE.STLLoader();
     loader.load('obj.stl', function (geometry) {
       const material = new THREE.MeshPhongMaterial({ color: 0x007bff });
-      const mesh = new THREE.Mesh(geometry, material);
-      scene.add(mesh);
+      model = new THREE.Mesh(geometry, material);
+      scene.add(model);
     });
+
+    // Keyboard control for moving the model
+    function handleKeyDown(event) {
+      if (model) {
+        switch (event.key) {
+          case 'ArrowUp':
+            model.position.y += moveSpeed;
+            break;
+          case 'ArrowDown':
+            model.position.y -= moveSpeed;
+            break;
+          case 'ArrowLeft':
+            model.position.x -= moveSpeed;
+            break;
+          case 'ArrowRight':
+            model.position.x += moveSpeed;
+            break;
+        }
+      }
+    }
+
+    // Add event listener for keyboard input
+    window.addEventListener('keydown', handleKeyDown);
 
     // Render the scene
     function animate() {
