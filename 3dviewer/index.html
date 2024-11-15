@@ -1,111 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STL Viewer with Controls</title>
-    <style>
-        body { margin: 0; overflow: hidden; }
-        canvas { display: block; }
-    </style>
+  <meta charset="UTF-8">
+  <title>STL File Viewer</title>
+  <style>
+    body { margin: 0; }
+    canvas { display: block; }
+  </style>
 </head>
 <body>
+  <!-- Container for the 3D viewer -->
+  <div id="viewer"></div>
 
-<a id="stl-file" src="obj.stl"></a>
-<canvas id="canvas"></canvas>
+  <!-- Import Three.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <!-- Import STLLoader -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/examples/js/loaders/STLLoader.js"></script>
 
-<!-- Include Three.js library -->
-<script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
-<!-- Include STLLoader to load STL files -->
-<script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/STLLoader.js"></script>
-<!-- Include OrbitControls for mouse interaction -->
-<script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
-
-<script>
-// Set up scene, camera, and renderer
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('canvas') });
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
-
-// Create a light source
-const light = new THREE.PointLight(0xFFFFFF);
-light.position.set(10, 10, 10);
-scene.add(light);
-
-// Add a background color
-scene.background = new THREE.Color(0xeeeeee);
-
-// Create the loader for STL files
-const loader = new THREE.STLLoader();
-let mesh = null;
-
-// Handle STL file selection
-document.getElementById('stl-file').addEventListener('change', function (event) {
-    const file = event.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            const data = e.target.result;
-            const geometry = loader.parse(data);
-            if (mesh) {
-                scene.remove(mesh);
-            }
-            const material = new THREE.MeshPhongMaterial({ color: 0x0077ff, specular: 0x555555, shininess: 30 });
-            mesh = new THREE.Mesh(geometry, material);
-            scene.add(mesh);
-            mesh.rotation.x = -Math.PI / 2; // Adjust rotation if needed
-            mesh.scale.set(0.1, 0.1, 0.1); // Adjust scale
-            animate(); // Start the animation loop
-        };
-        reader.readAsArrayBuffer(file);
-    }
-});
-
-// Initialize OrbitControls
-const controls = new THREE.OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true; // Enable smooth controls
-controls.dampingFactor = 0.25; // Smoothness factor
-controls.screenSpacePanning = true; // Allow panning in the screen space
-
-// Handle Arrow Key Controls (Move the camera)
-let moveSpeed = 0.1;
-window.addEventListener('keydown', function(event) {
-    const delta = moveSpeed;
-    if (event.key === 'ArrowUp') {
-        camera.position.z -= delta; // Move camera closer (zoom in)
-    } else if (event.key === 'ArrowDown') {
-        camera.position.z += delta; // Move camera further away (zoom out)
-    } else if (event.key === 'ArrowLeft') {
-        camera.position.x -= delta; // Move camera left
-    } else if (event.key === 'ArrowRight') {
-        camera.position.x += delta; // Move camera right
-    }
-    // Prevent default behavior for arrow keys (e.g., scrolling the page)
-    event.preventDefault();
-});
-
-// Animation loop
-function animate() {
-    requestAnimationFrame(animate);
-    
-    // Update controls
-    controls.update(); // Update the OrbitControls
-
-    renderer.render(scene, camera);
-}
-
-// Adjust camera position
-camera.position.z = 2;
-
-// Adjust renderer size on window resize
-window.addEventListener('resize', () => {
+  <script>
+    // Set up scene, camera, and renderer
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-});
-</script>
+    document.body.appendChild(renderer.domElement);
 
+    // Position the camera
+    camera.position.z = 100;
+
+    // Add lighting
+    const light = new THREE.DirectionalLight(0xffffff, 1);
+    light.position.set(1, 1, 1).normalize();
+    scene.add(light);
+
+    // Load and display the STL file
+    const loader = new THREE.STLLoader();
+    loader.load('obj.stl', function (geometry) {
+      const material = new THREE.MeshPhongMaterial({ color: 0x007bff });
+      const mesh = new THREE.Mesh(geometry, material);
+      scene.add(mesh);
+    });
+
+    // Render the scene
+    function animate() {
+      requestAnimationFrame(animate);
+      renderer.render(scene, camera);
+    }
+    animate();
+  </script>
 </body>
 </html>
