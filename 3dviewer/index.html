@@ -1,79 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>STL File Viewer with Movement</title>
-  <style>
-    body { margin: 0; }
-    canvas { display: block; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STL Viewer with Improved Controls</title>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        canvas { display: block; }
+    </style>
 </head>
 <body>
-  <!-- Container for the 3D viewer -->
-  <div id="viewer"></div>
 
-  <!-- Import Three.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
-  <!-- Import STLLoader -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/examples/js/loaders/STLLoader.js"></script>
+<canvas id="canvas"></canvas>
 
-  <script>
-    // Set up scene, camera, and renderer
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
+<!-- Include Three.js library -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+<!-- Include STLLoader to load STL files -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/STLLoader.js"></script>
+<!-- Include OrbitControls for mouse interaction -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
 
-    // Position the camera
-    camera.position.z = 100;
+<script>
+// Set up scene, camera, and renderer
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('canvas') });
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
 
-    // Add lighting
-    const light = new THREE.DirectionalLight(0xffffff, 1);
-    light.position.set(1, 1, 1).normalize();
-    scene.add(light);
+// Create a light source
+const light = new THREE.PointLight(0xFFFFFF);
+light.position.set(10, 10, 10);
+scene.add(light);
 
-    // Variables for the model and movement speed
-    let model;
-    const moveSpeed = 1;  // Adjust speed as needed
+// Add a background color
+scene.background = new THREE.Color(0xeeeeee);
 
-    // Load and display the STL file
-    const loader = new THREE.STLLoader();
+// Create the loader for STL files
+const loader = new THREE.STLLoader();
+let mesh = null;
+
+// Preload an STL file
+function preloadSTL() {
     loader.load('obj.stl', function (geometry) {
-      const material = new THREE.MeshPhongMaterial({ color: 0x007bff });
-      model = new THREE.Mesh(geometry, material);
-      scene.add(model);
+        const material = new THREE.MeshPhongMaterial({ color: 0x0077ff, specular: 0x555555, shininess: 30 });
+        mesh = new THREE.Mesh(geometry, material);
+        mesh.rotation.x = -Math.PI / 2; // Adjust rotation if needed
+        mesh.scale.set(0.1, 0.1, 0.1); // Adjust scale
+        scene.add(mesh);
+        animate(); // Start the animation loop
     });
+}
 
-    // Keyboard control for moving the model
-    function handleKeyDown(event) {
-      if (model) {
-        switch (event.key) {
-          case 'ArrowUp':
-            model.position.y += moveSpeed;
-            break;
-          case 'ArrowDown':
-            model.position.y -= moveSpeed;
-            break;
-          case 'ArrowLeft':
-            model.position.x -= moveSpeed;
-            break;
-          case 'ArrowRight':
-            model.position.x += moveSpeed;
-            break;
-        }
-      }
-    }
+// Call the preload function on page load
+preloadSTL();
 
-    // Add event listener for keyboard input
-    window.addEventListener('keydown', handleKeyDown);
+// Initialize OrbitControls
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.25;
+controls.screenSpacePanning = true;
 
-    // Render the scene
-    function animate() {
-      requestAnimationFrame(animate);
-      renderer.render(scene, camera);
-    }
-    animate();
-  </script>
+// Improved Arrow Key Controls
+let moveSpeed = 0.05;
+let moveDirection = { forward: false, backward: false, left: false, right: false };
+
+// Update move direction based on key down/up
+window.addEventListener('keydown', (event) => {
+    if (event.key === 'ArrowUp') moveDirection.forward = true;
+    if (event.key === 'ArrowDown') moveDirection.backward = true;
+    if (event.key === 'ArrowLeft') moveDirection.left = true;
+    if (event.key === 'ArrowRight') moveDirection.right = true;
+});
+
+window.addEventListener('keyup', (event) => {
+    if (event.key === 'ArrowUp') moveDirection.forward = false;
+    if (event.key === 'ArrowDown') moveDirection.backward = false;
+    if (event.key === 'ArrowLeft') moveDirection.left = false;
+    if (event.key === 'ArrowRight') moveDirection.right = false;
+});
+
+// Update camera position based on move direction
+function updateCameraPosition() {
+    if (moveDirection.forward) camera.position.z -= moveSpeed;
+    if (moveDirection.backward) camera.position.z += moveSpeed;
+    if (moveDirection.left) camera.position.x -= moveSpeed;
+    if (moveDirection.right) camera.position.x += moveSpeed;
+}
+
+// Animation loop
+function animate() {
+    requestAnimationFrame(animate);
+
+    // Update camera movement and controls
+    updateCameraPosition();
+    controls.update();
+    renderer.render(scene, camera);
+}
+
+// Set initial camera position
+camera.position.z = 2;
+
+// Adjust renderer size on window resize
+window.addEventListener('resize', () => {
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+});
+</script>
+
 </body>
 </html>
