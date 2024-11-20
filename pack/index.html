@@ -8,14 +8,15 @@
 </head>
 <body>
     <div id="app">
+        <!-- Coin Display -->
         <div id="coinDisplay">
             <img src="Assets/coin_icon.png" alt="coin icon" id="coinIcon">
             <span id="coinBalance">Coins: 10000</span>
         </div>
-        
+
         <!-- Tabs -->
         <div id="tabs">
-            <button id="openPackTab">Open Pack</button>
+            <button id="openPackTab" class="active">Open Pack</button>
             <button id="binderTab">Card Binder</button>
         </div>
 
@@ -29,7 +30,7 @@
                 </video>                
             </div>
             <div id="cardContainer">
-                <img id="cardImage" />
+                <img id="cardImage" alt="Card Image">
                 <div id="cardTitle"></div>
                 <div id="cardDetails"></div>
             </div>
@@ -41,8 +42,6 @@
             <div id="binderContainer"></div>
         </div>
     </div>
-
-    
 
     <script src="script.js"></script>
 </body>
