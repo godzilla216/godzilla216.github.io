@@ -8,20 +8,42 @@
 </head>
 <body>
     <div id="app">
-        <button id="openPackButton">Open Pack</button>
-
-        <!-- Video container -->
-        <div id="videoContainer">
-            <video id="packVideo" autoplay></video>
+        <div id="coinDisplay">
+            <img src="Assets/coin_icon.png" alt="coin icon" id="coinIcon">
+            <span id="coinBalance">Coins: 10000</span>
+        </div>
+        
+        <!-- Tabs -->
+        <div id="tabs">
+            <button id="openPackTab">Open Pack</button>
+            <button id="binderTab">Card Binder</button>
         </div>
 
-        <!-- Card container -->
-        <div id="cardContainer">
-            <img id="cardImage" src="" alt="Card">
-            <div id="cardTitle"></div>
-            <div id="cardDetails"></div>
+        <!-- Open Pack Section -->
+        <div id="openPackSection">
+            <button id="openPackButton">Open Pack (1000 Coins)</button>
+            <div id="videoContainer">
+                <video id="packVideo" autoplay>
+                    <source src="Assets/pack.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>                
+            </div>
+            <div id="cardContainer">
+                <img id="cardImage" />
+                <div id="cardTitle"></div>
+                <div id="cardDetails"></div>
+            </div>
+        </div>
+
+        <!-- Card Binder Section -->
+        <div id="binderSection" style="display: none;">
+            <h2>Your Card Binder</h2>
+            <div id="binderContainer"></div>
         </div>
     </div>
+
+    
+
     <script src="script.js"></script>
 </body>
 </html>

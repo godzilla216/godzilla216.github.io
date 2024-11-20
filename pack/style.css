@@ -99,3 +99,73 @@ body {
     font-size: 18px;
     color: #d1d1d1;
 }
+/* Styling for the coin display */
+#coinDisplay {
+    display: flex;
+    align-items: center;
+    font-size: 24px;
+    color: white;
+    margin-bottom: 20px;
+}
+
+#coinIcon {
+    width: 30px;
+    margin-right: 10px;
+}
+
+#coinBalance {
+    font-weight: bold;
+}
+
+/* Styling for the pack video */
+#videoContainer {
+    display: none;
+    text-align: center;
+}
+
+/* Styling for the card container */
+#cardContainer {
+    display: none;
+    text-align: center;
+    margin-top: 20px;
+}
+
+#cardImage {
+    width: 200px;
+    height: 300px;
+}
+
+#cardTitle {
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+#cardDetails {
+    font-size: 16px;
+    margin-top: 5px;
+}
+
+/* Card binder styles */
+#cardBinder {
+    margin-top: 40px;
+    text-align: center;
+}
+
+#binderCards {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.cardInBinder {
+    width: 150px;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.cardInBinder img {
+    width: 100%;
+    border-radius: 10px;
+}
