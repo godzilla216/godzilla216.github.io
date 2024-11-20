@@ -125,13 +125,15 @@ body {
     text-align: center;
 }
 
+/* Use CSS Grid to create a 3-column layout */
 #binderCards {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap; /* Ensures cards will wrap to the next line if necessary */
-    gap: 20px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 equal-width columns */
+    gap: 20px; /* Space between cards */
+    justify-items: center; /* Center each card in its column */
 }
 
+/* Each card's styling within the binder */
 .cardInBinder {
     width: 150px; /* Fixed size for all cards */
     text-align: center;
