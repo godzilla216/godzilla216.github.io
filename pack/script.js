@@ -22,7 +22,7 @@ let ownedCards = [];
 const cards = [
     {
         file: "87_ed_reed_gold.png",
-        typeVideo: "Assets/gold.mp4"
+        file: "84_Boogie_Basham_genki_force.png"
     }
 ];
 
