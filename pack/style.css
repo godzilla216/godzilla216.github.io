@@ -208,3 +208,48 @@ body {
     cursor: not-allowed;
     transform: none;
 }
+/* Ensures all card images have the same size */
+.card img {
+    width: 100px;  /* Set a fixed width for the card image */
+    height: 150px; /* Set a fixed height for the card image */
+    object-fit: cover; /* Ensures that the image is scaled properly without distortion */
+}
+
+/* Card container styling */
+.card {
+    width: 120px;   /* Set a fixed width for each card */
+    height: 200px;  /* Set a fixed height for each card */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    margin: 10px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Ensure the card name and buttons are spaced out correctly */
+.card div {
+    text-align: center;
+    font-size: 12px;
+    margin: 5px 0;
+}
+
+.card button {
+    width: 100%;
+    padding: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    border-radius: 4px;
+    margin-top: 5px;
+}
+
+.card button:hover {
+    background-color: #0056b3;
+}
