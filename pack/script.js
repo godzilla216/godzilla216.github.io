@@ -61,13 +61,21 @@ openPackButton.addEventListener("click", () => {
         playVideo("Assets/pack.mp4", () => {
             // Choose a random card
             const randomCard = parsedCards[Math.floor(Math.random() * parsedCards.length)];
-            // Play the type video
-            playVideo(randomCard.typeVideo, () => {
-                // Display the card
-                displayCard(randomCard);
-                // Re-enable the button after everything is done
-                toggleButton(true);
-            });
+            
+            // Check if the card's type video is "gold.mp4" and skip if true
+            if (randomCard.typeVideo.includes("gold.mp4")) {
+                console.log("Skipped playing gold.mp4");
+                displayCard(randomCard); // Directly display the card
+                toggleButton(true); // Re-enable the button
+            } else {
+                // Play the type video
+                playVideo(randomCard.typeVideo, () => {
+                    // Display the card
+                    displayCard(randomCard);
+                    // Re-enable the button after everything is done
+                    toggleButton(true);
+                });
+            }
         });
     } else {
         alert("You don't have enough coins to open a pack!");
