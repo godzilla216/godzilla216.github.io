@@ -126,7 +126,10 @@ function addToBinder(card) {
 
 function quicksellCard(card) {
     // Remove the card from ownedCards
-    ownedCards = ownedCards.filter(ownedCard => ownedCard !== card);
+    const cardIndex = ownedCards.indexOf(card);
+    if (cardIndex !== -1) {
+        ownedCards.splice(cardIndex, 1); // Remove the card from the array
+    }
     coins += 3000;
     updateCoinDisplay();
     alert(`You quicksold ${card.name} for 3000 coins!`);
@@ -136,7 +139,7 @@ function quicksellCard(card) {
 function updateBinder() {
     binderContainer.innerHTML = ''; // Clear current binder
 
-    ownedCards.forEach(card => {
+    ownedCards.forEach((card, index) => {
         const cardDiv = document.createElement("div");
         cardDiv.classList.add("card");
 
