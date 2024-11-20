@@ -125,9 +125,12 @@ function addToBinder(card) {
 }
 
 function quicksellCard(card) {
+    // Remove the card from ownedCards
+    ownedCards = ownedCards.filter(ownedCard => ownedCard !== card);
     coins += 3000;
     updateCoinDisplay();
     alert(`You quicksold ${card.name} for 3000 coins!`);
+    updateBinder(); // Update the binder display
 }
 
 function updateBinder() {
@@ -147,8 +150,7 @@ function updateBinder() {
         quicksellButton.classList.add("quicksell");
         quicksellButton.textContent = "Quick Sell (3000 Coins)";
         quicksellButton.addEventListener("click", () => {
-            quicksellCard(card);
-            updateBinder();
+            quicksellCard(card); // Remove card and update binder
         });
 
         cardDiv.appendChild(img);
