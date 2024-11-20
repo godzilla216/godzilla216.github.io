@@ -18,13 +18,15 @@ const packCost = 1000;
 let coins = 10000; // Starting coins
 let ownedCards = [];
 
-// Card data
+// Card data (corrected the duplicate keys)
 const cards = [
     {
         file: "87_ed_reed_gold.png",
         typeVideo: "Assets/gold.mp4",
+    },
+    {
         file: "84_Boogie_Basham_genki_force.png",
-        typeVideo: "Assets/gold.mp4"
+        typeVideo: "Assets/gold.mp4",
     }
 ];
 
