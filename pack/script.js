@@ -39,7 +39,7 @@ const cards = [
         typeVideo: "Assets/gold.mp4",
     },
     {
-        file: "99-Patrick-Manomes-Rare.png",
+        file: "99_Patrick_Manomes_Rare.png",
         typeVideo: "Assets/gold.mp4",
     },
 ];
