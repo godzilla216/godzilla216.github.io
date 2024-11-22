@@ -38,14 +38,17 @@ const cards = [
         typeVideo: "Assets/gold.mp4",
     },
     {
-        file: "99-Patrick-Manomes-Rare.png",
+        file: "99_Patrick_Manomes_Rare.png",
         typeVideo: "Assets/gold.mp4",
     },
 ];
 
 // Parse card details from file names
 const parsedCards = cards.map(card => {
-    const [overall, firstName, lastName, type] = card.file.replace(".png", "").split("_");
+    // Replace hyphens with underscores for consistency
+    const fileName = card.file.replace(/-/g, "_").replace(".png", "");
+    const [overall, firstName, lastName, type] = fileName.split("_");
+
     return {
         name: `${overall} ${firstName} ${lastName} ${type}`,
         overall: parseInt(overall), // Extract the OVR as a number
