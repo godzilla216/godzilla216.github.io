@@ -22,6 +22,7 @@ let ownedCards = [];
 // Exponential Quicksell Configuration
 const baseValue = 100; // Base quicksell value
 const multiplier = 1.05; // Exponential growth rate per OVR
+let cardPendingAction = false; // Tracks if there's a card awaiting action
 
 // Card data
 const cards = [
@@ -38,7 +39,7 @@ const cards = [
         typeVideo: "Assets/gold.mp4",
     },
     {
-        file: "99_Patrick_Manomes_Rare.png",
+        file: "99-Patrick-Manomes-Rare.png",
         typeVideo: "Assets/gold.mp4",
     },
 ];
@@ -95,7 +96,7 @@ function getRandomCard() {
 
 // Pack Opening Logic
 openPackButton.addEventListener("click", () => {
-    if (coins >= packCost) {
+    if (coins >= packCost && !cardPendingAction) {
         coins -= packCost;
         updateCoinDisplay();
 
@@ -105,14 +106,15 @@ openPackButton.addEventListener("click", () => {
             const randomCard = getRandomCard();
             if (randomCard.typeVideo.includes("gold.mp4")) {
                 displayCard(randomCard);
-                toggleButton(true);
             } else {
                 playVideo(randomCard.typeVideo, () => {
                     displayCard(randomCard);
-                    toggleButton(true);
                 });
             }
+            cardPendingAction = true; // Mark that the user must act on this card
         });
+    } else if (cardPendingAction) {
+        alert("You must act on your current card before opening another pack!");
     } else {
         alert("You don't have enough coins to open a pack!");
     }
@@ -142,6 +144,8 @@ function displayCard(card) {
     actionButton.addEventListener("click", () => {
         addToBinder(card);
         cardContainer.style.display = "none";
+        cardPendingAction = false; // User has acted on the card
+        toggleButton(true);
     });
 
     const quicksellButton = document.createElement("button");
@@ -150,6 +154,8 @@ function displayCard(card) {
     quicksellButton.addEventListener("click", () => {
         quicksellCard(card, quicksellValue);
         cardContainer.style.display = "none";
+        cardPendingAction = false; // User has acted on the card
+        toggleButton(true);
     });
 
     cardDetails.innerHTML = ""; // Clear previous content
@@ -164,12 +170,6 @@ function quicksellCard(card, quicksellValue) {
     coins += quicksellValue;
     updateCoinDisplay();
     alert(`You quicksold ${card.name} for ${quicksellValue} coins!`);
-
-    const cardIndex = ownedCards.indexOf(card);
-    if (cardIndex !== -1) {
-        ownedCards.splice(cardIndex, 1);
-    }
-
     updateBinder();
 }
 
