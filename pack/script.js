@@ -34,12 +34,12 @@ const cards = [
         typeVideo: "Assets/gold.mp4",
     },
     {
-        file: "78_John_Smith_silver.png",
-        typeVideo: "Assets/silver.mp4",
+        file: "94_Harold_landryIII_rare.png",
+        typeVideo: "Assets/gold.mp4",
     },
     {
-        file: "65_Tim_Jones_bronze.png",
-        typeVideo: "Assets/bronze.mp4",
+        file: "99-Patrick-Manomes-Rare.png",
+        typeVideo: "Assets/gold.mp4",
     },
 ];
 
