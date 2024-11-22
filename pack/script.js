@@ -34,8 +34,12 @@ const cards = [
         typeVideo: "Assets/gold.mp4",
     },
     {
-        file: "94_Harold_landryIII_rare.png",
-        typeVideo: "Assets/gold.mp4",
+        file: "78_John_Smith_silver.png",
+        typeVideo: "Assets/silver.mp4",
+    },
+    {
+        file: "65_Tim_Jones_bronze.png",
+        typeVideo: "Assets/bronze.mp4",
     },
 ];
 
@@ -44,6 +48,7 @@ const parsedCards = cards.map(card => {
     const [overall, firstName, lastName, type] = card.file.replace(".png", "").split("_");
     return {
         name: `${overall} ${firstName} ${lastName} ${type}`,
+        overall: parseInt(overall), // Extract the OVR as a number
         typeVideo: card.typeVideo,
         image: `Assets/cards/${card.file}`,
     };
@@ -65,6 +70,26 @@ function calculateQuicksellValue(overall) {
     return Math.floor(baseValue * Math.pow(multiplier, overall));
 }
 
+// Weighted Random Card Selection
+function getRandomCard() {
+    // Calculate weights (higher weight for lower OVR)
+    const weights = parsedCards.map(card => 1 / card.overall);
+    const totalWeight = weights.reduce((a, b) => a + b, 0);
+
+    // Create cumulative distribution
+    const cumulativeWeights = [];
+    weights.reduce((acc, weight, index) => {
+        cumulativeWeights[index] = acc + weight / totalWeight;
+        return cumulativeWeights[index];
+    }, 0);
+
+    // Generate a random number and find the corresponding card
+    const random = Math.random();
+    const selectedIndex = cumulativeWeights.findIndex(cumWeight => random < cumWeight);
+
+    return parsedCards[selectedIndex];
+}
+
 // Pack Opening Logic
 openPackButton.addEventListener("click", () => {
     if (coins >= packCost) {
@@ -74,7 +99,7 @@ openPackButton.addEventListener("click", () => {
         toggleButton(false);
 
         playVideo("Assets/pack.mp4", () => {
-            const randomCard = parsedCards[Math.floor(Math.random() * parsedCards.length)];
+            const randomCard = getRandomCard();
             if (randomCard.typeVideo.includes("gold.mp4")) {
                 displayCard(randomCard);
                 toggleButton(true);
@@ -102,7 +127,7 @@ function playVideo(videoSrc, callback) {
 
 // Card Display and Actions
 function displayCard(card) {
-    const overall = parseInt(card.name.split(" ")[0]);
+    const overall = card.overall;
     const quicksellValue = calculateQuicksellValue(overall);
 
     cardImage.src = card.image;
@@ -155,7 +180,7 @@ function updateBinder() {
     binderContainer.innerHTML = "";
 
     ownedCards.forEach(card => {
-        const overall = parseInt(card.name.split(" ")[0]);
+        const overall = card.overall;
         const quicksellValue = calculateQuicksellValue(overall);
 
         const cardDiv = document.createElement("div");
