@@ -19,6 +19,10 @@ const packCost = 1000;
 let coins = 10000; // Starting coins
 let ownedCards = [];
 
+// Exponential Quicksell Configuration
+const baseValue = 100; // Base quicksell value
+const multiplier = 1.05; // Exponential growth rate per OVR
+
 // Card data
 const cards = [
     {
@@ -50,6 +54,11 @@ function toggleButton(state) {
 
 function updateCoinDisplay() {
     coinBalanceElement.textContent = `Coins: ${coins}`;
+}
+
+// Calculate quicksell value exponentially
+function calculateQuicksellValue(overall) {
+    return Math.floor(baseValue * Math.pow(multiplier, overall));
 }
 
 // Pack Opening Logic
@@ -90,7 +99,7 @@ function playVideo(videoSrc, callback) {
 // Card Display and Actions
 function displayCard(card) {
     const overall = parseInt(card.name.split(" ")[0]);
-    const quicksellValue = overall * 100;
+    const quicksellValue = calculateQuicksellValue(overall);
 
     cardImage.src = card.image;
     cardTitle.textContent = card.name;
@@ -143,7 +152,7 @@ function updateBinder() {
 
     ownedCards.forEach(card => {
         const overall = parseInt(card.name.split(" ")[0]);
-        const quicksellValue = overall * 100;
+        const quicksellValue = calculateQuicksellValue(overall);
 
         const cardDiv = document.createElement("div");
         cardDiv.classList.add("card");
