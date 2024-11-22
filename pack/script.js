@@ -33,6 +33,10 @@ const cards = [
         file: "84_Boogie_Basham_genki_force.png",
         typeVideo: "Assets/gold.mp4",
     },
+    {
+        file: "94_Harold_landryIII_rare.png",
+        typeVideo: "Assets/gold.mp4",
+    },
 ];
 
 // Parse card details from file names
