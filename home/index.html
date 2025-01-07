@@ -3,53 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Games Az - Christmas Edition</title>
+    <title>Games Az</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
     <style>
-        /* General Christmas Theme */
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background: linear-gradient(to bottom, #00416a, #e4e5e6);
-            color: white;
-        }
-
-        .navbar {
-            background-color: #008000; /* Festive green */
-            padding: 10px 0;
-        }
-
-        .navbar a {
-            color: white;
-            text-decoration: none;
-            padding: 14px 20px;
-            display: inline-block;
-        }
-
-        .navbar a:hover {
-            background-color: #ff0000; /* Festive red */
-            border-radius: 10px;
-        }
-
-        .header {
-            background: url('https://images.unsplash.com/photo-1606744820887-004b4cf12c9d') no-repeat center;
-            background-size: cover;
-            text-align: center;
-            padding: 50px 20px;
-            color: #fff;
-        }
-
-        .header h1 {
-            font-size: 3em;
-            text-shadow: 2px 2px 5px #000;
-        }
-
-        .header p {
-            font-size: 1.2em;
-        }
-
         /* Countdown Timer Styles */
         .countdown-container {
             text-align: center;
@@ -63,18 +20,17 @@
         }
 
         .time-box {
-            background-color: rgba(255, 255, 255, 0.9);
+            background-color: rgba(255, 255, 255, 0.1);
             padding: 15px 10px;
             border-radius: 10px;
             text-align: center;
-            color: #008000;
+            color: #f7d794;
             width: 80px;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         .time-box span {
-            font-size: 1.8em;
-            color: #ff0000;
+            font-size: 1.5em;
+            color: #ffffff;
         }
 
         /* Discord Invite Styles */
@@ -82,7 +38,7 @@
             text-align: center;
             margin: 20px 0;
             padding: 15px;
-            background-color: #ff0000;
+            background-color: #7289DA; /* Discord's brand color */
             color: #ffffff;
             border-radius: 10px;
         }
@@ -104,44 +60,23 @@
             text-decoration: underline;
         }
 
-        /* Game Links and Buttons */
-        .game-links img {
-            border: 5px solid #ffffff;
-            border-radius: 10px;
-            margin: 10px;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-
-        .game-links img:hover {
-            transform: scale(1.1);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-        }
-
+        /* Random Game Button Styles */
         .random-game-button {
-            background-color: #ff0000;
-            border: none;
-            color: white;
-            padding: 15px 20px;
-            font-size: 18px;
+            display: block;
+            width: 200px;
+            padding: 15px;
+            margin: 30px auto;
+            background-color: #3498db;
+            color: #fff;
             text-align: center;
-            cursor: pointer;
-            display: inline-block;
-            margin: 20px auto;
+            font-size: 18px;
             border-radius: 10px;
+            cursor: pointer;
+            text-decoration: none;
         }
 
         .random-game-button:hover {
-            background-color: #008000;
-        }
-
-        /* Snow Particles */
-        #particles-js {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
+            background-color: #2980b9;
         }
     </style>
 </head>
@@ -155,67 +90,101 @@
     </div>
 
     <div class="header">
-        <h1>🎄 Games Az 🎅</h1>
-        <p>Your go-to destination for holiday fun and games!</p>
-    </div>
-
-    <div class="countdown-container">
-        <h2>🎁 Countdown to Beta Launch! 🎁</h2>
-        <div id="countdown">
-            <div class="time-box">
-                <span id="days">00</span><br>Days
-            </div>
-            <div class="time-box">
-                <span id="hours">00</span><br>Hours
-            </div>
-            <div class="time-box">
-                <span id="minutes">00</span><br>Minutes
-            </div>
-            <div class="time-box">
-                <span id="seconds">00</span><br>Seconds
+        <h1>Games Az</h1>
+        <p>Here you can find games</p>
+        <!-- Dark Mode Toggle Button -->
+        <div class="dark-mode-toggle">
+            <input type="checkbox" id="dark-mode-switch">
+            <label for="dark-mode-switch">
+                <span class="sun">☀️</span>
+                <span class="moon">🌙</span>
+            </label>
+        </div>
+        <!-- Countdown Timer -->
+        <div class="countdown-container">
+            <h2>Countdown to Beta Launch!</h2>
+            <div id="countdown">
+                <div class="time-box">
+                    <span id="days">00</span><br>Days
+                </div>
+                <div class="time-box">
+                    <span id="hours">00</span><br>Hours
+                </div>
+                <div class="time-box">
+                    <span id="minutes">00</span><br>Minutes
+                </div>
+                <div class="time-box">
+                    <span id="seconds">00</span><br>Seconds
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Discord Invite Section -->
     <div class="discord-invite">
-        <p>If you're interested in our game, join our festive Discord community!</p>
+        <p>If you're interested in our game, join our Discord community!</p>
         <a href="https://discord.gg/betrj3pX7C" target="_blank" rel="noopener noreferrer">
             <img src="discord.png" alt="Discord Logo"> Join Our Discord
         </a>
     </div>
 
-    <section id="projects">
-        <h2>🎮 Christmas Games 🎮</h2>
-        <div class="game-links">
-            <a href="https://sites.google.com/view/games-az/retro-bowl" target="_blank" rel="noopener noreferrer">
-                <img src="RetroBowl.png" width="24%" height="24%" alt="Retro Bowl">
-            </a>
-            <a href="https://sites.google.com/view/games-az/slope" target="_blank" rel="noopener noreferrer">
-                <img src="slope.jpg" width="24%" height="24%" alt="Slope">
-            </a>
-            <a href="https://sites.google.com/view/games-az/basket-random" target="_blank" rel="noopener noreferrer">
-                <img src="BasketRandom.png" width="24%" height="24%" alt="Basket Random">
-            </a>
-            <a href="https://sites.google.com/view/games-az/retro-bowl-collage" target="_blank" rel="noopener noreferrer">
-                <img src="RetroBowlC.png" width="24%" height="24%" alt="Retro Bowl Collage">
-            </a>
-        </div>
+    <div class="main">
+        <section id="projects">
+            <h2>Games</h2>
+            <div class="game-links">
+                <a id="retro-bowl" href="https://sites.google.com/view/games-az/retro-bowl" target="_blank" rel="noopener noreferrer">
+                    <img src="RetroBowl.png" width="24%" height="24%" alt="retro bowl">
+                </a>
+                <a href="https://sites.google.com/view/games-az/slope" target="_blank" rel="noopener noreferrer">
+                    <img src="slope.jpg" width="24%" height="24%" alt="slope">
+                </a>
+                <a href="https://sites.google.com/view/games-az/basket-random" target="_blank" rel="noopener noreferrer">
+                    <img src="BasketRandom.png" width="24%" height="24%" alt="basket random">
+                </a>
+                <a href="https://sites.google.com/view/games-az/retro-bowl-collage" target="_blank" rel="noopener noreferrer">
+                    <img src="RetroBowlC.png" width="24%" height="24%" alt="retro-bowl-collage">  
+                </a>
+            </div>
 
-        <a href="#" class="random-game-button" id="random-game-btn">🎲 Random Game</a>
+            <!-- Random Game Button -->
+            <a href="#" class="random-game-button" id="random-game-btn">Random Game</a>
+
+        </section>
+
+        <div class="comment-container">
+            <div id="content">    
+                Loading content...
+            </div>
+        </div>
+    </div>
+
+    <section id="comments">
+        <h2 id="text1">Leave a Comment</h2>
+        <iframe class="centered-iframe" src="https://docs.google.com/forms/d/e/1FAIpQLSeWMU9aZqYKtQ0ow2idpOMVcbXKSuxbFyykPiSkq-iNjvJ7Sg/viewform?embedded=true" 
+                width="640" height="800" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
     </section>
 
+    <script src="particles-init.js"></script>
+    <script src="Toggle.js"></script>
+    <script src="loader.js"></script>
+    <script src="Countdown.js"></script>
+    
     <script>
-        // Snow particles effect
-        particlesJS.load('particles-js', 'snow-particles.json');
-
-        // Random game button
-        document.getElementById('random-game-btn').addEventListener('click', function () {
+        // JavaScript to select a random game
+        document.getElementById('random-game-btn').addEventListener('click', function() {
+            // Array of game URLs
             const gameLinks = [
                 "https://sites.google.com/view/games-az/retro-bowl",
                 "https://sites.google.com/view/games-az/slope",
                 "https://sites.google.com/view/games-az/basket-random",
-                "https://sites.google.com/view/games-az/retro-bowl-collage"
+                "https://sites.google.com/view/games-az/retro-bowl-collage",
+                "https://sites.google.com/view/games-az/slope-2",
+                "https://sites.google.com/view/games-az/3d-field-goal",
+                "https://sites.google.com/view/games-az/just-one-boss",
+                "https://sites.google.com/view/games-az/madden-02"
             ];
+            
+            // Randomly pick a game
             const randomIndex = Math.floor(Math.random() * gameLinks.length);
             window.open(gameLinks[randomIndex], "_blank");
         });
