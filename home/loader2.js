@@ -104,4 +104,4 @@ async function fetchWebsiteContent(url) {
 }
 
 // Replace with the URL of the website you want to fetch content from
-fetchWebsiteContent('https://docs.google.com/spreadsheets/d/1PWF5S0K8k5Wf9bnada504S_c7rdo-iS2A7qbVtPQofA/edit?usp=sharing');
+fetchWebsiteContent('https://docs.google.com/spreadsheets/d/e/2PACX-1vT-1gJLSUM5PjuxdQ_1p9_PpOjo_LRT57pCpZBuZ6uzlFoGfmH63uQ7KOZ5WF7FBTyT7Le7zSfRas6K/pubhtml');
