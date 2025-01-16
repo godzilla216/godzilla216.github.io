@@ -3,95 +3,192 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat</title>
+    <title>Games Az</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            margin: 0;
-            padding: 20px;
+        /* Countdown Timer Styles */
+        .countdown-container {
+            text-align: center;
+            margin-top: 20px;
         }
 
-        .chat-container {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-            max-width: 500px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .messages {
-            height: 300px;
-            overflow-y: auto;
-            border: 1px solid #ccc;
-            border-radius: 10px;
-            padding: 10px;
-            margin-bottom: 10px;
-        }
-
-        .message {
-            margin-bottom: 10px;
-        }
-
-        .message span {
-            font-weight: bold;
-        }
-
-        .input-container {
+        #countdown {
             display: flex;
+            justify-content: center;
+            gap: 15px;
         }
 
-        .input-container input {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+        .time-box {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 15px 10px;
+            border-radius: 10px;
+            text-align: center;
+            color: #f7d794;
+            width: 80px;
         }
 
-        .input-container button {
-            padding: 10px;
-            margin-left: 5px;
+        .time-box span {
+            font-size: 1.5em;
+            color: #ffffff;
+        }
+
+        /* Discord Invite Styles */
+        .discord-invite {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #7289DA; /* Discord's brand color */
+            color: #ffffff;
+            border-radius: 10px;
+        }
+
+        .discord-invite img {
+            width: 50px;
+            height: 50px;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+
+        .discord-invite a {
+            color: #ffffff;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .discord-invite a:hover {
+            text-decoration: underline;
+        }
+
+        /* Random Game Button Styles */
+        .random-game-button {
+            display: block;
+            width: 200px;
+            padding: 15px;
+            margin: 30px auto;
             background-color: #3498db;
-            color: white;
-            border: none;
-            border-radius: 5px;
+            color: #fff;
+            text-align: center;
+            font-size: 18px;
+            border-radius: 10px;
             cursor: pointer;
+            text-decoration: none;
         }
 
-        .input-container button:hover {
+        .random-game-button:hover {
             background-color: #2980b9;
         }
     </style>
 </head>
 <body>
-    <div class="chat-container">
-        <h2>Chat Room</h2>
-        <div class="messages" id="messages"></div>
-        <div class="input-container">
-            <input type="text" id="message-input" placeholder="Type a message..." />
-            <button id="send-button">Send</button>
+    <div id="particles-js"></div>
+
+    <div class="navbar">
+        <a href="https://sites.google.com/view/games-az/">Home</a>
+        <a href="#projects">Games</a>
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLSeKomgpz1ewSQpMDTz6Wc1PocdNS9IUwG5NXk0W5bWg-MuyOg/viewform">Request Game</a>
+    </div>
+
+    <div class="header">
+        <h1>Games Az</h1>
+        <p>Here you can find games</p>
+        <!-- Dark Mode Toggle Button -->
+        <div class="dark-mode-toggle">
+            <input type="checkbox" id="dark-mode-switch">
+            <label for="dark-mode-switch">
+                <span class="sun">☀️</span>
+                <span class="moon">🌙</span>
+            </label>
+        </div>
+        <!-- Countdown Timer -->
+        <div class="countdown-container">
+            <h2>Countdown to Beta Launch!</h2>
+            <div id="countdown">
+                <div class="time-box">
+                    <span id="days">00</span><br>Days
+                </div>
+                <div class="time-box">
+                    <span id="hours">00</span><br>Hours
+                </div>
+                <div class="time-box">
+                    <span id="minutes">00</span><br>Minutes
+                </div>
+                <div class="time-box">
+                    <span id="seconds">00</span><br>Seconds
+                </div>
+            </div>
+        </div>
+    </div>
+<p1>
+    Check out our <a href="https://sites.google.com/view/games-az/change-log" target="_blank">changelog</a> to see if your game has been fixed
+</p1>
+    <!-- Discord Invite Section -->
+    <div class="discord-invite">
+        <p>If you're interested in our game, join our Discord community!</p>
+        <a href="https://discord.gg/betrj3pX7C" target="_blank" rel="noopener noreferrer">
+            <img src="discord.png" alt="Discord Logo"> Join Our Discord
+        </a>
+    </div>
+
+    <div class="main">
+        <section id="projects">
+            <h2>Games</h2>
+            <div class="game-links">
+                <a id="retro-bowl" href="https://sites.google.com/view/games-az/retro-bowl" target="_blank" rel="noopener noreferrer">
+                    <img src="RetroBowl.png" width="24%" height="24%" alt="retro bowl">
+                </a>
+                <a href="https://sites.google.com/view/games-az/slope" target="_blank" rel="noopener noreferrer">
+                    <img src="slope.jpg" width="24%" height="24%" alt="slope">
+                </a>
+                <a href="https://sites.google.com/view/games-az/basket-random" target="_blank" rel="noopener noreferrer">
+                    <img src="BasketRandom.png" width="24%" height="24%" alt="basket random">
+                </a>
+                <a href="https://sites.google.com/view/games-az/retro-bowl-collage" target="_blank" rel="noopener noreferrer">
+                    <img src="RetroBowlC.png" width="24%" height="24%" alt="retro-bowl-collage">  
+                </a>
+            </div>
+
+            <!-- Random Game Button -->
+            <a href="#" class="random-game-button" id="random-game-btn">Random Game</a>
+
+        </section>
+
+        <div class="comment-container">
+            <div id="content">    
+                Loading content...
+            </div>
         </div>
     </div>
 
+    <section id="comments">
+        <h2 id="text1">Leave a Comment</h2>
+        <iframe class="centered-iframe" src="https://docs.google.com/forms/d/e/1FAIpQLSeWMU9aZqYKtQ0ow2idpOMVcbXKSuxbFyykPiSkq-iNjvJ7Sg/viewform?embedded=true" 
+                width="640" height="800" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
+    </section>
+
+    <script src="particles-init.js"></script>
+    <script src="Toggle.js"></script>
+    <script src="loader.js"></script>
+    <script src="Countdown.js"></script>
+    
     <script>
-        const messagesDiv = document.getElementById('messages');
-        const messageInput = document.getElementById('message-input');
-        const sendButton = document.getElementById('send-button');
-
-        sendButton.addEventListener('click', function() {
-            const messageText = messageInput.value;
-
-            if (messageText) {
-                const messageElement = document.createElement('div');
-                messageElement.classList.add('message');
-                messageElement.innerHTML = `<span>You:</span> ${messageText}`;
-                messagesDiv.appendChild(messageElement);
-                messageInput.value = ''; // Clear input
-
-                // Make sure the latest message is visible
-                messagesDiv.scrollTop = messagesDiv.scrollHeight;
-            }
+        // JavaScript to select a random game
+        document.getElementById('random-game-btn').addEventListener('click', function() {
+            // Array of game URLs
+            const gameLinks = [
+                "https://sites.google.com/view/games-az/retro-bowl",
+                "https://sites.google.com/view/games-az/slope",
+                "https://sites.google.com/view/games-az/basket-random",
+                "https://sites.google.com/view/games-az/retro-bowl-collage",
+                "https://sites.google.com/view/games-az/slope-2",
+                "https://sites.google.com/view/games-az/3d-field-goal",
+                "https://sites.google.com/view/games-az/just-one-boss",
+                "https://sites.google.com/view/games-az/madden-02"
+            ];
+            
+            // Randomly pick a game
+            const randomIndex = Math.floor(Math.random() * gameLinks.length);
+            window.open(gameLinks[randomIndex], "_blank");
         });
     </script>
 </body>
