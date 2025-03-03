@@ -42,6 +42,10 @@ const cards = [
         file: "99_Patrick_Manomes_Rare.png",
         typeVideo: "Assets/gold.mp4",
     },
+     {
+        file: "97_Josh_dobbs_rare.png",
+        typeVideo: "Assets/gold.mp4",
+    },
 ];
 
 // Parse card details from file names
