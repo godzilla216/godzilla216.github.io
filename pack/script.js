@@ -16,51 +16,31 @@ const binderSection = document.getElementById("binderSection");
 
 // Configuration
 const packCost = 1000;
-let coins = 10000; // Starting coins
+let coins = 10000;
 let ownedCards = [];
 
 // Exponential Quicksell Configuration
-const baseValue = 100; // Base quicksell value
-const multiplier = 1.05; // Exponential growth rate per OVR
-let cardPendingAction = false; // Tracks if there's a card awaiting action
+const baseValue = 100;
+const multiplier = 1.05;
+let cardPendingAction = false;
 
-// Card data
-const cards = [
-    {
-        file: "87_ed_reed_gold.png",
-        typeVideo: "Assets/gold.mp4",
-    },
-    {
-        file: "84_Boogie_Basham_genki_force.png",
-        typeVideo: "Assets/gold.mp4",
-    },
-    {
-        file: "94_Harold_landryIII_rare.png",
-        typeVideo: "Assets/gold.mp4",
-    },
-    {
-        file: "99_Patrick_Manomes_Rare.png",
-        typeVideo: "Assets/gold.mp4",
-    },
-     {
-        file: "97_Josh_dobbs_rare.png",
-        typeVideo: "Assets/gold.mp4",
-    },
-];
-
-// Parse card details from file names
-const parsedCards = cards.map(card => {
-    // Replace hyphens with underscores for consistency
-    const fileName = card.file.replace(/-/g, "_").replace(".png", "");
-    const [overall, firstName, lastName, type] = fileName.split("_");
-
-    return {
-        name: `${overall} ${firstName} ${lastName} ${type}`,
-        overall: parseInt(overall), // Extract the OVR as a number
-        typeVideo: card.typeVideo,
-        image: `Assets/cards/${card.file}`,
-    };
-});
+// Load card data from external JSON
+fetch("list.json")
+    .then(response => response.json())
+    .then(cards => {
+        const parsedCards = cards.map(file => {
+            const fileName = file.replace(/-/g, "_").replace(".png", ""); 
+            const [overall, firstName, lastName, type] = fileName.split("_");
+            return {
+                name: `${overall} ${firstName} ${lastName} ${type}`,
+                overall: parseInt(overall),
+                typeVideo: "Assets/gold.mp4",
+                image: `Assets/cards/${file}`,
+            };
+        });
+        window.parsedCards = parsedCards;
+    })
+    .catch(error => console.error("Error loading card data:", error));
 
 // Utility Functions
 function toggleButton(state) {
@@ -73,29 +53,21 @@ function updateCoinDisplay() {
     coinBalanceElement.textContent = `Coins: ${coins}`;
 }
 
-// Calculate quicksell value exponentially
 function calculateQuicksellValue(overall) {
     return Math.floor(baseValue * Math.pow(multiplier, overall));
 }
 
-// Weighted Random Card Selection
 function getRandomCard() {
-    // Calculate weights (higher weight for lower OVR)
-    const weights = parsedCards.map(card => 1 / card.overall);
+    const weights = window.parsedCards.map(card => 1 / card.overall);
     const totalWeight = weights.reduce((a, b) => a + b, 0);
-
-    // Create cumulative distribution
     const cumulativeWeights = [];
     weights.reduce((acc, weight, index) => {
         cumulativeWeights[index] = acc + weight / totalWeight;
         return cumulativeWeights[index];
     }, 0);
-
-    // Generate a random number and find the corresponding card
     const random = Math.random();
     const selectedIndex = cumulativeWeights.findIndex(cumWeight => random < cumWeight);
-
-    return parsedCards[selectedIndex];
+    return window.parsedCards[selectedIndex];
 }
 
 // Pack Opening Logic
@@ -103,9 +75,7 @@ openPackButton.addEventListener("click", () => {
     if (coins >= packCost && !cardPendingAction) {
         coins -= packCost;
         updateCoinDisplay();
-
         toggleButton(false);
-
         playVideo("Assets/pack.mp4", () => {
             const randomCard = getRandomCard();
             if (randomCard.typeVideo.includes("gold.mp4")) {
@@ -115,12 +85,10 @@ openPackButton.addEventListener("click", () => {
                     displayCard(randomCard);
                 });
             }
-            cardPendingAction = true; // Mark that the user must act on this card
+            cardPendingAction = true;
         });
-    } else if (cardPendingAction) {
-        alert("You must act on your current card before opening another pack!");
     } else {
-        alert("You don't have enough coins to open a pack!");
+        alert(cardPendingAction ? "You must act on your current card before opening another pack!" : "You don't have enough coins to open a pack!");
     }
 });
 
@@ -134,40 +102,33 @@ function playVideo(videoSrc, callback) {
     packVideo.play();
 }
 
-// Card Display and Actions
 function displayCard(card) {
-    const overall = card.overall;
-    const quicksellValue = calculateQuicksellValue(overall);
-
+    const quicksellValue = calculateQuicksellValue(card.overall);
     cardImage.src = card.image;
     cardTitle.textContent = card.name;
-    cardDetails.textContent = `You pulled a card: ${card.name}`;
+    cardDetails.innerHTML = `You pulled a card: ${card.name}`;
 
     const actionButton = document.createElement("button");
     actionButton.textContent = "Add to Binder";
     actionButton.addEventListener("click", () => {
         addToBinder(card);
         cardContainer.style.display = "none";
-        cardPendingAction = false; // User has acted on the card
+        cardPendingAction = false;
         toggleButton(true);
     });
 
     const quicksellButton = document.createElement("button");
-    quicksellButton.classList.add("quicksell");
     quicksellButton.textContent = `Quick Sell (${quicksellValue} Coins)`;
     quicksellButton.addEventListener("click", () => {
         quicksellCard(card, quicksellValue);
         cardContainer.style.display = "none";
-        cardPendingAction = false; // User has acted on the card
+        cardPendingAction = false;
         toggleButton(true);
     });
 
-    cardDetails.innerHTML = ""; // Clear previous content
     cardDetails.appendChild(actionButton);
     cardDetails.appendChild(quicksellButton);
-
     cardContainer.style.display = "block";
-    cardContainer.classList.add("show");
 }
 
 function quicksellCard(card, quicksellValue) {
@@ -182,39 +143,21 @@ function addToBinder(card) {
     updateBinder();
 }
 
-// Binder Management
 function updateBinder() {
     binderContainer.innerHTML = "";
-
     ownedCards.forEach(card => {
-        const overall = card.overall;
-        const quicksellValue = calculateQuicksellValue(overall);
-
         const cardDiv = document.createElement("div");
         cardDiv.classList.add("card");
-
         const img = document.createElement("img");
         img.src = card.image;
-
         const cardName = document.createElement("div");
         cardName.textContent = card.name;
-
-        const quicksellButton = document.createElement("button");
-        quicksellButton.classList.add("quicksell");
-        quicksellButton.textContent = `Quick Sell (${quicksellValue} Coins)`;
-        quicksellButton.addEventListener("click", () => {
-            quicksellCard(card, quicksellValue);
-        });
-
         cardDiv.appendChild(img);
         cardDiv.appendChild(cardName);
-        cardDiv.appendChild(quicksellButton);
-
         binderContainer.appendChild(cardDiv);
     });
 }
 
-// Tab Switching
 openPackTab.addEventListener("click", () => {
     openPackSection.style.display = "block";
     binderSection.style.display = "none";
@@ -229,5 +172,4 @@ binderTab.addEventListener("click", () => {
     binderTab.classList.add("active");
 });
 
-// Initial Setup
 updateCoinDisplay();
