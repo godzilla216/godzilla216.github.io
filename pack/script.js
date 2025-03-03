@@ -118,9 +118,11 @@ function displayCard(card) {
         toggleButton(true);
     });
 
-   const quicksellButton = document.createElement("button");
+const quicksellButton = document.createElement("button");
 quicksellButton.textContent = `Quick Sell (${quicksellValue} Coins)`;
-quicksellButton.classList.add("quicksell-btn"); // Apply CSS class
+quicksellButton.classList.add("quicksell-btn"); // Ensure class is added
+
+console.log("Quicksell Button Classes:", quicksellButton.classList); // Debugging
 
 quicksellButton.addEventListener("click", () => {
     quicksellCard(card, quicksellValue);
