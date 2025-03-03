@@ -233,37 +233,3 @@ body {
 .card button:hover {
     background-color: #0056b3;
 }
-/* General button styling */
-.card button {
-    width: 100%;
-    padding: 10px;
-    font-size: 14px;
-    cursor: pointer;
-    border: none;
-    border-radius: 6px;
-    font-weight: bold;
-    transition: background 0.3s ease, transform 0.2s ease;
-}
-
-/* Add to Binder button */
-.card button:nth-child(3) { /* Targets the first button (Add to Binder) */
-    background: linear-gradient(to right, #43e97b, #38f9d7);
-    color: white;
-}
-
-.card button:nth-child(3):hover {
-    background: linear-gradient(to right, #2ecc71, #1abc9c);
-    transform: scale(1.05);
-}
-
-/* Quicksell button */
-.card button:nth-child(4) { /* Targets the second button (Quicksell) */
-    background: linear-gradient(to right, #ff416c, #ff4b2b);
-    color: white;
-}
-
-.card button:nth-child(4):hover {
-    background: linear-gradient(to right, #ff1e56, #ff5733);
-    transform: scale(1.05);
-}
-
