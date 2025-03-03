@@ -255,3 +255,22 @@ body {
     transform: scale(1.1);
     box-shadow: 0px 5px 15px rgba(255, 59, 59, 0.7);
 }
+
+/* Quicksell button */
+.quicksell-btn {
+    background: linear-gradient(to right, #ff416c, #ff4b2b);
+    color: white;
+    padding: 10px;
+    font-size: 14px;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+    width: 100%;
+}
+
+.quicksell-btn:hover {
+    background: linear-gradient(to right, #ff1e56, #ff5733);
+    transform: scale(1.05);
+}
