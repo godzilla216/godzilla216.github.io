@@ -110,6 +110,7 @@ function displayCard(card) {
 
     const actionButton = document.createElement("button");
     actionButton.textContent = "Add to Binder";
+    actionButton.classList.add("add-to-binder-btn"); 
     actionButton.addEventListener("click", () => {
         addToBinder(card);
         cardContainer.style.display = "none";
