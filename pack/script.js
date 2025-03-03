@@ -118,14 +118,16 @@ function displayCard(card) {
         toggleButton(true);
     });
 
-    const quicksellButton = document.createElement("button");
-    quicksellButton.textContent = `Quick Sell (${quicksellValue} Coins)`;
-    quicksellButton.addEventListener("click", () => {
-        quicksellCard(card, quicksellValue);
-        cardContainer.style.display = "none";
-        cardPendingAction = false;
-        toggleButton(true);
-    });
+   const quicksellButton = document.createElement("button");
+quicksellButton.textContent = `Quick Sell (${quicksellValue} Coins)`;
+quicksellButton.classList.add("quicksell-btn"); // Apply CSS class
+
+quicksellButton.addEventListener("click", () => {
+    quicksellCard(card, quicksellValue);
+    cardContainer.style.display = "none";
+    cardPendingAction = false;
+    toggleButton(true);
+});
 
     cardDetails.appendChild(actionButton);
     cardDetails.appendChild(quicksellButton);
