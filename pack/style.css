@@ -233,33 +233,3 @@ body {
 .card button:hover {
     background-color: #0056b3;
 }
-/* Styling for Add to Binder and Quick Sell buttons */
-.card button.add-to-binder {
-    background: linear-gradient(to right, #43e97b, #38f9d7);
-    font-weight: bold;
-    border: none;
-    padding: 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: transform 0.2s, background 0.3s;
-}
-
-.card button.add-to-binder:hover {
-    background: linear-gradient(to right, #32a864, #2fc0b3);
-    transform: scale(1.1);
-}
-
-.card button.quick-sell {
-    background: linear-gradient(to right, #ff4e50, #ff9a44);
-    font-weight: bold;
-    border: none;
-    padding: 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: transform 0.2s, background 0.3s;
-}
-
-.card button.quick-sell:hover {
-    background: linear-gradient(to right, #d84346, #ff7b3b);
-    transform: scale(1.1);
-}
