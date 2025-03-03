@@ -145,18 +145,34 @@ function addToBinder(card) {
 
 function updateBinder() {
     binderContainer.innerHTML = "";
-    ownedCards.forEach(card => {
+    ownedCards.forEach((card, index) => {
         const cardDiv = document.createElement("div");
         cardDiv.classList.add("card");
+
         const img = document.createElement("img");
         img.src = card.image;
+
         const cardName = document.createElement("div");
         cardName.textContent = card.name;
+
+        // Create Quicksell Button
+        const quicksellValue = calculateQuicksellValue(card.overall);
+        const quicksellButton = document.createElement("button");
+        quicksellButton.textContent = `Quicksell (${quicksellValue} Coins)`;
+        quicksellButton.addEventListener("click", () => {
+            quicksellCard(card, quicksellValue);
+            ownedCards.splice(index, 1); // Remove card from binder
+            updateBinder(); // Refresh binder display
+        });
+
+        // Append elements
         cardDiv.appendChild(img);
         cardDiv.appendChild(cardName);
+        cardDiv.appendChild(quicksellButton);
         binderContainer.appendChild(cardDiv);
     });
 }
+
 
 openPackTab.addEventListener("click", () => {
     openPackSection.style.display = "block";
