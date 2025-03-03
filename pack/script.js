@@ -25,31 +25,7 @@ const multiplier = 1.05; // Exponential growth rate per OVR
 let cardPendingAction = false; // Tracks if there's a card awaiting action
 
 // Card data
-const cards = [
-    {
-        file: "87_ed_reed_gold.png",
-        typeVideo: "Assets/gold.mp4",
-    },
-    {
-        file: "84_Boogie_Basham_genki_force.png",
-        typeVideo: "Assets/gold.mp4",
-    },
-    {
-        file: "94_Harold_landryIII_rare.png",
-        typeVideo: "Assets/gold.mp4",
-    },
-    {
-        file: "99_Patrick_Manomes_Rare.png",
-        typeVideo: "Assets/gold.mp4",
-    },
-     {
-        file: "97_Josh_dobbs_rare.png",
-        typeVideo: "Assets/gold.mp4",
-    },
-];
-
-// Parse card details from file names
-const parsedCards = cards.map(card => {
+const cards = ['/point.js'];
     // Replace hyphens with underscores for consistency
     const fileName = card.file.replace(/-/g, "_").replace(".png", "");
     const [overall, firstName, lastName, type] = fileName.split("_");
