@@ -25,7 +25,7 @@ const multiplier = 1.05; // Exponential growth rate per OVR
 let cardPendingAction = false; // Tracks if there's a card awaiting action
 
 // Card data
-const cards = const cards = [
+const cards = [
     {
         file: "87_ed_reed_gold.png",
         typeVideo: "Assets/gold.mp4",
@@ -47,6 +47,9 @@ const cards = const cards = [
         typeVideo: "Assets/gold.mp4",
     },
 ];
+
+// Parse card details from file names
+const parsedCards = cards.map(card => {
     // Replace hyphens with underscores for consistency
     const fileName = card.file.replace(/-/g, "_").replace(".png", "");
     const [overall, firstName, lastName, type] = fileName.split("_");
