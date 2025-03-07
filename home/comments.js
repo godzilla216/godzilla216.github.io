@@ -6,7 +6,7 @@ import { getAuth, GoogleAuthProvider, signInWithPopup, signOut,
 import { getFirestore, collection, addDoc, query, orderBy, onSnapshot } 
     from 'https://www.gstatic.com/firebasejs/9.10.0/firebase-firestore.js';
 
-// ✅ Use the same Firebase project
+// ✅ Use the same Firebase config as your main app
 const firebaseConfig = {
     apiKey: "AIzaSyDxoIs6Nn5dMCpPj8JjNqbv-O3SVpiac0A",
     authDomain: "login-6cdd8.firebaseapp.com",
@@ -36,39 +36,102 @@ const commentInput = document.getElementById("commentInput");
 const postCommentButton = document.getElementById("postCommentButton");
 const commentsDiv = document.getElementById("comments");
 
-// ✅ Handle Authentication
+// ✅ Handle Google Authentication
 googleLoginButton.addEventListener("click", () => {
     const provider = new GoogleAuthProvider();
-    signInWithPopup(auth, provider);
+    signInWithPopup(auth, provider).catch(error => console.error("❌ Google Login Error:", error));
 });
 
+// ✅ Handle Email/Password Login
 emailLoginButton.addEventListener("click", async () => {
-    await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
+    const email = emailInput.value;
+    const password = passwordInput.value;
+
+    try {
+        await signInWithEmailAndPassword(auth, email, password);
+        console.log("✅ Email login successful:", email);
+    } catch (error) {
+        console.error("❌ Email login failed:", error.message);
+        alert("Login failed: " + error.message);
+    }
 });
 
+// ✅ Handle User Signup
 signupButton.addEventListener("click", async () => {
-    await createUserWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
+    const email = emailInput.value;
+    const password = passwordInput.value;
+
+    try {
+        await createUserWithEmailAndPassword(auth, email, password);
+        console.log("✅ User signed up:", email);
+        alert("Signup successful! Please log in.");
+    } catch (error) {
+        console.error("❌ Signup error:", error.message);
+        alert("Signup failed: " + error.message);
+    }
 });
 
+// ✅ Handle Logout
 logoutButton.addEventListener("click", () => {
-    signOut(auth);
+    signOut(auth).catch(error => console.error("❌ Logout Error:", error));
 });
 
 // ✅ Detect Auth State Changes
 onAuthStateChanged(auth, (user) => {
-    commentSection.style.display = user ? "block" : "none";
-    logoutButton.style.display = user ? "block" : "none";
+    if (user) {
+        console.log("✅ Logged in as:", user.email);
+        googleLoginButton.style.display = "none";
+        emailLoginButton.style.display = "none";
+        signupButton.style.display = "none";
+        logoutButton.style.display = "inline";
+        commentSection.style.display = "block";
+        loadComments();
+    } else {
+        console.log("❌ User logged out.");
+        googleLoginButton.style.display = "inline";
+        emailLoginButton.style.display = "inline";
+        signupButton.style.display = "inline";
+        logoutButton.style.display = "none";
+        commentSection.style.display = "none";
+    }
 });
 
-// ✅ Post & Load Comments in Real-Time
+// ✅ Post a New Comment
 postCommentButton.addEventListener("click", async () => {
-    await addDoc(collection(db, "comments"), {
-        user: auth.currentUser.email,
-        text: commentInput.value,
-        timestamp: new Date()
-    });
+    const user = auth.currentUser;
+    if (!user) return alert("⚠️ You must be logged in to post a comment!");
+
+    const commentText = commentInput.value.trim();
+    if (!commentText) return alert("⚠️ Comment cannot be empty!");
+
+    try {
+        await addDoc(collection(db, "comments"), {
+            userId: user.uid,
+            userName: user.email,
+            text: commentText,
+            timestamp: new Date()
+        });
+        console.log("✅ Comment added:", commentText);
+        commentInput.value = "";
+    } catch (error) {
+        console.error("❌ Error posting comment:", error);
+    }
 });
 
-onSnapshot(query(collection(db, "comments"), orderBy("timestamp", "desc")), (snapshot) => {
-    commentsDiv.innerHTML = snapshot.docs.map(doc => `<p><b>${doc.data().user}:</b> ${doc.data().text}</p>`).join("");
-});
+// ✅ Load Comments in Real-Time
+function loadComments() {
+    commentsDiv.innerHTML = "<p>Loading comments...</p>";
+
+    const q = query(collection(db, "comments"), orderBy("timestamp", "desc"));
+    onSnapshot(q, (snapshot) => {
+        commentsDiv.innerHTML = ""; // Clear previous comments
+        snapshot.forEach((doc) => {
+            const comment = doc.data();
+            const commentElement = document.createElement("div");
+            commentElement.classList.add("comment");
+            commentElement.innerHTML = `<strong>${comment.userName}</strong>: ${comment.text}`;
+            commentsDiv.appendChild(commentElement);
+        });
+        console.log("🔄 Comments updated.");
+    });
+}
