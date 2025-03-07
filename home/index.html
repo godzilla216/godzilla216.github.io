@@ -187,3 +187,48 @@
     </script>
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Commenting System</title>
+    <script type="module" src="comments.js" defer></script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
+        #commentSection { max-width: 600px; margin: auto; }
+        #comments { margin-top: 20px; text-align: left; }
+        .comment { padding: 10px; border-bottom: 1px solid #ccc; }
+        #loginButton, #logoutButton, #signupButton { margin: 10px; padding: 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <h1>Commenting System</h1>
+
+    <div id="authSection">
+        <!-- Google Login -->
+        <button id="googleLoginButton">Sign in with Google</button>
+
+        <!-- Email/Password Login -->
+        <div>
+            <input type="email" id="emailInput" placeholder="Email">
+            <input type="password" id="passwordInput" placeholder="Password">
+            <button id="emailLoginButton">Login</button>
+            <button id="signupButton">Sign Up</button>
+        </div>
+
+        <button id="logoutButton" style="display:none;">Logout</button>
+    </div>
+
+    <div id="commentSection" style="display:none;">
+        <h2>Leave a Comment</h2>
+        <textarea id="commentInput" placeholder="Write a comment..." rows="3" cols="50"></textarea><br>
+        <button id="postCommentButton">Post Comment</button>
+
+        <h2>All Comments</h2>
+        <div id="comments"></div>
+    </div>
+
+</body>
+</html>
