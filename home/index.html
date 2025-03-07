@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -6,6 +5,79 @@
     <title>Games Az</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
+    <style>
+        /* Countdown Timer Styles */
+        .countdown-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #countdown {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .time-box {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 15px 10px;
+            border-radius: 10px;
+            text-align: center;
+            color: #f7d794;
+            width: 80px;
+        }
+
+        .time-box span {
+            font-size: 1.5em;
+            color: #ffffff;
+        }
+
+        /* Discord Invite Styles */
+        .discord-invite {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #7289DA; /* Discord's brand color */
+            color: #ffffff;
+            border-radius: 10px;
+        }
+
+        .discord-invite img {
+            width: 50px;
+            height: 50px;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+
+        .discord-invite a {
+            color: #ffffff;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .discord-invite a:hover {
+            text-decoration: underline;
+        }
+
+        /* Random Game Button Styles */
+        .random-game-button {
+            display: block;
+            width: 200px;
+            padding: 15px;
+            margin: 30px auto;
+            background-color: #3498db;
+            color: #fff;
+            text-align: center;
+            font-size: 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .random-game-button:hover {
+            background-color: #2980b9;
+        }
+    </style>
 </head>
 <body>
     <div id="particles-js"></div>
@@ -19,7 +91,6 @@
     <div class="header">
         <h1>Games Az</h1>
         <p>Here you can find games</p>
-
         <!-- Dark Mode Toggle Button -->
         <div class="dark-mode-toggle">
             <input type="checkbox" id="dark-mode-switch">
@@ -28,21 +99,28 @@
                 <span class="moon">🌙</span>
             </label>
         </div>
-
         <!-- Countdown Timer -->
         <div class="countdown-container">
             <h2>Countdown to Beta Launch!</h2>
             <div id="countdown">
-                <div class="time-box"><span id="days">00</span><br>Days</div>
-                <div class="time-box"><span id="hours">00</span><br>Hours</div>
-                <div class="time-box"><span id="minutes">00</span><br>Minutes</div>
-                <div class="time-box"><span id="seconds">00</span><br>Seconds</div>
+                <div class="time-box">
+                    <span id="days">00</span><br>Days
+                </div>
+                <div class="time-box">
+                    <span id="hours">00</span><br>Hours
+                </div>
+                <div class="time-box">
+                    <span id="minutes">00</span><br>Minutes
+                </div>
+                <div class="time-box">
+                    <span id="seconds">00</span><br>Seconds
+                </div>
             </div>
         </div>
     </div>
-
-    <p>Check out our <a href="https://sites.google.com/view/games-az/change-log" target="_blank">changelog</a> to see if your game has been fixed</p>
-
+<p1>
+    Check out our <a href="https://sites.google.com/view/games-az/change-log" target="_blank">changelog</a> to see if your game has been fixed
+</p1>
     <!-- Discord Invite Section -->
     <div class="discord-invite">
         <p>If you're interested in our game, join our Discord community!</p>
@@ -55,53 +133,57 @@
         <section id="projects">
             <h2>Games</h2>
             <div class="game-links">
-                <a href="https://sites.google.com/view/games-az/retro-bowl" target="_blank">
+                <a id="retro-bowl" href="https://sites.google.com/view/games-az/retro-bowl" target="_blank" rel="noopener noreferrer">
                     <img src="RetroBowl.png" width="24%" height="24%" alt="retro bowl">
                 </a>
-                <a href="https://sites.google.com/view/games-az/slope" target="_blank">
+                <a href="https://sites.google.com/view/games-az/slope" target="_blank" rel="noopener noreferrer">
                     <img src="slope.jpg" width="24%" height="24%" alt="slope">
                 </a>
-                <a href="https://sites.google.com/view/games-az/basket-random" target="_blank">
+                <a href="https://sites.google.com/view/games-az/basket-random" target="_blank" rel="noopener noreferrer">
                     <img src="BasketRandom.png" width="24%" height="24%" alt="basket random">
                 </a>
-                <a href="https://sites.google.com/view/games-az/retro-bowl-collage" target="_blank">
+                <a href="https://sites.google.com/view/games-az/retro-bowl-collage" target="_blank" rel="noopener noreferrer">
                     <img src="RetroBowlC.png" width="24%" height="24%" alt="retro-bowl-collage">  
                 </a>
             </div>
 
             <!-- Random Game Button -->
             <a href="#" class="random-game-button" id="random-game-btn">Random Game</a>
+
         </section>
 
-        <!-- 🛒 Commenting System -->
         <div class="comment-container">
-            <h2>Comments</h2>
-
-            <!-- Auth Section -->
-            <div id="authSection">
-                <input type="email" id="emailInput" placeholder="Email">
-                <input type="password" id="passwordInput" placeholder="Password">
-                <button id="emailLoginButton">Login</button>
-                <button id="signupButton">Sign Up</button>
-                <button id="googleLoginButton">Sign in with Google</button>
-                <button id="logoutButton" style="display:none;">Logout</button>
+            <div id="content">    
+                Loading content...
             </div>
-
-            <!-- Comment Form -->
-            <div id="commentSection" style="display:none;">
-                <textarea id="commentInput" placeholder="Write a comment..." rows="3" cols="50"></textarea><br>
-                <button id="postCommentButton">Post Comment</button>
-            </div>
-
-            <!-- Display Comments -->
-            <div id="comments"></div>
         </div>
     </div>
 
+    
     <script src="particles-init.js"></script>
     <script src="Toggle.js"></script>
     <script src="loader.js"></script>
     <script src="Countdown.js"></script>
-    <script type="module" src="comments.js"></script> <!-- Comment System -->
+    
+    <script>
+        // JavaScript to select a random game
+        document.getElementById('random-game-btn').addEventListener('click', function() {
+            // Array of game URLs
+            const gameLinks = [
+                "https://sites.google.com/view/games-az/retro-bowl",
+                "https://sites.google.com/view/games-az/slope",
+                "https://sites.google.com/view/games-az/basket-random",
+                "https://sites.google.com/view/games-az/retro-bowl-collage",
+                "https://sites.google.com/view/games-az/slope-2",
+                "https://sites.google.com/view/games-az/3d-field-goal",
+                "https://sites.google.com/view/games-az/just-one-boss",
+                "https://sites.google.com/view/games-az/madden-02"
+            ];
+            
+            // Randomly pick a game
+            const randomIndex = Math.floor(Math.random() * gameLinks.length);
+            window.open(gameLinks[randomIndex], "_blank");
+        });
+    </script>
 </body>
 </html>
