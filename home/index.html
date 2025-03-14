@@ -1,5 +1,127 @@
 <html lang="en">
 <head>
+    <style>
+        
+/* Optional: Change the sun/moon icon for dark mode */
+.sun,
+.moon {
+    display: none;
+}
+
+body.dark-mode .sun {
+    display: inline;
+}
+
+body:not(.dark-mode) .moon {
+    display: inline;
+}
+.comment-section {
+    background-color: rgba(255,255,255,0.1);
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 20px;
+    color: white;
+}
+
+.comment-input input,
+.comment-input textarea {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border: none;
+}
+
+.comment-input button {
+    padding: 8px 15px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.comment-input button:hover {
+    background-color: #45a049;
+}
+
+.comment-item {
+    background-color: rgba(255,255,255,0.05);
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+.countdown-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #countdown {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .time-box {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 15px 10px;
+            border-radius: 10px;
+            text-align: center;
+            color: #f7d794;
+            width: 80px;
+        }
+
+        .time-box span {
+            font-size: 1.5em;
+            color: #ffffff;
+        }
+
+        /* Discord Invite Styles */
+        .discord-invite {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #7289DA; /* Discord's brand color */
+            color: #ffffff;
+            border-radius: 10px;
+        }
+
+        .discord-invite img {
+            width: 50px;
+            height: 50px;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+
+        .discord-invite a {
+            color: #ffffff;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .discord-invite a:hover {
+            text-decoration: underline;
+        }
+
+        /* Random Game Button Styles */
+        .random-game-button {
+            display: block;
+            width: 200px;
+            padding: 15px;
+            margin: 30px auto;
+            background-color: #3498db;
+            color: #fff;
+            text-align: center;
+            font-size: 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .random-game-button:hover {
+            background-color: #2980b9;
+        }
+    </style>
     <script type="module">
     // Firebase Initialization (your existing configuration)
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
