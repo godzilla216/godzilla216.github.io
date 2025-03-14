@@ -1,57 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
     <title>Sign In</title>
 </head>
 <body>
-    <h2>Sign In</h2>
+    <h2>Sign in</h2>
 
     <button id="google-signin-btn">Sign in with Google</button>
-    
+
     <h3>or</h3>
 
-    <input type="email" id="signin-email" placeholder="Email">
-    <input type="password" id="signin-password" placeholder="Password">
-    <button id="signin-btn">Sign In</button>
+    <input id="email" type="email" placeholder="Email" required>
+    <input type="password" id="password" placeholder="Password" required>
+    <button id="email-signin-btn">Sign In</button>
+    
+    <p>No account? <a href="signup.html">Sign up</a></p>
 
-    <p>No account? <a href="signup.html">Sign up here</a></p>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
+const firebaseConfig = {
+    apiKey: "AIzaSyDxoIs6Nn5dMCpPj8JjNqbv-O3SVpiac0A",
+    authDomain: "login-6cdd8.firebaseapp.com",
+    projectId: "login-6cdd8",
+    storageBucket: "login-6cdd8.firebasestorage.app",
+    messagingSenderId: "518535069226",
+    appId: "1:518535069226:web:8925106a250805bbf24d53"
+};
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyDxoIs6Nn5dMCpPj8JjNqbv-O3SVpiac0A",
-            authDomain: "login-6cdd8.firebaseapp.com",
-            projectId: "login-6cdd8",
-            storageBucket: "login-6cdd8.firebasestorage.app",
-            messagingSenderId: "518535069226",
-            appId: "1:518535069226:web:8925106a250805bbf24d53"
-        };
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const provider = new GoogleAuthProvider();
+document.getElementById('email-signin-btn').onclick = () => {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
 
-        document.getElementById('google-signin-btn').onclick = () => {
-            signInWithPopup(auth, provider)
-                .then(() => window.location = 'index.html')
-                .catch(err => alert(err.message));
-        };
+    signInWithEmailAndPassword(auth, email, password)
+        .then(() => location.href = "index.html")
+        .catch(e => alert(e.message));
+};
 
-        document.getElementById('signin-btn').onclick = () => {
-            const email = document.getElementById('signin-email').value;
-            const password = document.getElementById('signin-password').value;
+document.getElementById('google-signin-btn').onclick = () => {
+    signInWithPopup(auth, provider)
+        .then(() => location.href = "index.html")
+        .catch(err => alert(err.message));
+};
 
-            signInWithEmailAndPassword(auth, email, password)
-                .then(() => window.location = 'index.html')
-                .catch(err => alert(err.message));
-        };
-
-        onAuthStateChanged(auth, user => {
-            if (user) window.location = 'index.html';
-        });
-    </script>
+</script>
 </body>
 </html>
