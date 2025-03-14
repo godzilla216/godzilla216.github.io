@@ -1,8 +1,26 @@
 // comments.js
-import { db, auth } from './index.html';
-import { collection, addDoc, serverTimestamp, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
-import { GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+import { getFirestore, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
 
+// Firebase configuration (copy your existing configuration here)
+const firebaseConfig = {
+    apiKey: "AIzaSyDxoIs6Nn5dMCpPj8JjNqbv-O3SVpiac0A",
+    authDomain: "login-6cdd8.firebaseapp.com",
+    projectId: "login-6cdd8",
+    storageBucket: "login-6cdd8.firebasestorage.app",
+    messagingSenderId: "518535069226",
+    appId: "1:518535069226:web:8925106a250805bbf24d53",
+    measurementId: "G-5S5XBHDN02"
+};
+
+// Initialize Firebase directly here
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+
+// DOM Elements
 const loginBtn = document.getElementById('login-btn');
 const logoutBtn = document.getElementById('logout-btn');
 const commentForm = document.getElementById('comment-form');
@@ -10,9 +28,7 @@ const commentInput = document.getElementById('comment-input');
 const commentsDiv = document.getElementById('comments');
 const userInfoDiv = document.getElementById('user-info');
 
-const provider = new GoogleAuthProvider();
-
-// Login with Google
+// Google Login
 loginBtn.addEventListener('click', () => {
     signInWithPopup(auth, provider)
     .then(result => {
@@ -20,6 +36,7 @@ loginBtn.addEventListener('click', () => {
     })
     .catch(err => {
         console.error('Login error:', err.message);
+        alert(`Login failed: ${err.message}`);
     });
 });
 
@@ -30,7 +47,7 @@ logoutBtn.addEventListener('click', () => {
     });
 });
 
-// Handle Auth State
+// Auth State Observer
 onAuthStateChanged(auth, user => {
     if (user) {
         loginBtn.style.display = 'none';
@@ -45,7 +62,7 @@ onAuthStateChanged(auth, user => {
     }
 });
 
-// Post Comment to Firestore
+// Submit Comment
 commentForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (auth.currentUser) {
@@ -57,11 +74,11 @@ commentForm.addEventListener('submit', async (e) => {
         });
         commentInput.value = '';
     } else {
-        alert('You must be signed in to comment.');
+        alert('Please log in to comment.');
     }
 });
 
-// Fetch Comments from Firestore
+// Real-time Comment Updates
 const q = query(collection(db, "comments"), orderBy("timestamp", "desc"));
 onSnapshot(q, (snapshot) => {
     commentsDiv.innerHTML = '';
