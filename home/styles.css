@@ -329,4 +329,40 @@ body.dark-mode .sun {
 body:not(.dark-mode) .moon {
     display: inline;
 }
+.comment-section {
+    background-color: rgba(255,255,255,0.1);
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 20px;
+    color: white;
+}
+
+.comment-input input,
+.comment-input textarea {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border: none;
+}
+
+.comment-input button {
+    padding: 8px 15px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.comment-input button:hover {
+    background-color: #45a049;
+}
+
+.comment-item {
+    background-color: rgba(255,255,255,0.05);
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
 
