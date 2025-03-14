@@ -89,21 +89,52 @@
             <a href="#" class="random-game-button" id="random-game-btn">Random Game</a>
 
         </section>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign Up</title>
+</head>
+<body>
+    <h2>Create an Account</h2>
 
-<div class="comment-container">
-    <button id="login-btn">Sign in with Google</button>
-    <button id="logout-btn" style="display:none;">Logout</button>
+    <input type="email" id="signup-email" placeholder="Email">
+    <input type="password" id="signup-password" placeholder="Password">
+    <button id="signup-btn">Sign Up</button>
 
-    <div id="user-info"></div>
+    <p>Have an account? <a href="signin.html">Sign in here</a></p>
 
-    <form id="comment-form" style="display:none;">
-        <textarea id="comment-input" placeholder="Write a comment..." required></textarea>
-        <button type="submit">Post Comment</button>
-    </form>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
 
-    <div id="comments"></div>
-</div>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDxoIs6Nn5dMCpPj8JjNqbv-O3SVpiac0A",
+            authDomain: "login-6cdd8.firebaseapp.com",
+            projectId: "login-6cdd8",
+            storageBucket: "login-6cdd8.firebasestorage.app",
+            messagingSenderId: "518535069226",
+            appId: "1:518535069226:web:8925106a250805bbf24d53"
+        };
 
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        document.getElementById('signup-btn').onclick = () => {
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+
+            createUserWithEmailAndPassword(auth, email, password)
+                .then(() => window.location = 'index.html')
+                .catch(err => alert(err.message));
+        };
+
+        onAuthStateChanged(auth, user => {
+            if (user) window.location = 'index.html';
+        });
+    </script>
+</body>
+</html>
     
     <script src="particles-init.js"></script>
     <script src="Toggle.js"></script>
