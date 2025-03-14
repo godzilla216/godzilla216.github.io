@@ -1,9 +1,9 @@
 // comments.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
 import { getFirestore, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
 
-// Firebase configuration (copy your existing configuration here)
+// Your Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyDxoIs6Nn5dMCpPj8JjNqbv-O3SVpiac0A",
     authDomain: "login-6cdd8.firebaseapp.com",
@@ -14,7 +14,7 @@ const firebaseConfig = {
     measurementId: "G-5S5XBHDN02"
 };
 
-// Initialize Firebase directly here
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
@@ -24,68 +24,84 @@ const provider = new GoogleAuthProvider();
 const loginBtn = document.getElementById('login-btn');
 const logoutBtn = document.getElementById('logout-btn');
 const commentForm = document.getElementById('comment-form');
-const commentInput = document.getElementById('comment-input');
 const commentsDiv = document.getElementById('comments');
+const commentInput = document.getElementById('comment-input');
 const userInfoDiv = document.getElementById('user-info');
 
 // Google Login
 loginBtn.addEventListener('click', () => {
-    signInWithPopup(auth, provider)
-    .then(result => {
-        console.log('Logged in:', result.user.displayName);
-    })
-    .catch(err => {
-        console.error('Login error:', err.message);
-        alert(`Login failed: ${err.message}`);
+    signInWithPopup(auth, provider).catch(err => {
+        console.error("Google login error:", err);
     });
 });
 
 // Logout
 logoutBtn.addEventListener('click', () => {
-    signOut(auth).then(() => {
-        console.log('User signed out.');
+    signOut(auth).catch(err => {
+        console.error("Logout error:", err);
     });
 });
 
-// Auth State Observer
+// Listen to auth state changes
 onAuthStateChanged(auth, user => {
     if (user) {
         loginBtn.style.display = 'none';
         logoutBtn.style.display = 'inline-block';
         commentForm.style.display = 'block';
-        userInfoDiv.innerHTML = `Logged in as ${user.displayName}`;
+        userInfoDiv.textContent = `Logged in as ${user.displayName || user.email}`;
     } else {
         loginBtn.style.display = 'inline-block';
         logoutBtn.style.display = 'none';
         commentForm.style.display = 'none';
-        userInfoDiv.innerHTML = '';
+        userInfoDiv.textContent = '';
     }
 });
 
-// Submit Comment
+// Comment Submission
 commentForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (auth.currentUser) {
         await addDoc(collection(db, "comments"), {
             text: commentInput.value,
             timestamp: serverTimestamp(),
-            username: auth.currentUser.displayName,
+            username: auth.currentUser.displayName || auth.currentUser.email,
             userId: auth.currentUser.uid
         });
         commentInput.value = '';
-    } else {
-        alert('Please log in to comment.');
     }
 });
 
-// Real-time Comment Updates
-const q = query(collection(db, "comments"), orderBy("timestamp", "desc"));
-onSnapshot(q, (snapshot) => {
+// Load Comments
+import { collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+
+const commentsRef = collection(db, "comments");
+const q = query(commentsRef, orderBy("timestamp", "desc"));
+
+onSnapshot(q, snapshot => {
     commentsDiv.innerHTML = '';
     snapshot.forEach(doc => {
         const comment = doc.data();
         const commentEl = document.createElement('div');
-        commentEl.innerHTML = `<strong>${comment.username}</strong>: ${comment.text}`;
+        commentEl.innerHTML = `<strong>${comment.username}:</strong> ${comment.text}`;
         commentsDiv.appendChild(commentEl);
     });
+});
+
+// Email/Password Authentication (Optional)
+// If you want users to sign up or log in with email/password, use this additional code:
+
+const emailSignup = document.getElementById('email-signup');
+const emailInput = document.getElementById('email-input');
+const passwordInput = document.getElementById('password-input');
+const signupBtn = document.getElementById('signup-btn');
+const signinBtn = document.getElementById('signin-btn');
+
+signupBtn.addEventListener('click', () => {
+    signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value)
+        .catch(err => alert(err.message));
+});
+
+signinBtn.addEventListener('click', () => {
+    signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value)
+        .catch(err => alert(err.message));
 });
