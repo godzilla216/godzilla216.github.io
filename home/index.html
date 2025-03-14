@@ -284,5 +284,21 @@ body:not(.dark-mode) .moon {
         });
     </script>
         <script type="module" src="comments.js"></script>
+        <div class="comment-container">
+    <button id="login-btn">Log In to Comment</button>
+    <button id="logout-btn" style="display:none;">Logout</button>
+
+    <div id="user-info"></div>
+
+    <form id="comment-form" style="display:none;">
+        <textarea id="comment-input" placeholder="Write a comment..." required></textarea>
+        <button type="submit">Post Comment</button>
+    </form>
+
+    <div id="comments"></div>
+</div>
+
+<script type="module" src="comments.js"></script>
+
 </body>
 </html>
