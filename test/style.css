@@ -1,0 +1,96 @@
+#text1 {
+    font-family: 'Courier New', Courier, monospace;
+    position: absolute;
+    margin: auto;
+}
+
+#span1 {
+  color: red;
+}
+
+#store {
+    position: relative;
+    left: 93%;
+    box-shadow: 5px 5px 5px black;
+    cursor: pointer;
+    border: none;
+    background-color: green;;
+    height: 2.5%;
+    font-size: 100%;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+#mute {
+    position: relative;
+    width: 5vw;
+    height: 5vh;
+    border: none;
+    box-shadow: 5px 5px 5px black;
+    cursor: pointer;
+}
+
+#mute:hover {
+    background-color: #e2dddd;
+}
+
+#mute:active {
+    box-shadow: 3px 3px 3px black;
+}
+
+#icon {
+    position: relative;
+    width: 4vw;
+    height: 4vh; 
+}
+
+#slider1 {
+    position: relative;
+    left: 9%;
+}
+
+#storebg {
+    width: 30%;
+    height: 50%;
+    position: absolute;
+    background-color: lightgrey;
+    left: 68.5%;
+    top: 7.5%;
+    z-index: 1;
+    display: none;
+}
+
+#settings {
+    left: 93%;
+    position: absolute;
+    top: 4%;
+    border: none;
+    background-color: green;
+    font-family: 'Courier New', Courier, monospace;
+    height: 2.5%;
+    box-shadow: 5px 5px 5px black;
+    cursor: pointer;
+}
+
+#store:active {
+    box-shadow: 3px 3px 3px black;
+}
+
+#store:hover {
+    background-color: #009000;
+}
+
+#settings:hover {
+    background-color: #009000;
+}
+
+#settings:active {
+    box-shadow: 3px 3px 3px black;
+}
+
+body {
+    background-color: lightslategrey;
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    overflow: hidden;
+}

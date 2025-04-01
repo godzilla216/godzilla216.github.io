@@ -1,23 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+    <link href="style.css" rel="stylesheet">
+    <link href="assets/icon.ico" rel="icon" type="image/x-icon">
     <meta charset="UTF-8">
-    <title>Feedback System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+   
 </head>
-<body>
 
-<h2>Feedback</h2>
+<body onload="onPageLoad()">
+    <audio id="click" src="assets/click.mp3"></audio>
+    <p id="text1">you have clicked space <span id="span1">0</span> times</p>
+    <a href="store.html" rel="noopener"><button id="store">store</button></a>
 
-<!-- Feedback Form -->
-<form method="POST" action="feedback.php">
-    <button type="submit" name="type" value="like">Like</button>
-    <button type="submit" name="type" value="dislike">Dislike</button>
-</form>
+    <button onclick="panel_toggle()" id="settings">settings</button>
 
-<!-- Display feedback counts -->
-<div>
-    <?php include 'feedback.php'; ?>
-</div>
-
+    <div id="storebg">
+        <button onclick="mute()" id="mute">
+            <img id="icon" src="assets/audio.svg" alt="unmute">    
+                    
+        </button>
+        <input wind type="range" min="0.0" max="1.0" class="slider" value="1.0" step="0.01" id="slider1">
+    </div>
+    <script src="script.js"></script>
 </body>
+
 </html>
