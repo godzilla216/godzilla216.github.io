@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Game Hub | Godzilla216</title>
+  <title>Games AZ | Godzilla216</title>
   <link rel="stylesheet" href="styles.css">
   <style>
     body {
@@ -11,6 +11,72 @@
       color: white;
       text-align: center;
       padding: 40px;
+    }
+
+    body.light-mode {
+      background-color: #f4f4f4;
+      color: #111;
+    }
+
+    .top-right {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+    }
+
+    .signin-button {
+      display: inline-block;
+      background-color: #ffcc00;
+      color: #000;
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-weight: bold;
+      text-decoration: none;
+      font-size: 16px;
+      transition: background-color 0.3s, color 0.3s;
+      cursor: pointer;
+      border: none;
+    }
+
+    .signin-button:hover {
+      background-color: #ffaa00;
+      color: #fff;
+    }
+
+    .popup {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #00cc66;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 16px;
+      display: none;
+      z-index: 1000;
+    }
+
+    #comments-section {
+      margin-top: 50px;
+      display: none;
+    }
+
+    #comment-form input {
+      padding: 10px;
+      width: 70%;
+      margin-right: 10px;
+      border-radius: 5px;
+      border: none;
+    }
+
+    #comment-form button {
+      padding: 10px 20px;
+      border-radius: 5px;
+      border: none;
+      background-color: #00cc66;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
     }
 
     h1 {
@@ -45,28 +111,163 @@
     #hitCounter {
       color: #00ff00;
     }
+
+    .cover-image {
+      width: 300px;
+      height: auto;
+      margin-top: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #00ffff;
+    }
+
+    .toggle-container {
+      margin-top: 30px;
+    }
+
+    #mode-toggle-button {
+      background: none;
+      border: 2px solid #00ffff;
+      padding: 10px 20px;
+      font-size: 24px;
+      color: #00ffff;
+      cursor: pointer;
+      border-radius: 10px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    #mode-toggle-button:hover {
+      background-color: #00ffff;
+      color: #0c0c0c;
+    }
   </style>
 </head>
 <body>
 
-  <h1>🎮 Godzilla216 Game Hub</h1>
+  <div class="top-right">
+    <button id="signin-btn" class="signin-button">🔐 Sign In</button>
+  </div>
+
+  <div id="popup" class="popup">Signed out successfully ✅</div>
+
+  <h1>🎮 Games AZ</h1>
   <h3>Homepage Visits: <span id="hitCounter">Loading...</span></h3>
+
+  <div class="toggle-container">
+    <button id="mode-toggle-button">🌙</button>
+  </div>
 
   <hr style="margin: 40px 0;">
 
   <h2>Available Pages / Games</h2>
   <ul>
-    <li><a href="signin.html">🔐 Sign In</a></li>
     <li><a href="signup.html">📝 Sign Up</a></li>
-    <li><a href="Toggle.js">🕹️ Toggle Script</a></li>
     <li><a href="Countdown.js">⏳ Countdown Script</a></li>
-    <li><a href="comments.js">💬 Comments Script</a></li>
     <li><a href="discord.png" target="_blank">📷 Discord Banner</a></li>
-    <li><a href="RetroBowl.png" target="_blank">🏈 Retro Bowl Image</a></li>
-    <li><a href="RetroBowlC.png" target="_blank">🏈 Retro Bowl Cover</a></li>
+    <li><a href="https://godzilla216.github.io/home/retrobowl.html" target="_blank">
+      <img src="RetroBowlC.png" alt="Retro Bowl Cover" class="cover-image">
+    </a></li>
     <li><a href="slope.jpg" target="_blank">🖼️ Slope Image</a></li>
   </ul>
 
-  <script type="module" src="/hitCounter.js"></script>
+  <div id="comments-section">
+    <h2>Comments</h2>
+    <div id="user-info"></div>
+    <form id="comment-form">
+      <input type="text" id="comment-input" placeholder="Write a comment..." required>
+      <button type="submit">Post</button>
+    </form>
+    <div id="comments"></div>
+  </div>
+
+  <script type="module" src="hitCounter.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDxoIs6Nn5dMCpPj8JjNqbv-O3SVpiac0A",
+      authDomain: "login-6cdd8.firebaseapp.com",
+      projectId: "login-6cdd8",
+      storageBucket: "login-6cdd8.firebasestorage.app",
+      messagingSenderId: "518535069226",
+      appId: "1:518535069226:web:8925106a250805bbf24d53"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    const commentForm = document.getElementById('comment-form');
+    const commentInput = document.getElementById('comment-input');
+    const commentsDiv = document.getElementById('comments');
+    const userInfoDiv = document.getElementById('user-info');
+    const commentsSection = document.getElementById('comments-section');
+
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        commentsSection.style.display = 'block';
+        userInfoDiv.textContent = `Logged in as ${user.displayName || user.email}`;
+
+        commentForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          await addDoc(collection(db, "comments"), {
+            text: commentInput.value,
+            timestamp: serverTimestamp(),
+            username: user.displayName || user.email,
+            userId: user.uid
+          });
+          commentInput.value = '';
+        });
+
+        const q = query(collection(db, "comments"), orderBy("timestamp", "desc"));
+        onSnapshot(q, snapshot => {
+          commentsDiv.innerHTML = '';
+          snapshot.forEach(doc => {
+            const comment = doc.data();
+            commentsDiv.innerHTML += `<div><strong>${comment.username}:</strong> ${comment.text}</div>`;
+          });
+        });
+
+      } else {
+        commentsSection.style.display = 'none';
+      }
+    });
+  </script>
+  <script>
+    const toggleButton = document.getElementById('mode-toggle-button');
+    toggleButton.addEventListener('click', function() {
+      document.body.classList.toggle('light-mode');
+      if (document.body.classList.contains('light-mode')) {
+        toggleButton.textContent = '☀️';
+      } else {
+        toggleButton.textContent = '🌙';
+      }
+    });
+
+    function getCookie(name) {
+      const value = "; " + document.cookie;
+      const parts = value.split("; " + name + "=");
+      if (parts.length === 2) return parts.pop().split(";").shift();
+    }
+
+    const signinBtn = document.getElementById('signin-btn');
+    const authCookie = getCookie('auth');
+
+    if (authCookie === 'true') {
+      signinBtn.textContent = '🚪 Sign Out';
+      signinBtn.addEventListener('click', () => {
+        document.cookie = "auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+        document.getElementById('popup').style.display = 'block';
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
+      });
+    } else {
+      signinBtn.addEventListener('click', () => {
+        window.location.href = 'signin.html';
+      });
+    }
+  </script>
 </body>
 </html>
