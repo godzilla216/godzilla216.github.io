@@ -179,12 +179,11 @@
     <div id="comments"></div>
   </div>
 
-  <script type="module" src="hitCounter.js"></script>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, doc, getDoc, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
-
+  
     const firebaseConfig = {
       apiKey: "AIzaSyDxoIs6Nn5dMCpPj8JjNqbv-O3SVpiac0A",
       authDomain: "login-6cdd8.firebaseapp.com",
@@ -193,22 +192,44 @@
       messagingSenderId: "518535069226",
       appId: "1:518535069226:web:8925106a250805bbf24d53"
     };
-
+  
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
-
+  
+    // HIT COUNTER
+    const hitCounterSpan = document.getElementById('hitCounter');
+    const counterDoc = doc(db, "counters", "gameHomeHits");
+  
+    async function incrementHits() {
+      try {
+        const docSnap = await getDoc(counterDoc);
+        if (docSnap.exists()) {
+          await updateDoc(counterDoc, { hits: increment(1) });
+        } else {
+          await setDoc(counterDoc, { hits: 1 });
+        }
+        const updatedSnap = await getDoc(counterDoc);
+        hitCounterSpan.textContent = updatedSnap.data().hits;
+      } catch (err) {
+        console.error("Hit counter error:", err);
+        hitCounterSpan.textContent = "Error";
+      }
+    }
+    incrementHits();
+  
+    // COMMENTS
     const commentForm = document.getElementById('comment-form');
     const commentInput = document.getElementById('comment-input');
     const commentsDiv = document.getElementById('comments');
     const userInfoDiv = document.getElementById('user-info');
     const commentsSection = document.getElementById('comments-section');
-
+  
     onAuthStateChanged(auth, user => {
       if (user) {
         commentsSection.style.display = 'block';
         userInfoDiv.textContent = `Logged in as ${user.displayName || user.email}`;
-
+  
         commentForm.addEventListener('submit', async (e) => {
           e.preventDefault();
           await addDoc(collection(db, "comments"), {
@@ -219,7 +240,7 @@
           });
           commentInput.value = '';
         });
-
+  
         const q = query(collection(db, "comments"), orderBy("timestamp", "desc"));
         onSnapshot(q, snapshot => {
           commentsDiv.innerHTML = '';
@@ -228,12 +249,13 @@
             commentsDiv.innerHTML += `<div><strong>${comment.username}:</strong> ${comment.text}</div>`;
           });
         });
-
+  
       } else {
         commentsSection.style.display = 'none';
       }
     });
   </script>
+  
   <script>
     const toggleButton = document.getElementById('mode-toggle-button');
     toggleButton.addEventListener('click', function() {
