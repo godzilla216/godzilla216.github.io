@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Account Center | Games AZ</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #0c0c0c;
+      color: white;
+      text-align: center;
+      padding: 40px;
+    }
+
+    h1 {
+      font-size: 42px;
+      margin-bottom: 20px;
+    }
+
+    .form-container {
+      margin: 20px auto;
+      width: 300px;
+    }
+
+    input[type="text"] {
+      padding: 10px;
+      width: 80%;
+      margin-bottom: 10px;
+      border: none;
+      border-radius: 5px;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      background-color: #00cc66;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 10px;
+    }
+
+    button:hover {
+      background-color: #00994d;
+    }
+
+    #message {
+      margin-top: 20px;
+      color: #00ff00;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Account Center</h1>
+
+  <div class="form-container">
+    <h2>Rename Account</h2>
+    <input type="text" id="new-name" placeholder="New Display Name">
+    <br>
+    <button id="rename-btn">Update Name</button>
+  </div>
+
+  <div class="form-container">
+    <h2>Danger Zone</h2>
+    <button id="delete-account-btn" style="background-color: red;">Delete My Account</button>
+  </div>
+
+  <div class="form-container">
+    <h2>Sign Out</h2>
+    <button id="signout-btn" style="background-color: orange;">Sign Out</button>
+  </div>
+
+  <p id="message"></p>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+    import { getAuth, updateProfile, deleteUser, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDxoIs6Nn5dMCpPj8JjNqbv-O3SVpiac0A",
+      authDomain: "login-6cdd8.firebaseapp.com",
+      projectId: "login-6cdd8",
+      storageBucket: "login-6cdd8.firebasestorage.app",
+      messagingSenderId: "518535069226",
+      appId: "1:518535069226:web:8925106a250805bbf24d53"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    const newNameInput = document.getElementById('new-name');
+    const renameBtn = document.getElementById('rename-btn');
+    const deleteBtn = document.getElementById('delete-account-btn');
+    const signoutBtn = document.getElementById('signout-btn');
+    const message = document.getElementById('message');
+
+    onAuthStateChanged(auth, user => {
+      if (!user) {
+        window.location.href = 'signin.html';
+      }
+    });
+
+    renameBtn.addEventListener('click', async () => {
+      const user = auth.currentUser;
+      if (user) {
+        const newName = newNameInput.value.trim();
+        if (newName) {
+          try {
+            await updateProfile(user, { displayName: newName });
+            message.textContent = "Name updated successfully!";
+          } catch (error) {
+            message.textContent = error.message;
+          }
+        } else {
+          message.textContent = "Please enter a valid name.";
+        }
+      }
+    });
+
+    deleteBtn.addEventListener('click', async () => {
+      const user = auth.currentUser;
+      if (user) {
+        try {
+          await deleteUser(user);
+          alert('Account deleted successfully.');
+          window.location.href = 'signup.html';
+        } catch (error) {
+          message.textContent = error.message;
+        }
+      }
+    });
+
+    signoutBtn.addEventListener('click', async () => {
+      try {
+        await signOut(auth);
+        alert('Signed out successfully.');
+        window.location.href = 'index.html';
+      } catch (error) {
+        message.textContent = error.message;
+      }
+    });
+
+  </script>
+
+</body>
+</html>
