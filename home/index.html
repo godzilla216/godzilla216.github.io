@@ -1,304 +1,72 @@
-<html lang="en">
-<head>
-    <style>
-        
-/* Optional: Change the sun/moon icon for dark mode */
-.sun,
-.moon {
-    display: none;
-}
-
-body.dark-mode .sun {
-    display: inline;
-}
-
-body:not(.dark-mode) .moon {
-    display: inline;
-}
-.comment-section {
-    background-color: rgba(255,255,255,0.1);
-    padding: 20px;
-    border-radius: 10px;
-    margin-top: 20px;
-    color: white;
-}
-
-.comment-input input,
-.comment-input textarea {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 10px;
-    border-radius: 5px;
-    border: none;
-}
-
-.comment-input button {
-    padding: 8px 15px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.comment-input button:hover {
-    background-color: #45a049;
-}
-
-.comment-item {
-    background-color: rgba(255,255,255,0.05);
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 10px;
-}
-.countdown-container {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        #countdown {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-        }
-
-        .time-box {
-            background-color: rgba(255, 255, 255, 0.1);
-            padding: 15px 10px;
-            border-radius: 10px;
-            text-align: center;
-            color: #f7d794;
-            width: 80px;
-        }
-
-        .time-box span {
-            font-size: 1.5em;
-            color: #ffffff;
-        }
-
-        /* Discord Invite Styles */
-        .discord-invite {
-            text-align: center;
-            margin: 20px 0;
-            padding: 15px;
-            background-color: #7289DA; /* Discord's brand color */
-            color: #ffffff;
-            border-radius: 10px;
-        }
-
-        .discord-invite img {
-            width: 50px;
-            height: 50px;
-            vertical-align: middle;
-            margin-right: 10px;
-        }
-
-        .discord-invite a {
-            color: #ffffff;
-            font-weight: bold;
-            text-decoration: none;
-        }
-
-        .discord-invite a:hover {
-            text-decoration: underline;
-        }
-
-        /* Random Game Button Styles */
-        .random-game-button {
-            display: block;
-            width: 200px;
-            padding: 15px;
-            margin: 30px auto;
-            background-color: #3498db;
-            color: #fff;
-            text-align: center;
-            font-size: 18px;
-            border-radius: 10px;
-            cursor: pointer;
-            text-decoration: none;
-        }
-
-        .random-game-button:hover {
-            background-color: #2980b9;
-        }
-    </style>
-    <script type="module">
-    // Firebase Initialization (your existing configuration)
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-analytics.js";
-    import { getFirestore } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
-    import { getAuth } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
-
-    const firebaseConfig = {
-        apiKey: "AIzaSyDxoIs6Nn5dMCpPj8JjNqbv-O3SVpiac0A",
-        authDomain: "login-6cdd8.firebaseapp.com",
-        projectId: "login-6cdd8",
-        storageBucket: "login-6cdd8.firebasestorage.app",
-        messagingSenderId: "518535069226",
-        appId: "1:518535069226:web:8925106a250805bbf24d53",
-        measurementId: "G-5S5XBHDN02"
-    };
-
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
-
-    // Export Firestore and Auth instances to be used in comments.js
-    export const db = getFirestore(app);
-    export const auth = getAuth(app);
-</script>
-
-<script type="module" src="comments.js"></script>
-
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Games Az</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
-    </head>
-
-<body>
-    <div id="particles-js"></div>
-
-    <div class="navbar">
-        <a href="https://sites.google.com/view/games-az/">Home</a>
-        <a href="#projects">Games</a>
-        <a href="https://docs.google.com/forms/d/e/1FAIpQLSeKomgpz1ewSQpMDTz6Wc1PocdNS9IUwG5NXk0W5bWg-MuyOg/viewform">Request Game</a>
-    </div>
-
-    <div class="header">
-        <h1>Games Az</h1>
-        <p>Here you can find games</p>
-        <!-- Dark Mode Toggle Button -->
-        <div class="dark-mode-toggle">
-            <input type="checkbox" id="dark-mode-switch">
-            <label for="dark-mode-switch">
-                <span class="sun">☀️</span>
-                <span class="moon">🌙</span>
-            </label>
-        </div>
-        <!-- Countdown Timer -->
-<p1>
-    Check out our <a href="https://sites.google.com/view/games-az/change-log" target="_blank">changelog</a> to see if your game has been fixed
-</p1>
-    <!-- Discord Invite Section -->
-    <div class="discord-invite">
-        <p>If you're interested in our game, join our Discord community!</p>
-        <a href="https://discord.gg/betrj3pX7C" target="_blank" rel="noopener noreferrer">
-            <img src="discord.png" alt="Discord Logo"> Join Our Discord
-        </a>
-    </div>
-
-    <div class="main">
-        <section id="projects">
-            <h2>Games</h2>
-            <div class="game-links">
-                <a id="retro-bowl" href="https://sites.google.com/view/games-az/retro-bowl" target="_blank" rel="noopener noreferrer">
-                    <img src="RetroBowl.png" width="24%" height="24%" alt="retro bowl">
-                </a>
-                <a href="https://sites.google.com/view/games-az/slope" target="_blank" rel="noopener noreferrer">
-                    <img src="slope.jpg" width="24%" height="24%" alt="slope">
-                </a>
-                <a href="https://sites.google.com/view/games-az/basket-random" target="_blank" rel="noopener noreferrer">
-                    <img src="BasketRandom.png" width="24%" height="24%" alt="basket random">
-                </a>
-                <a href="https://sites.google.com/view/games-az/retro-bowl-collage" target="_blank" rel="noopener noreferrer">
-                    <img src="RetroBowlC.png" width="24%" height="24%" alt="retro-bowl-collage">  
-                </a>
-            </div>
-
-            <!-- Random Game Button -->
-            <a href="#" class="random-game-button" id="random-game-btn">Random Game</a>
-
-        </section>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Sign Up</title>
+  <meta charset="UTF-8">
+  <title>Game Hub | Godzilla216</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #0c0c0c;
+      color: white;
+      text-align: center;
+      padding: 40px;
+    }
+
+    h1 {
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+
+    h3 {
+      margin-top: 0;
+      color: #aaaaaa;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    li {
+      margin: 15px 0;
+    }
+
+    a {
+      color: #00ffff;
+      font-size: 20px;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    #hitCounter {
+      color: #00ff00;
+    }
+  </style>
 </head>
 <body>
-    <h2>Create an Account</h2>
 
-    <input type="email" id="signup-email" placeholder="Email">
-    <input type="password" id="signup-password" placeholder="Password">
-    <button id="signup-btn">Sign Up</button>
+  <h1>🎮 Godzilla216 Game Hub</h1>
+  <h3>Homepage Visits: <span id="hitCounter">Loading...</span></h3>
 
-    <p>Have an account? <a href="signin.html">Sign in here</a></p>
+  <hr style="margin: 40px 0;">
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
+  <h2>Available Pages / Games</h2>
+  <ul>
+    <li><a href="signin.html">🔐 Sign In</a></li>
+    <li><a href="signup.html">📝 Sign Up</a></li>
+    <li><a href="Toggle.js">🕹️ Toggle Script</a></li>
+    <li><a href="Countdown.js">⏳ Countdown Script</a></li>
+    <li><a href="comments.js">💬 Comments Script</a></li>
+    <li><a href="discord.png" target="_blank">📷 Discord Banner</a></li>
+    <li><a href="RetroBowl.png" target="_blank">🏈 Retro Bowl Image</a></li>
+    <li><a href="RetroBowlC.png" target="_blank">🏈 Retro Bowl Cover</a></li>
+    <li><a href="slope.jpg" target="_blank">🖼️ Slope Image</a></li>
+  </ul>
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyDxoIs6Nn5dMCpPj8JjNqbv-O3SVpiac0A",
-            authDomain: "login-6cdd8.firebaseapp.com",
-            projectId: "login-6cdd8",
-            storageBucket: "login-6cdd8.firebasestorage.app",
-            messagingSenderId: "518535069226",
-            appId: "1:518535069226:web:8925106a250805bbf24d53"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-
-        document.getElementById('signup-btn').onclick = () => {
-            const email = document.getElementById('signup-email').value;
-            const password = document.getElementById('signup-password').value;
-
-            createUserWithEmailAndPassword(auth, email, password)
-                .then(() => window.location = 'index.html')
-                .catch(err => alert(err.message));
-        };
-
-        onAuthStateChanged(auth, user => {
-            if (user) window.location = 'index.html';
-        });
-    </script>
-</body>
-</html>
-    
-    <script src="particles-init.js"></script>
-    <script src="Toggle.js"></script>
-    <script src="loader.js"></script>
-    <script src="Countdown.js"></script>
-    
-    <script>
-        // JavaScript to select a random game
-        document.getElementById('random-game-btn').addEventListener('click', function() {
-            // Array of game URLs
-            const gameLinks = [
-                "https://sites.google.com/view/games-az/retro-bowl",
-                "https://sites.google.com/view/games-az/slope",
-                "https://sites.google.com/view/games-az/basket-random",
-                "https://sites.google.com/view/games-az/retro-bowl-collage",
-                "https://sites.google.com/view/games-az/slope-2",
-                "https://sites.google.com/view/games-az/3d-field-goal",
-                "https://sites.google.com/view/games-az/just-one-boss",
-                "https://sites.google.com/view/games-az/madden-02"
-            ];
-            
-            // Randomly pick a game
-            const randomIndex = Math.floor(Math.random() * gameLinks.length);
-            window.open(gameLinks[randomIndex], "_blank");
-        });
-    </script>
-        <script type="module" src="comments.js"></script>
-        <div class="comment-container">
-    <button id="login-btn">Log In to Comment</button>
-    <button id="logout-btn" style="display:none;">Logout</button>
-
-    <div id="user-info"></div>
-
-    <form id="comment-form" style="display:none;">
-        <textarea id="comment-input" placeholder="Write a comment..." required></textarea>
-        <button type="submit">Post Comment</button>
-    </form>
-
-    <div id="comments"></div>
-</div>
-
-<script type="module" src="comments.js"></script>
-
+  <script type="module" src="hitCounter.js"></script>
 </body>
 </html>
