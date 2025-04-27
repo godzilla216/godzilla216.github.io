@@ -1,107 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign In</title>
-    <link rel="stylesheet" href="public/css/auth.css">
-    <style>
-        .google-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid #4285F4;
-            padding: 8px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            background-color: #fff;
-            color: #4285F4;
-            font-size: 16px;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-
-        .google-btn:hover {
-            background-color: #4285F4;
-            color: #fff;
-        }
-
-        .google-btn img {
-            height: 20px;
-            margin-right: 8px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Sign In | Games AZ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="public/css/auth.css">
 </head>
 <body>
 
-    <div id="signin-container">
-        <h1>Sign In</h1>
-        <form id="signinForm">
-            <input type="email" id="signin-email" placeholder="Email" required>
-            <input type="password" id="signin-password" placeholder="Password" required>
-            <button type="submit">Sign In</button>
-        </form>
+  <div id="signin-container">
+    <h1>Sign In</h1>
+    <form id="signinForm">
+      <input type="email" id="signin-email" placeholder="Email" required>
+      <input type="password" id="signin-password" placeholder="Password" required>
+      <button type="submit">Sign In</button>
+    </form>
 
-        <button id="googleSignIn" class="google-btn">
-            <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google Logo">
-            Sign In with Google
-        </button>
+    <button id="googleSignIn" class="google-btn">
+      <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google Logo" style="height:20px; margin-right:8px;">
+      Sign In with Google
+    </button>
 
-        <p id="signin-error-message"></p>
-        <p>Don't have an account? <a href="signup.html" style="color: #ffcc00;">Sign Up</a></p>
-    </div>
+    <p id="signin-error-message"></p>
+    <p>Don't have an account? <a href="signup.html" style="color: #ffcc00;">Sign Up</a></p>
+  </div>
 
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js';
-        import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'https://www.gstatic.com/firebasejs/9.10.0/firebase-auth.js';
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js';
+    import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.10.0/firebase-auth.js';
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyDxoIs6Nn5dMCpPj8JjNqbv-O3SVpiac0A",
-            authDomain: "login-6cdd8.firebaseapp.com",
-            projectId: "login-6cdd8",
-            storageBucket: "login-6cdd8.firebasestorage.app",
-            messagingSenderId: "518535069226",
-            appId: "1:518535069226:web:8925106a250805bbf24d53",
-            measurementId: "G-5S5XBHDN02"
-        };
+    const firebaseConfig = {
+      apiKey: "AIzaSyDxoIs6Nn5dMCpPj8JjNqbv-O3SVpiac0A",
+      authDomain: "login-6cdd8.firebaseapp.com",
+      projectId: "login-6cdd8",
+      storageBucket: "login-6cdd8.firebaseapp.com",
+      messagingSenderId: "518535069226",
+      appId: "1:518535069226:web:8925106a250805bbf24d53"
+    };
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const provider = new GoogleAuthProvider();
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
 
-        document.getElementById('signinForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
+    const signinForm = document.getElementById('signinForm');
+    const googleSignIn = document.getElementById('googleSignIn');
+    const errorMessage = document.getElementById('signin-error-message');
 
-            const email = document.getElementById('signin-email').value;
-            const password = document.getElementById('signin-password').value;
+    // Sign in with Email/Password
+    signinForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('signin-email').value;
+      const password = document.getElementById('signin-password').value;
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        // No redirect yet — wait for onAuthStateChanged
+      } catch (error) {
+        errorMessage.textContent = cleanErrorMessage(error.message);
+      }
+    });
 
-            try {
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                console.log("User signed in:", userCredential);
+    // Sign in with Google
+    googleSignIn.addEventListener('click', async () => {
+      const provider = new GoogleAuthProvider();
+      try {
+        await signInWithPopup(auth, provider);
+        // No redirect yet — wait for onAuthStateChanged
+      } catch (error) {
+        errorMessage.textContent = cleanErrorMessage(error.message);
+      }
+    });
 
-                // Set authentication cookie
-                document.cookie = "auth=true; path=/; max-age=86400";
+    // Listen for login completion
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        window.location.href = "index.html"; // ✅ Redirect once user is confirmed logged in
+      }
+    });
 
-                // Redirect to index page
-                window.location.href = "index.html";
-            } catch (error) {
-                console.error("Error during sign-in:", error.message);
-                document.getElementById('signin-error-message').textContent = error.message;
-            }
-        });
-
-        document.getElementById("googleSignIn").addEventListener("click", () => {
-            signInWithPopup(auth, provider)
-                .then((result) => {
-                    console.log("Signed in with Google:", result);
-                    document.cookie = "auth=true; path=/; max-age=86400";
-                    window.location.href = "index.html";
-                })
-                .catch((error) => {
-                    document.getElementById('signin-error-message').textContent = error.message;
-                });
-        });
-    </script>
+    function cleanErrorMessage(msg) {
+      if (msg.includes('auth/user-not-found')) return 'No account found.';
+      if (msg.includes('auth/wrong-password')) return 'Wrong password. Try again.';
+      if (msg.includes('auth/invalid-email')) return 'Enter a valid email.';
+      return msg;
+    }
+  </script>
 
 </body>
 </html>
