@@ -232,7 +232,7 @@ import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/fi
     onAuthStateChanged(auth, user => {
       if (user) {
         commentsSection.style.display = 'block';
-        userInfoDiv.textContent = Logged in as ${user.displayName || user.email};
+        userInfoDiv.textContent = `Logged in as ${user.displayName || user.email}`;
 
         commentForm.addEventListener('submit', async (e) => {
           e.preventDefault();
@@ -250,7 +250,7 @@ import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/fi
           commentsDiv.innerHTML = '';
           snapshot.forEach(doc => {
             const comment = doc.data();
-            commentsDiv.innerHTML += <div><strong>${comment.username}:</strong> ${comment.text}</div>;
+            commentsDiv.innerHTML += `<div><strong>${comment.username}:</strong> ${comment.text}</div>`;
           });
         });
 
