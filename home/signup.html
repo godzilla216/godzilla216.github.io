@@ -1,26 +1,105 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up</title>
-    <link rel="stylesheet" href="public/css/auth.css">
+  <meta charset="UTF-8">
+  <title>Sign Up | Games AZ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #0c0c0c;
+      color: white;
+      text-align: center;
+      padding: 40px;
+    }
+    #signup-container {
+      margin: auto;
+      max-width: 400px;
+      background: #1a1a1a;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #00cc66;
+    }
+    input {
+      width: 80%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: none;
+    }
+    button {
+      background-color: #00cc66;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    button:hover {
+      background-color: #00994d;
+    }
+    #error-message {
+      color: red;
+      margin-top: 10px;
+    }
+  </style>
 </head>
 <body>
 
-    <div id="signup-container">
-        <h1>Sign Up</h1>
-        <form id="signupForm">
-            <input type="email" id="signup-email" placeholder="Email" required>
-            <input type="password" id="signup-password" placeholder="Password" required>
-            <button type="submit">Sign Up</button>
-        </form>
+  <div id="signup-container">
+    <h1>Sign Up</h1>
+    <form id="signupForm">
+      <input type="email" id="signup-email" placeholder="Email" required>
+      <input type="password" id="signup-password" placeholder="Password" required>
+      <button type="submit">Sign Up</button>
+    </form>
+    <p id="error-message"></p>
+    <p>Already have an account? <a href="signin.html" style="color: #ffcc00;">Sign In</a></p>
+  </div>
 
-        <p id="error-message"></p>
-        <p>Already have an account? <a href="signin.html" style="color: #ffcc00;">Sign In</a></p>
-    </div>
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js';
+    import { getAuth, createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/9.10.0/firebase-auth.js';
 
-    <script type="module" src="signup.js"></script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDxoIs6Nn5dMCpPj8JjNqbv-O3SVpiac0A",
+      authDomain: "login-6cdd8.firebaseapp.com",
+      projectId: "login-6cdd8",
+      storageBucket: "login-6cdd8.firebaseapp.com",
+      messagingSenderId: "518535069226",
+      appId: "1:518535069226:web:8925106a250805bbf24d53"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    const signupForm = document.getElementById('signupForm');
+    const errorMessage = document.getElementById('error-message');
+
+    signupForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('signup-email').value;
+      const password = document.getElementById('signup-password').value;
+
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        console.log("User signed up:", userCredential);
+        window.location.href = "index.html"; // Redirect to homepage or success page
+      } catch (error) {
+        console.error("Sign-up error:", error.message);
+        errorMessage.textContent = cleanErrorMessage(error.message);
+      }
+    });
+
+    function cleanErrorMessage(msg) {
+      if (msg.includes('auth/email-already-in-use')) return 'This email is already in use.';
+      if (msg.includes('auth/invalid-email')) return 'Please enter a valid email address.';
+      if (msg.includes('auth/weak-password')) return 'Password must be at least 6 characters.';
+      return msg;
+    }
+  </script>
 
 </body>
 </html>
