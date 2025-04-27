@@ -40,6 +40,16 @@
     button:hover {
       background-color: #00994d;
     }
+    .google-btn {
+      margin-top: 15px;
+      background-color: white;
+      color: #4285F4;
+      border: 1px solid #4285F4;
+    }
+    .google-btn:hover {
+      background-color: #4285F4;
+      color: white;
+    }
     #error-message {
       color: red;
       margin-top: 10px;
@@ -55,13 +65,18 @@
       <input type="password" id="signup-password" placeholder="Password" required>
       <button type="submit">Sign Up</button>
     </form>
+
+    <button id="googleSignUp" class="google-btn">
+      <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google Logo" style="height:20px; vertical-align:middle; margin-right:8px;">Sign Up with Google
+    </button>
+
     <p id="error-message"></p>
     <p>Already have an account? <a href="signin.html" style="color: #ffcc00;">Sign In</a></p>
   </div>
 
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js';
-    import { getAuth, createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/9.10.0/firebase-auth.js';
+    import { getAuth, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'https://www.gstatic.com/firebasejs/9.10.0/firebase-auth.js';
 
     const firebaseConfig = {
       apiKey: "AIzaSyDxoIs6Nn5dMCpPj8JjNqbv-O3SVpiac0A",
@@ -74,8 +89,10 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
 
     const signupForm = document.getElementById('signupForm');
+    const googleSignUp = document.getElementById('googleSignUp');
     const errorMessage = document.getElementById('error-message');
 
     signupForm.addEventListener('submit', async (e) => {
@@ -86,9 +103,20 @@
       try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         console.log("User signed up:", userCredential);
-        window.location.href = "index.html"; // Redirect to homepage or success page
+        window.location.href = "index.html";
       } catch (error) {
         console.error("Sign-up error:", error.message);
+        errorMessage.textContent = cleanErrorMessage(error.message);
+      }
+    });
+
+    googleSignUp.addEventListener('click', async () => {
+      try {
+        const result = await signInWithPopup(auth, provider);
+        console.log("Signed up with Google:", result);
+        window.location.href = "index.html";
+      } catch (error) {
+        console.error("Google sign-up error:", error.message);
         errorMessage.textContent = cleanErrorMessage(error.message);
       }
     });
