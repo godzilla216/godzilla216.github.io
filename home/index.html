@@ -269,29 +269,26 @@
       }
     });
 
-    function getCookie(name) {
-      const value = "; " + document.cookie;
-      const parts = value.split("; " + name + "=");
-      if (parts.length === 2) return parts.pop().split(";").shift();
-    }
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
 
-    const signinBtn = document.getElementById('signin-btn');
-    const authCookie = getCookie('auth');
+const auth = getAuth();
+const signinBtn = document.getElementById('signin-btn');
 
-    if (authCookie === 'true') {
-      signinBtn.textContent = '🚪 Sign Out';
-      signinBtn.addEventListener('click', () => {
-        document.cookie = "auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
-        document.getElementById('popup').style.display = 'block';
-        setTimeout(() => {
-          window.location.reload();
-        }, 1500);
-      });
-    } else {
-      signinBtn.addEventListener('click', () => {
-        window.location.href = 'signin.html';
-      });
-    }
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    signinBtn.textContent = '🚪 Sign Out';
+    signinBtn.onclick = async () => {
+      await signOut(auth);
+      window.location.reload();
+    };
+  } else {
+    signinBtn.textContent = '🔐 Sign In';
+    signinBtn.onclick = () => {
+      window.location.href = 'signin.html';
+    };
+  }
+});
+
   </script>
 
 </body>
