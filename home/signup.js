@@ -1,8 +1,8 @@
-// Import required Firebase modules
+// Import Firebase modules
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js';
 import { getAuth, createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/9.10.0/firebase-auth.js';
 
-// Firebase configuration
+// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyDxoIs6Nn5dMCpPj8JjNqbv-O3SVpiac0A",
   authDomain: "login-6cdd8.firebaseapp.com",
@@ -17,7 +17,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-// Get the form and error message elements
+// Form and error elements
 const signupForm = document.getElementById('signupForm');
 const errorMessage = document.getElementById('error-message');
 
@@ -25,26 +25,30 @@ const errorMessage = document.getElementById('error-message');
 signupForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   
-  // Get user input
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
+  // Correct input IDs
+  const email = document.getElementById('signup-email').value;
+  const password = document.getElementById('signup-password').value;
 
   try {
-    // Log the email and password to ensure they're being passed correctly
-    console.log("Attempting to sign up with email:", email);
-
-    // Sign up the user
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     console.log("User signed up:", userCredential);
 
-    // Redirect to the success page
-    window.location.href = "success.html"; // Redirect to success page
+    // Redirect
+    window.location.href = "success.html"; // or index.html
 
   } catch (error) {
-    // Log the error message
     console.error("Error during sign-up:", error.message);
-
-    // Show error message
-    errorMessage.textContent = error.message;
+    errorMessage.textContent = cleanErrorMessage(error.message);
   }
 });
+
+// Optional: Cleaner error messages
+function cleanErrorMessage(msg) {
+  if (msg.includes("Password should be at least 6 characters")) {
+    return "Password must be 6+ characters!";
+  }
+  if (msg.includes("email-already-in-use")) {
+    return "This email is already in use!";
+  }
+  return msg;
+}
