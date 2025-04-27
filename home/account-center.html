@@ -49,11 +49,26 @@
       margin-top: 20px;
       color: #00ff00;
     }
+
+    #popup {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #00cc66;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 16px;
+      display: none;
+      z-index: 1000;
+    }
   </style>
 </head>
 <body>
 
   <h1>Account Center</h1>
+
+  <div id="user-display" style="margin-bottom: 20px; font-size: 20px;"></div>
 
   <div class="form-container">
     <h2>Rename Account</h2>
@@ -73,6 +88,7 @@
   </div>
 
   <p id="message"></p>
+  <div id="popup">Signed out successfully ✅</div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
@@ -95,9 +111,13 @@
     const deleteBtn = document.getElementById('delete-account-btn');
     const signoutBtn = document.getElementById('signout-btn');
     const message = document.getElementById('message');
+    const popup = document.getElementById('popup');
+    const userDisplay = document.getElementById('user-display');
 
     onAuthStateChanged(auth, user => {
-      if (!user) {
+      if (user) {
+        userDisplay.textContent = `Signed in as: ${user.displayName || user.email}`;
+      } else {
         window.location.href = 'signin.html';
       }
     });
@@ -110,6 +130,7 @@
           try {
             await updateProfile(user, { displayName: newName });
             message.textContent = "Name updated successfully!";
+            userDisplay.textContent = `Signed in as: ${newName}`;
           } catch (error) {
             message.textContent = error.message;
           }
@@ -135,8 +156,10 @@
     signoutBtn.addEventListener('click', async () => {
       try {
         await signOut(auth);
-        alert('Signed out successfully.');
-        window.location.href = 'index.html';
+        popup.style.display = 'block';
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 1500);
       } catch (error) {
         message.textContent = error.message;
       }
