@@ -269,15 +269,22 @@ import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/fi
       }
     });
 
-const auth = getAuth();
 const signinBtn = document.getElementById('signin-btn');
+const popup = document.getElementById('popup');
 
 onAuthStateChanged(auth, (user) => {
   if (user) {
     signinBtn.textContent = '🚪 Sign Out';
     signinBtn.onclick = async () => {
       await signOut(auth);
-      window.location.reload();
+      popup.style.display = 'block'; // show the popup
+      setTimeout(() => {
+        popup.style.opacity = '0';
+        setTimeout(() => {
+          popup.style.display = 'none';
+          window.location.reload();
+        }, 500); // wait for fadeout
+      }, 1000); // stay 1 sec before fadeout
     };
   } else {
     signinBtn.textContent = '🔐 Sign In';
@@ -286,6 +293,7 @@ onAuthStateChanged(auth, (user) => {
     };
   }
 });
+
 
   </script>
 
