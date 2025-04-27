@@ -141,17 +141,23 @@
     });
 
     deleteBtn.addEventListener('click', async () => {
-      const user = auth.currentUser;
-      if (user) {
-        try {
-          await deleteUser(user);
-          alert('Account deleted successfully.');
-          window.location.href = 'signup.html';
-        } catch (error) {
-          message.textContent = error.message;
-        }
+  const user = auth.currentUser;
+  if (user) {
+    const confirmDelete = confirm("⚠️ Are you absolutely sure you want to permanently delete your account? This cannot be undone.");
+    if (confirmDelete) {
+      try {
+        await deleteUser(user);
+        alert('Account deleted successfully.');
+        window.location.href = 'signup.html';
+      } catch (error) {
+        message.textContent = cleanErrorMessage(error.message);
       }
-    });
+    } else {
+      // User canceled, do nothing
+      console.log('Account deletion canceled.');
+    }
+  }
+});
 
     signoutBtn.addEventListener('click', async () => {
       try {
