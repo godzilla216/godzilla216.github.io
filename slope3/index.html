@@ -29,5 +29,46 @@
     </div>
     <script src="js/analytics_ubg_v1_4.js"></script>
     <script src="js/ubg235_client_v1_1.js"></script>
+    <footer style="text-align:center; padding:20px; font-size:16px; color:#00ff00;">
+  Page Visits: <span id="footerHitCounter">Loading...</span>
+</footer>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+  import { getFirestore, doc, getDoc, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDxoIs6Nn5dMCpPj8JjNqbv-O3SVpiac0A",
+    authDomain: "login-6cdd8.firebaseapp.com",
+    projectId: "login-6cdd8",
+    storageBucket: "login-6cdd8.firebaseapp.com",
+    messagingSenderId: "518535069226",
+    appId: "1:518535069226:web:8925106a250805bbf24d53"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const footerCounterSpan = document.getElementById('footerHitCounter');
+  const counterDoc = doc(db, "counters", "gameHomeHits");
+
+  async function incrementFooterHits() {
+    try {
+      const docSnap = await getDoc(counterDoc);
+      if (docSnap.exists()) {
+        await updateDoc(counterDoc, { hits: increment(1) });
+      } else {
+        await setDoc(counterDoc, { hits: 1 });
+      }
+      const updatedSnap = await getDoc(counterDoc);
+      footerCounterSpan.textContent = updatedSnap.data().hits;
+    } catch (err) {
+      console.error("Footer hit counter error:", err);
+      footerCounterSpan.textContent = "Error";
+    }
+  }
+  
+  incrementFooterHits();
+</script>
 </body>
 </html>
