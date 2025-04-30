@@ -75,13 +75,10 @@
   <p>AZ Points: <span id="azPoints">Loading...</span></p>
   <div class="icon-store" id="iconStore"></div>
   <a href="https://godzilla216.github.io/home/" class="home-button">🏠 Home</a>  
-  <section id="gameOfTheDaySection" style="margin-top: 50px;">
+ <section id="gameOfTheDaySection" style="margin-top: 50px;">
   <h2>🎮 Game of the Day</h2>
   <p>Play the featured game to earn <strong>+15 AZ Points</strong> once per day!</p>
-  <a href="https://godzilla216.github.io/games/featured-game.html" 
-     id="playGameLink" 
-     target="_blank" 
-     style="display: inline-block; margin: 10px; color: #00ccff; font-weight: bold;">
+  <a href="#" id="playGameLink" target="_blank" style="display: inline-block; margin: 10px; color: #00ccff; font-weight: bold;">
     ▶️ Play Now
   </a>
   <br>
@@ -89,11 +86,25 @@
   <p id="claimStatus" style="margin-top: 10px; color: #00ff00;"></p>
 </section>
 
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
     import { getFirestore, doc, getDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
 
+    const gameUrls = [
+  "https://godzilla216.github.io/games/game1.html",
+  "https://godzilla216.github.io/games/game2.html",
+  "https://godzilla216.github.io/games/game3.html",
+  "https://godzilla216.github.io/games/game4.html"
+];
+
+function getTodaysGameUrl() {
+  const dayIndex = new Date().getDate() % gameUrls.length;
+  return gameUrls[dayIndex];
+}
+
+    
     const firebaseConfig = {
       apiKey: "AIzaSyDxoIs6Nn5dMCpPj8JjNqbv-O3SVpiac0A",
       authDomain: "login-6cdd8.firebaseapp.com",
@@ -193,6 +204,11 @@ function checkGameVisit() {
   const today = new Date().toISOString().split('T')[0];
   const visited = localStorage.getItem("gameOfDayVisit");
   const claimed = localStorage.getItem("gameOfDayClaimed");
+  const gameLink = document.getElementById("playGameLink");
+
+  // Set the today's game URL with tracking param
+  const todayUrl = getTodaysGameUrl() + "?fromGame=true";
+  gameLink.href = todayUrl;
 
   if (visited === today && claimed !== today) {
     claimBtn.style.display = "inline-block";
@@ -202,6 +218,7 @@ function checkGameVisit() {
     claimStatus.textContent = "✅ You've already claimed today's reward.";
   }
 }
+
 
 // Detect visit from game page
 if (window.location.search.includes("fromGame=true")) {
