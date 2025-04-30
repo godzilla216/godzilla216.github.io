@@ -12,37 +12,39 @@
       text-align: center;
       padding: 40px;
     }
-
     body.light-mode {
       background-color: #f4f4f4;
       color: #111;
     }
-
     .top-right {
       position: absolute;
       top: 20px;
       right: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
-
     .signin-button {
-      display: inline-block;
       background-color: #ffcc00;
       color: #000;
       padding: 10px 20px;
       border-radius: 5px;
       font-weight: bold;
-      text-decoration: none;
       font-size: 16px;
       transition: background-color 0.3s, color 0.3s;
       cursor: pointer;
       border: none;
     }
-
     .signin-button:hover {
       background-color: #ffaa00;
       color: #fff;
     }
-
+    .user-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid #00ffcc;
+    }
     .popup {
       position: fixed;
       bottom: 20px;
@@ -55,12 +57,10 @@
       display: none;
       z-index: 1000;
     }
-
     #comments-section {
       margin-top: 50px;
       display: none;
     }
-
     #comment-form input {
       padding: 10px;
       width: 70%;
@@ -68,7 +68,6 @@
       border-radius: 5px;
       border: none;
     }
-
     #comment-form button {
       padding: 10px 20px;
       border-radius: 5px;
@@ -78,40 +77,32 @@
       font-weight: bold;
       cursor: pointer;
     }
-
     h1 {
       font-size: 48px;
       margin-bottom: 10px;
     }
-
     h3 {
       margin-top: 0;
       color: #aaaaaa;
     }
-
     ul {
       list-style-type: none;
       padding: 0;
     }
-
     li {
       margin: 15px 0;
     }
-
     a {
       color: #00ffff;
       font-size: 20px;
       text-decoration: none;
     }
-
     a:hover {
       text-decoration: underline;
     }
-
     #hitCounter {
       color: #00ff00;
     }
-
     .cover-image {
       width: 300px;
       height: auto;
@@ -119,11 +110,9 @@
       border-radius: 10px;
       box-shadow: 0 0 10px #00ffff;
     }
-
     .toggle-container {
       margin-top: 30px;
     }
-
     #mode-toggle-button {
       background: none;
       border: 2px solid #00ffff;
@@ -134,7 +123,6 @@
       border-radius: 10px;
       transition: background-color 0.3s, color 0.3s;
     }
-
     #mode-toggle-button:hover {
       background-color: #00ffff;
       color: #0c0c0c;
@@ -142,37 +130,32 @@
   </style>
 </head>
 <body>
-
   <div class="top-right">
+    <img id="userIcon" class="user-icon" src="" alt="" style="display:none;">
     <button id="signin-btn" class="signin-button">🔐 Sign In</button>
-    <a href="account-center.html" class="signin-button" style="margin-left: 10px;">⚙️ Account Center</a>
+    <a href="account-center.html" class="signin-button">⚙️ Account Center</a>
   </div>
 
   <div id="popup" class="popup">Signed out successfully ✅</div>
-
   <h1>🎮 Games AZ</h1>
   <h3>Homepage Visits: <span id="hitCounter">Loading...</span></h3>
-
   <div class="toggle-container">
     <button id="mode-toggle-button">🌙</button>
   </div>
-
   <hr style="margin: 40px 0;">
-
   <h2>Games</h2>
   <ul>
     <li><a href="https://sites.google.com/view/games-az/retro-bowl-collage" target="_blank">
       <img src="RetroBowlC.png" alt="Retro Bowl Cover" class="cover-image">
     </a></li>
-    <li>
-  <a href="https://sites.google.com/view/games-az/slope" target="_blank">
-    <img src="slope.jpg" alt="Slope Cover" class="cover-image">
-  </a>
-</li>
-  <a href="https://sites.google.com/view/games-az/basket-random" target="_blank">
-    <img src="BasketRandom.png" alt="Slope Cover" class="cover-image">
-  </a>
-</li>
+    <li><a href="https://sites.google.com/view/games-az/slope" target="_blank">
+      <img src="slope.jpg" alt="Slope Cover" class="cover-image">
+    </a></li>
+    <li><a href="https://sites.google.com/view/games-az/basket-random" target="_blank">
+      <img src="BasketRandom.png" alt="Basket Random Cover" class="cover-image">
+    </a></li>
+  </ul>
+
   <div id="comments-section">
     <h2>Comments</h2>
     <div id="user-info"></div>
@@ -184,9 +167,9 @@
   </div>
 
   <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
-import { getFirestore, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, doc, getDoc, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, doc, getDoc, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDxoIs6Nn5dMCpPj8JjNqbv-O3SVpiac0A",
@@ -201,7 +184,6 @@ import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/fi
     const db = getFirestore(app);
     const auth = getAuth(app);
 
-    // HIT COUNTER
     const hitCounterSpan = document.getElementById('hitCounter');
     const counterDoc = doc(db, "counters", "gameHomeHits");
 
@@ -222,15 +204,37 @@ import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/fi
     }
     incrementHits();
 
-    // COMMENTS
     const commentForm = document.getElementById('comment-form');
     const commentInput = document.getElementById('comment-input');
     const commentsDiv = document.getElementById('comments');
     const userInfoDiv = document.getElementById('user-info');
     const commentsSection = document.getElementById('comments-section');
+    const signinBtn = document.getElementById('signin-btn');
+    const popup = document.getElementById('popup');
+    const userIcon = document.getElementById('userIcon');
 
-    onAuthStateChanged(auth, user => {
+    onAuthStateChanged(auth, async (user) => {
       if (user) {
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        const userData = userDoc.data();
+        if (userData?.profileIcon) {
+          userIcon.src = userData.profileIcon;
+          userIcon.style.display = 'inline-block';
+        }
+
+        signinBtn.textContent = '🚪 Sign Out';
+        signinBtn.onclick = async () => {
+          await signOut(auth);
+          popup.style.display = 'block';
+          setTimeout(() => {
+            popup.style.opacity = '0';
+            setTimeout(() => {
+              popup.style.display = 'none';
+              window.location.reload();
+            }, 500);
+          }, 1000);
+        };
+
         commentsSection.style.display = 'block';
         userInfoDiv.textContent = `Logged in as ${user.displayName || user.email}`;
 
@@ -253,8 +257,11 @@ import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/fi
             commentsDiv.innerHTML += `<div><strong>${comment.username}:</strong> ${comment.text}</div>`;
           });
         });
-
       } else {
+        signinBtn.textContent = '🔐 Sign In';
+        signinBtn.onclick = () => {
+          window.location.href = 'signin.html';
+        };
         commentsSection.style.display = 'none';
       }
     });
@@ -262,40 +269,8 @@ import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/fi
     const toggleButton = document.getElementById('mode-toggle-button');
     toggleButton.addEventListener('click', function() {
       document.body.classList.toggle('light-mode');
-      if (document.body.classList.contains('light-mode')) {
-        toggleButton.textContent = '☀️';
-      } else {
-        toggleButton.textContent = '🌙';
-      }
+      toggleButton.textContent = document.body.classList.contains('light-mode') ? '☀️' : '🌙';
     });
-
-const signinBtn = document.getElementById('signin-btn');
-const popup = document.getElementById('popup');
-
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    signinBtn.textContent = '🚪 Sign Out';
-    signinBtn.onclick = async () => {
-      await signOut(auth);
-      popup.style.display = 'block'; // show the popup
-      setTimeout(() => {
-        popup.style.opacity = '0';
-        setTimeout(() => {
-          popup.style.display = 'none';
-          window.location.reload();
-        }, 500); // wait for fadeout
-      }, 1000); // stay 1 sec before fadeout
-    };
-  } else {
-    signinBtn.textContent = '🔐 Sign In';
-    signinBtn.onclick = () => {
-      window.location.href = 'signin.html';
-    };
-  }
-});
-
-
   </script>
-
 </body>
 </html>
