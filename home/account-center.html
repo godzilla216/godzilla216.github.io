@@ -11,70 +11,44 @@
       text-align: center;
       padding: 40px;
     }
-
-    h1 {
-      font-size: 42px;
-      margin-bottom: 20px;
-    }
-
-    .form-container {
-      margin: 20px auto;
-      width: 300px;
-    }
-
+    h1 { font-size: 42px; margin-bottom: 20px; }
+    .form-container { margin: 20px auto; width: 300px; }
     input[type="text"] {
-      padding: 10px;
-      width: 80%;
-      margin-bottom: 10px;
-      border: none;
-      border-radius: 5px;
+      padding: 10px; width: 80%; margin-bottom: 10px;
+      border: none; border-radius: 5px;
     }
-
     button {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 5px;
-      background-color: #00cc66;
-      color: white;
-      font-size: 16px;
-      cursor: pointer;
-      margin: 10px;
+      padding: 10px 20px; border: none; border-radius: 5px;
+      background-color: #00cc66; color: white;
+      font-size: 16px; cursor: pointer; margin: 10px;
     }
-
-    button:hover {
-      background-color: #00994d;
-    }
-
-    #message {
-      margin-top: 20px;
-      color: #00ff00;
-    }
-
+    button:hover { background-color: #00994d; }
+    #message { margin-top: 20px; color: #00ff00; }
     #popup {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background-color: #00cc66;
-      color: white;
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-size: 16px;
-      display: none;
-      z-index: 1000;
+      position: fixed; bottom: 20px; right: 20px;
+      background-color: #00cc66; color: white;
+      padding: 10px 20px; border-radius: 8px;
+      font-size: 16px; display: none; z-index: 1000;
     }
   </style>
 </head>
 <body>
 
   <h1>Account Center</h1>
-
-  <div id="user-display" style="margin-bottom: 20px; font-size: 20px;"></div>
+  <div id="user-display"></div>
 
   <div class="form-container">
     <h2>Rename Account</h2>
     <input type="text" id="new-name" placeholder="New Display Name">
     <br>
     <button id="rename-btn">Update Name</button>
+  </div>
+
+  <div class="form-container">
+    <h2>Daily Points</h2>
+    <p>AZ Points: <span id="azPoints">0</span></p>
+    <button id="claimPointsBtn">Claim 10 AZ Points</button>
+    <p id="claimMsg"></p>
   </div>
 
   <div class="form-container">
@@ -93,18 +67,20 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
     import { getAuth, updateProfile, deleteUser, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDxoIs6Nn5dMCpPj8JjNqbv-O3SVpiac0A",
       authDomain: "login-6cdd8.firebaseapp.com",
       projectId: "login-6cdd8",
-      storageBucket: "login-6cdd8.firebasestorage.app",
+      storageBucket: "login-6cdd8.firebaseapp.com",
       messagingSenderId: "518535069226",
       appId: "1:518535069226:web:8925106a250805bbf24d53"
     };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const db = getFirestore(app);
 
     const newNameInput = document.getElementById('new-name');
     const renameBtn = document.getElementById('rename-btn');
@@ -114,64 +90,87 @@
     const popup = document.getElementById('popup');
     const userDisplay = document.getElementById('user-display');
 
-    onAuthStateChanged(auth, user => {
+    const azPointsSpan = document.getElementById("azPoints");
+    const claimPointsBtn = document.getElementById("claimPointsBtn");
+    const claimMsg = document.getElementById("claimMsg");
+
+    let currentUser;
+
+    onAuthStateChanged(auth, async user => {
       if (user) {
+        currentUser = user;
         userDisplay.textContent = `Signed in as: ${user.displayName || user.email}`;
+        await loadAzPoints();
       } else {
         window.location.href = 'signin.html';
       }
     });
 
     renameBtn.addEventListener('click', async () => {
-      const user = auth.currentUser;
-      if (user) {
-        const newName = newNameInput.value.trim();
-        if (newName) {
-          try {
-            await updateProfile(user, { displayName: newName });
-            message.textContent = "Name updated successfully!";
-            userDisplay.textContent = `Signed in as: ${newName}`;
-          } catch (error) {
-            message.textContent = error.message;
-          }
-        } else {
-          message.textContent = "Please enter a valid name.";
+      if (!currentUser) return;
+      const newName = newNameInput.value.trim();
+      if (newName) {
+        try {
+          await updateProfile(currentUser, { displayName: newName });
+          message.textContent = "Name updated successfully!";
+          userDisplay.textContent = `Signed in as: ${newName}`;
+        } catch (error) {
+          message.textContent = error.message;
         }
       }
     });
 
     deleteBtn.addEventListener('click', async () => {
-  const user = auth.currentUser;
-  if (user) {
-    const confirmDelete = confirm("⚠️ Are you absolutely sure you want to permanently delete your account? This cannot be undone.");
-    if (confirmDelete) {
-      try {
-        await deleteUser(user);
-        alert('Account deleted successfully.');
-        window.location.href = 'signup.html';
-      } catch (error) {
-        message.textContent = cleanErrorMessage(error.message);
-      }
-    } else {
-      // User canceled, do nothing
-      console.log('Account deletion canceled.');
-    }
-  }
-});
-
-    signoutBtn.addEventListener('click', async () => {
-      try {
-        await signOut(auth);
-        popup.style.display = 'block';
-        setTimeout(() => {
-          window.location.href = 'index.html';
-        }, 1500);
-      } catch (error) {
-        message.textContent = error.message;
+      if (!currentUser) return;
+      const confirmDelete = confirm("Are you sure you want to permanently delete your account?");
+      if (confirmDelete) {
+        try {
+          await deleteUser(currentUser);
+          alert('Account deleted.');
+          window.location.href = 'signup.html';
+        } catch (error) {
+          message.textContent = error.message;
+        }
       }
     });
 
-  </script>
+    signoutBtn.addEventListener('click', async () => {
+      await signOut(auth);
+      popup.style.display = 'block';
+      setTimeout(() => {
+        window.location.href = 'index.html';
+      }, 1500);
+    });
 
+    async function loadAzPoints() {
+      const userRef = doc(db, "users", currentUser.uid);
+      const snap = await getDoc(userRef);
+      let data = snap.data();
+      if (!data) {
+        await setDoc(userRef, { azPoints: 0, lastClaim: null });
+        data = { azPoints: 0, lastClaim: null };
+      }
+      azPointsSpan.textContent = data.azPoints;
+    }
+
+    claimPointsBtn.addEventListener("click", async () => {
+      const userRef = doc(db, "users", currentUser.uid);
+      const snap = await getDoc(userRef);
+      const data = snap.data();
+      const now = new Date();
+      const today = now.toISOString().split("T")[0];
+      const last = data.lastClaim?.toDate().toISOString().split("T")[0];
+      if (last === today) {
+        claimMsg.textContent = "You already claimed today's points!";
+        return;
+      }
+      await updateDoc(userRef, {
+        azPoints: (data.azPoints || 0) + 10,
+        lastClaim: serverTimestamp()
+      });
+      claimMsg.textContent = "✅ You earned 10 AZ Points!";
+      loadAzPoints();
+    });
+  </script>
 </body>
 </html>
