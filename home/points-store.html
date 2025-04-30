@@ -4,6 +4,22 @@
   <meta charset="UTF-8">
   <title>Points Store | Games AZ</title>
   <style>
+      .home-button {
+    display: inline-block;
+    margin-top: 20px;
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    text-decoration: none;
+    font-size: 16px;
+    transition: background-color 0.3s;
+  }
+
+  .home-button:hover {
+    background-color: #0056b3;
+  }
     body {
       font-family: Arial, sans-serif;
       background-color: #0c0c0c;
@@ -58,7 +74,7 @@
   <h1>🎯 Points Store</h1>
   <p>AZ Points: <span id="azPoints">Loading...</span></p>
   <div class="icon-store" id="iconStore"></div>
-
+  <a href="https://godzilla216.github.io/home/" class="home-button">🏠 Home</a>  
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
