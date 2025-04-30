@@ -11,8 +11,17 @@
       text-align: center;
       padding: 40px;
     }
-    h1 { font-size: 42px; margin-bottom: 20px; }
-    .icon-store { display: flex; justify-content: center; flex-wrap: wrap; gap: 20px; margin-top: 30px; }
+    h1 {
+      font-size: 42px;
+      margin-bottom: 20px;
+    }
+    .icon-store {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-top: 30px;
+    }
     .icon-item {
       background-color: #1a1a1a;
       padding: 20px;
@@ -39,7 +48,10 @@
       background-color: gray;
       cursor: not-allowed;
     }
-    #azPoints { font-weight: bold; color: #00ff00; }
+    #azPoints {
+      font-weight: bold;
+      color: #00ff00;
+    }
   </style>
 </head>
 <body>
@@ -94,8 +106,8 @@
     async function loadStore() {
       iconStore.innerHTML = '';
       for (const icon of icons) {
-        const owned = icon.cost === 0 || userData?.ownedIcons?.includes(icon.url);
-        const equipped = userData.profileIcon === icon.url;
+        const ownsIcon = icon.cost === 0 || (userData.ownedIcons || []).includes(icon.url);
+        const isEquipped = userData.profileIcon === icon.url;
 
         const item = document.createElement("div");
         item.className = "icon-item";
@@ -103,8 +115,10 @@
           <img src="${icon.url}" alt="${icon.name}">
           <p>${icon.name}</p>
           <p>${icon.cost} AZ</p>
-          <button ${owned || icon.cost === 0 ? 'disabled' : ''}>${owned ? 'Owned' : 'Buy'}</button>
-          <button style="${equipped ? 'background-color: gray;' : ''}">${equipped ? 'Unequip' : 'Equip'}</button>
+          <button ${ownsIcon ? 'disabled' : ''}>${ownsIcon ? 'Owned' : 'Buy'}</button>
+          <button ${!ownsIcon ? 'disabled' : ''} style="${isEquipped ? 'background-color: gray;' : ''}">
+            ${isEquipped ? 'Unequip' : 'Equip'}
+          </button>
         `;
 
         const buttons = item.querySelectorAll('button');
@@ -124,7 +138,12 @@
 
         // Equip / Unequip button
         buttons[1].onclick = async () => {
-          const newIcon = equipped ? "icons/No-Icon.jpg" : icon.url;
+          if (!ownsIcon) {
+            alert("You don't own this icon.");
+            return;
+          }
+
+          const newIcon = isEquipped ? "icons/No-Icon.jpg" : icon.url;
           await updateDoc(doc(db, "users", currentUser.uid), {
             profileIcon: newIcon
           });
