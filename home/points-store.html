@@ -33,17 +33,26 @@
       color: white;
       font-size: 14px;
       cursor: pointer;
+      margin: 5px;
     }
     button:disabled {
       background-color: gray;
       cursor: not-allowed;
     }
     #azPoints { font-weight: bold; color: #00ff00; }
+    .nav-link {
+      color: #00ffff;
+      font-size: 18px;
+      text-decoration: none;
+      display: inline-block;
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
   <h1>🎯 Points Store</h1>
   <p>AZ Points: <span id="azPoints">Loading...</span></p>
+  <a href="index.html" class="nav-link">🏠 Return to Home</a>
   <div class="icon-store" id="iconStore"></div>
 
   <script type="module">
@@ -68,7 +77,7 @@
     const iconStore = document.getElementById("iconStore");
 
     const icons = [
-      { name: "Smile", url: "icons/smile.svg", cost: 20 },
+      { name: "Smile", url: "icons/smile.png", cost: 20 },
       { name: "Fire", url: "icons/fire.png", cost: 30 },
       { name: "Star", url: "icons/star.png", cost: 40 },
       { name: "Ghost", url: "icons/ghost.png", cost: 50 }
@@ -93,6 +102,7 @@
       iconStore.innerHTML = '';
       for (const icon of icons) {
         const owned = userData?.ownedIcons?.includes(icon.url);
+        const equipped = userData?.profileIcon === icon.url;
         const item = document.createElement("div");
         item.className = "icon-item";
         item.innerHTML = `
@@ -100,13 +110,12 @@
           <p>${icon.name}</p>
           <p>${icon.cost} AZ</p>
           <button ${owned ? 'disabled' : ''}>${owned ? 'Owned' : 'Buy'}</button>
-          <button ${userData.profileIcon === icon.url ? 'disabled' : ''}>${userData.profileIcon === icon.url ? 'Equipped' : 'Equip'}</button>
+          <button ${equipped ? 'disabled' : ''}>${equipped ? 'Equipped' : 'Equip'}</button>
         `;
 
-        const buttons = item.querySelectorAll('button');
+        const [buyBtn, equipBtn] = item.querySelectorAll('button');
 
-        // Buy button
-        buttons[0].onclick = async () => {
+        buyBtn.onclick = async () => {
           if ((userData.azPoints || 0) < icon.cost) return;
           await updateDoc(doc(db, "users", currentUser.uid), {
             azPoints: userData.azPoints - icon.cost,
@@ -118,8 +127,7 @@
           loadStore();
         };
 
-        // Equip button
-        buttons[1].onclick = async () => {
+        equipBtn.onclick = async () => {
           if (!userData.ownedIcons?.includes(icon.url)) return;
           await updateDoc(doc(db, "users", currentUser.uid), {
             profileIcon: icon.url
