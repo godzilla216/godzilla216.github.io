@@ -40,24 +40,16 @@
       cursor: not-allowed;
     }
     #azPoints { font-weight: bold; color: #00ff00; }
-    .nav-link {
-      color: #00ffff;
-      font-size: 18px;
-      text-decoration: none;
-      display: inline-block;
-      margin-top: 20px;
-    }
   </style>
 </head>
 <body>
   <h1>🎯 Points Store</h1>
   <p>AZ Points: <span id="azPoints">Loading...</span></p>
-  <a href="index.html" class="nav-link">🏠 Return to Home</a>
   <div class="icon-store" id="iconStore"></div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
     import { getFirestore, doc, getDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -77,6 +69,7 @@
     const iconStore = document.getElementById("iconStore");
 
     const icons = [
+      { name: "No Icon", url: "icons/No-Icon.jpg", cost: 0 },
       { name: "Smile", url: "icons/smile.png", cost: 20 },
       { name: "Fire", url: "icons/fire.png", cost: 30 },
       { name: "Star", url: "icons/star.png", cost: 40 },
@@ -101,21 +94,23 @@
     async function loadStore() {
       iconStore.innerHTML = '';
       for (const icon of icons) {
-        const owned = userData?.ownedIcons?.includes(icon.url);
-        const equipped = userData?.profileIcon === icon.url;
+        const owned = icon.cost === 0 || userData?.ownedIcons?.includes(icon.url);
+        const equipped = userData.profileIcon === icon.url;
+
         const item = document.createElement("div");
         item.className = "icon-item";
         item.innerHTML = `
           <img src="${icon.url}" alt="${icon.name}">
           <p>${icon.name}</p>
           <p>${icon.cost} AZ</p>
-          <button ${owned ? 'disabled' : ''}>${owned ? 'Owned' : 'Buy'}</button>
-          <button ${equipped ? 'disabled' : ''}>${equipped ? 'Equipped' : 'Equip'}</button>
+          <button ${owned || icon.cost === 0 ? 'disabled' : ''}>${owned ? 'Owned' : 'Buy'}</button>
+          <button style="${equipped ? 'background-color: gray;' : ''}">${equipped ? 'Unequip' : 'Equip'}</button>
         `;
 
-        const [buyBtn, equipBtn] = item.querySelectorAll('button');
+        const buttons = item.querySelectorAll('button');
 
-        buyBtn.onclick = async () => {
+        // Buy button
+        buttons[0].onclick = async () => {
           if ((userData.azPoints || 0) < icon.cost) return;
           await updateDoc(doc(db, "users", currentUser.uid), {
             azPoints: userData.azPoints - icon.cost,
@@ -127,12 +122,13 @@
           loadStore();
         };
 
-        equipBtn.onclick = async () => {
-          if (!userData.ownedIcons?.includes(icon.url)) return;
+        // Equip / Unequip button
+        buttons[1].onclick = async () => {
+          const newIcon = equipped ? "icons/No-Icon.jpg" : icon.url;
           await updateDoc(doc(db, "users", currentUser.uid), {
-            profileIcon: icon.url
+            profileIcon: newIcon
           });
-          userData.profileIcon = icon.url;
+          userData.profileIcon = newIcon;
           loadStore();
         };
 
