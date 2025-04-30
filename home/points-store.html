@@ -75,6 +75,20 @@
   <p>AZ Points: <span id="azPoints">Loading...</span></p>
   <div class="icon-store" id="iconStore"></div>
   <a href="https://godzilla216.github.io/home/" class="home-button">🏠 Home</a>  
+  <section id="gameOfTheDaySection" style="margin-top: 50px;">
+  <h2>🎮 Game of the Day</h2>
+  <p>Play the featured game to earn <strong>+15 AZ Points</strong> once per day!</p>
+  <a href="https://godzilla216.github.io/games/featured-game.html" 
+     id="playGameLink" 
+     target="_blank" 
+     style="display: inline-block; margin: 10px; color: #00ccff; font-weight: bold;">
+    ▶️ Play Now
+  </a>
+  <br>
+  <button id="claimPointsBtn" style="display:none;">Claim +15 Points</button>
+  <p id="claimStatus" style="margin-top: 10px; color: #00ff00;"></p>
+</section>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
@@ -171,6 +185,48 @@
         iconStore.appendChild(item);
       }
     }
+    const claimBtn = document.getElementById("claimPointsBtn");
+const claimStatus = document.getElementById("claimStatus");
+
+// Check if user played today
+function checkGameVisit() {
+  const today = new Date().toISOString().split('T')[0];
+  const visited = localStorage.getItem("gameOfDayVisit");
+  const claimed = localStorage.getItem("gameOfDayClaimed");
+
+  if (visited === today && claimed !== today) {
+    claimBtn.style.display = "inline-block";
+    claimBtn.disabled = false;
+    claimStatus.textContent = "";
+  } else if (claimed === today) {
+    claimStatus.textContent = "✅ You've already claimed today's reward.";
+  }
+}
+
+// Detect visit from game page
+if (window.location.search.includes("fromGame=true")) {
+  const today = new Date().toISOString().split('T')[0];
+  localStorage.setItem("gameOfDayVisit", today);
+}
+
+// Claim bonus
+claimBtn.addEventListener("click", async () => {
+  const today = new Date().toISOString().split('T')[0];
+  if (!currentUser || !userData) return;
+
+  await updateDoc(doc(db, "users", currentUser.uid), {
+    azPoints: (userData.azPoints || 0) + 15
+  });
+  userData.azPoints += 15;
+  azPointsSpan.textContent = userData.azPoints;
+  localStorage.setItem("gameOfDayClaimed", today);
+  claimBtn.style.display = "none";
+  claimStatus.textContent = "🎉 15 Points Claimed!";
+});
+
+// After loadStore
+loadStore().then(checkGameVisit);
+
   </script>
 </body>
 </html>
