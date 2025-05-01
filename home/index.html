@@ -274,21 +274,47 @@ onAuthStateChanged(auth, async (user) => {
         messageDiv.style.alignItems = 'center';
         messageDiv.style.marginBottom = '10px';
 
-        const profileImg = document.createElement('img');
-        profileImg.src = comment.profileIcon || "icons/No-Icon.jpg";
-        profileImg.style.width = "32px";
-        profileImg.style.height = "32px";
-        profileImg.style.borderRadius = "50%";
-        profileImg.style.marginRight = "10px";
+onSnapshot(q, snapshot => {
+  commentsDiv.innerHTML = '';
+  snapshot.forEach(async doc => {
+    const comment = doc.data();
+    const messageDiv = document.createElement('div');
+    messageDiv.style.display = 'flex';
+    messageDiv.style.alignItems = 'center';
+    messageDiv.style.marginBottom = '10px';
 
-        const textDiv = document.createElement('div');
-        textDiv.innerHTML = `<strong>${comment.username}:</strong> ${comment.text}`;
+    const profileImg = document.createElement('img');
+    profileImg.src = "icons/No-Icon.jpg"; // default
+    profileImg.style.width = "32px";
+    profileImg.style.height = "32px";
+    profileImg.style.borderRadius = "50%";
+    profileImg.style.marginRight = "10px";
 
-        messageDiv.appendChild(profileImg);
-        messageDiv.appendChild(textDiv);
-        commentsDiv.appendChild(messageDiv);
-      });
-    });
+    // Fetch current profileIcon from user's document
+    if (comment.userId) {
+      try {
+        const userDocRef = doc(db, "users", comment.userId);
+        const userSnap = await getDoc(userDocRef);
+        if (userSnap.exists()) {
+          const userData = userSnap.data();
+          if (userData.profileIcon) {
+            profileImg.src = userData.profileIcon;
+          }
+        }
+      } catch (err) {
+        console.error("Error loading profile icon:", err);
+      }
+    }
+
+    const textDiv = document.createElement('div');
+    textDiv.innerHTML = `<strong>${comment.username}:</strong> ${comment.text}`;
+
+    messageDiv.appendChild(profileImg);
+    messageDiv.appendChild(textDiv);
+    commentsDiv.appendChild(messageDiv);
+  });
+});
+
 
   } else {
     signinBtn.textContent = '🔐 Sign In';
