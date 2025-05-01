@@ -106,6 +106,9 @@ function getTodaysGameUrl() {
   return gameUrls[dayIndex];
 }
 
+    const claimBtn = document.getElementById("claimPointsBtn");
+const claimStatus = document.getElementById("claimStatus");
+const gameLink = document.getElementById("playGameLink");
     
     const firebaseConfig = {
       apiKey: "AIzaSyDxoIs6Nn5dMCpPj8JjNqbv-O3SVpiac0A",
@@ -202,36 +205,43 @@ function getTodaysGameUrl() {
 const claimStatus = document.getElementById("claimStatus");
 
 // Check if user played today
-function checkGameVisit() {
+function checkGameOfDayStatus() {
   const today = new Date().toISOString().split('T')[0];
   const visited = localStorage.getItem("gameOfDayVisit");
   const claimed = localStorage.getItem("gameOfDayClaimed");
-  const gameLink = document.getElementById("playGameLink");
 
-  // Set the today's game URL with tracking param
-  const todayUrl = getTodaysGameUrl() + "?fromGame=true";
-  gameLink.href = todayUrl;
+  const gameToday = getTodaysGameUrl();
+  gameLink.href = `${gameToday}?fromGame=true`;
 
-  if (visited === today && claimed !== today) {
+  if (claimed === today) {
+    claimBtn.style.display = "none";
+    claimStatus.textContent = "✅ You've already claimed today's reward.";
+    return;
+  }
+
+  if (visited === today) {
     claimBtn.style.display = "inline-block";
     claimBtn.disabled = false;
     claimStatus.textContent = "";
-  } else if (claimed === today) {
-    claimStatus.textContent = "✅ You've already claimed today's reward.";
+  } else {
+    claimStatus.textContent = "🎯 Play the game first to claim your points.";
+    claimBtn.style.display = "none";
   }
 }
 
-
-// Detect visit from game page
+// Track game visit
 if (window.location.search.includes("fromGame=true")) {
   const today = new Date().toISOString().split('T')[0];
   localStorage.setItem("gameOfDayVisit", today);
 }
 
-// Claim bonus
+// Handle claim click
 claimBtn.addEventListener("click", async () => {
   const today = new Date().toISOString().split('T')[0];
   if (!currentUser || !userData) return;
+
+  // Prevent double-claiming
+  if (localStorage.getItem("gameOfDayClaimed") === today) return;
 
   await updateDoc(doc(db, "users", currentUser.uid), {
     azPoints: (userData.azPoints || 0) + 15
@@ -239,12 +249,13 @@ claimBtn.addEventListener("click", async () => {
   userData.azPoints += 15;
   azPointsSpan.textContent = userData.azPoints;
   localStorage.setItem("gameOfDayClaimed", today);
+
   claimBtn.style.display = "none";
   claimStatus.textContent = "🎉 15 Points Claimed!";
 });
 
-// After loadStore
-loadStore().then(checkGameVisit);
+// Run check after store loads
+loadStore().then(checkGameOfDayStatus);
 
   </script>
 </body>
