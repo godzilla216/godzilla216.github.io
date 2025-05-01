@@ -127,6 +127,17 @@
       background-color: #00ffff;
       color: #0c0c0c;
     }
+    #comments div {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  #comments img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    margin-right: 10px;
+  }
   </style>
 </head>
 <body>
@@ -253,10 +264,28 @@
         onSnapshot(q, snapshot => {
           commentsDiv.innerHTML = '';
           snapshot.forEach(doc => {
-            const comment = doc.data();
-            commentsDiv.innerHTML += `<div><strong>${comment.username}:</strong> ${comment.text}</div>`;
-          });
+           snapshot.forEach(doc => {
+          const comment = doc.data();
+          const messageDiv = document.createElement('div');
+          messageDiv.style.display = 'flex';
+          messageDiv.style.alignItems = 'center';
+          messageDiv.style.marginBottom = '10px';
+        
+          const profileImg = document.createElement('img');
+          profileImg.src = comment.profileIcon || "icons/No-Icon.jpg";
+          profileImg.style.width = "32px";
+          profileImg.style.height = "32px";
+          profileImg.style.borderRadius = "50%";
+          profileImg.style.marginRight = "10px";
+        
+          const textDiv = document.createElement('div');
+          textDiv.innerHTML = `<strong>${comment.username}:</strong> ${comment.text}`;
+        
+          messageDiv.appendChild(profileImg);
+          messageDiv.appendChild(textDiv);
+          commentsDiv.appendChild(messageDiv);
         });
+
       } else {
         signinBtn.textContent = '🔐 Sign In';
         signinBtn.onclick = () => {
