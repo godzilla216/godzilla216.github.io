@@ -4,22 +4,23 @@
   <meta charset="UTF-8">
   <title>Points Store | Games AZ</title>
   <style>
-      .home-button {
-    display: inline-block;
-    margin-top: 20px;
-    background-color: #007bff;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-weight: bold;
-    text-decoration: none;
-    font-size: 16px;
-    transition: background-color 0.3s;
-  }
+    .home-button {
+      display: inline-block;
+      margin-top: 20px;
+      background-color: #007bff;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: bold;
+      text-decoration: none;
+      font-size: 16px;
+      transition: background-color 0.3s;
+    }
 
-  .home-button:hover {
-    background-color: #0056b3;
-  }
+    .home-button:hover {
+      background-color: #0056b3;
+    }
+
     body {
       font-family: Arial, sans-serif;
       background-color: #0c0c0c;
@@ -27,10 +28,12 @@
       text-align: center;
       padding: 40px;
     }
+
     h1 {
       font-size: 42px;
       margin-bottom: 20px;
     }
+
     .icon-store {
       display: flex;
       justify-content: center;
@@ -38,18 +41,21 @@
       gap: 20px;
       margin-top: 30px;
     }
+
     .icon-item {
       background-color: #1a1a1a;
       padding: 20px;
       border-radius: 10px;
       width: 150px;
     }
+
     .icon-item img {
       width: 100px;
       height: 100px;
       border-radius: 50%;
       margin-bottom: 10px;
     }
+
     button {
       padding: 8px 16px;
       border: none;
@@ -60,10 +66,12 @@
       cursor: pointer;
       margin: 5px;
     }
+
     button:disabled {
       background-color: gray;
       cursor: not-allowed;
     }
+
     #azPoints {
       font-weight: bold;
       color: #00ff00;
@@ -75,19 +83,13 @@
   <p>AZ Points: <span id="azPoints">Loading...</span></p>
   <div class="icon-store" id="iconStore"></div>
   <a href="https://godzilla216.github.io/home/" class="home-button">🏠 Home</a>  
-<section id="gameOfTheDaySection" style="margin-top: 50px;">
-  <h2>🎮 Game of the Day</h2>
-  <p>Play the featured game to earn <strong>+15 AZ Points</strong> (once per day)</p>
-  <a href="#" id="playGameLink" target="_blank"
-     style="display: inline-block; margin: 10px; color: #00ccff; font-weight: bold;">
-    ▶️ Play Now
-  </a>
-  <br>
-  <button id="claimPointsBtn" style="display:none;">Claim +15 Points</button>
-  <p id="claimStatus" style="margin-top: 10px; color: #00ff00;"></p>
-</section>
 
-
+  <section id="gameOfTheDaySection" style="margin-top: 50px;">
+    <h2>🎮 Game of the Day</h2>
+    <p>Play the featured game to earn <strong>+15 AZ Points</strong> (once per day)</p>
+    <button id="playGameBtn" style="margin: 10px;">▶️ Play Now</button>
+    <p id="claimStatus" style="margin-top: 10px; color: #00ff00;"></p>
+  </section>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
@@ -95,21 +97,12 @@
     import { getFirestore, doc, getDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
 
     const gameUrls = [
-  "https://sites.google.com/view/games-az/noob-steve-parkour",
-  "https://sites.google.com/view/games-az/basket-random",
-  "https://sites.google.com/view/games-az/retro-bowl-collage",
-  "https://sites.google.com/view/games-az/slope"
-];
+      "https://sites.google.com/view/games-az/noob-steve-parkour",
+      "https://sites.google.com/view/games-az/basket-random",
+      "https://sites.google.com/view/games-az/retro-bowl-collage",
+      "https://sites.google.com/view/games-az/slope"
+    ];
 
-function getTodaysGameUrl() {
-  const dayIndex = new Date().getDate() % gameUrls.length;
-  return gameUrls[dayIndex];
-}
-
-    const claimBtn = document.getElementById("claimPointsBtn");
-const claimStatus = document.getElementById("claimStatus");
-const gameLink = document.getElementById("playGameLink");
-    
     const firebaseConfig = {
       apiKey: "AIzaSyDxoIs6Nn5dMCpPj8JjNqbv-O3SVpiac0A",
       authDomain: "login-6cdd8.firebaseapp.com",
@@ -125,6 +118,8 @@ const gameLink = document.getElementById("playGameLink");
 
     const azPointsSpan = document.getElementById("azPoints");
     const iconStore = document.getElementById("iconStore");
+    const playGameBtn = document.getElementById("playGameBtn");
+    const claimStatus = document.getElementById("claimStatus");
 
     const icons = [
       { name: "No Icon", url: "icons/No-Icon.jpg", cost: 0 },
@@ -137,6 +132,11 @@ const gameLink = document.getElementById("playGameLink");
 
     let currentUser, userData;
 
+    function getTodaysGameUrl() {
+      const index = new Date().getDate() % gameUrls.length;
+      return gameUrls[index];
+    }
+
     onAuthStateChanged(auth, async user => {
       if (!user) {
         window.location.href = "signin.html";
@@ -147,7 +147,8 @@ const gameLink = document.getElementById("playGameLink");
       const docSnap = await getDoc(userRef);
       userData = docSnap.data();
       azPointsSpan.textContent = userData.azPoints || 0;
-      loadStore();
+      await loadStore();
+      checkGameStatus();
     });
 
     async function loadStore() {
@@ -170,7 +171,7 @@ const gameLink = document.getElementById("playGameLink");
 
         const buttons = item.querySelectorAll('button');
 
-        // Buy button
+        // Buy
         buttons[0].onclick = async () => {
           if ((userData.azPoints || 0) < icon.cost) return;
           await updateDoc(doc(db, "users", currentUser.uid), {
@@ -183,17 +184,11 @@ const gameLink = document.getElementById("playGameLink");
           loadStore();
         };
 
-        // Equip / Unequip button
+        // Equip/Unequip
         buttons[1].onclick = async () => {
-          if (!ownsIcon) {
-            alert("You don't own this icon.");
-            return;
-          }
-
+          if (!ownsIcon) return;
           const newIcon = isEquipped ? "icons/No-Icon.jpg" : icon.url;
-          await updateDoc(doc(db, "users", currentUser.uid), {
-            profileIcon: newIcon
-          });
+          await updateDoc(doc(db, "users", currentUser.uid), { profileIcon: newIcon });
           userData.profileIcon = newIcon;
           loadStore();
         };
@@ -201,62 +196,44 @@ const gameLink = document.getElementById("playGameLink");
         iconStore.appendChild(item);
       }
     }
-   
 
+    function checkGameStatus() {
+      const today = new Date().toISOString().split('T')[0];
+      const claimed = localStorage.getItem("gameOfDayClaimed");
 
-// Check if user played today
-function checkGameOfDayStatus() {
-  const today = new Date().toISOString().split('T')[0];
-  const visited = localStorage.getItem("gameOfDayVisit");
-  const claimed = localStorage.getItem("gameOfDayClaimed");
+      if (claimed === today) {
+        claimStatus.textContent = "✅ You've already claimed today's reward.";
+      } else {
+        playGameBtn.disabled = false;
+        claimStatus.textContent = "";
+      }
+    }
 
-  const gameToday = getTodaysGameUrl();
-  gameLink.href = `${gameToday}?fromGame=true`;
+    playGameBtn.addEventListener("click", () => {
+      const today = new Date().toISOString().split('T')[0];
+      if (localStorage.getItem("gameOfDayClaimed") === today) {
+        claimStatus.textContent = "✅ You've already claimed today's reward.";
+        return;
+      }
 
-  if (claimed === today) {
-    claimBtn.style.display = "none";
-    claimStatus.textContent = "✅ You've already claimed today's reward.";
-    return;
-  }
+      const gameWindow = window.open(getTodaysGameUrl(), "_blank");
 
-  if (visited === today) {
-    claimBtn.style.display = "inline-block";
-    claimBtn.disabled = false;
-    claimStatus.textContent = "";
-  } else {
-    claimStatus.textContent = "🎯 Play the game first to claim your points.";
-    claimBtn.style.display = "none";
-  }
-}
+      const checkClosed = setInterval(async () => {
+        if (gameWindow.closed) {
+          clearInterval(checkClosed);
+          if (!currentUser || !userData) return;
 
-// Track game visit
-if (window.location.search.includes("fromGame=true")) {
-  const today = new Date().toISOString().split('T')[0];
-  localStorage.setItem("gameOfDayVisit", today);
-}
-
-// Handle claim click
-claimBtn.addEventListener("click", async () => {
-  const today = new Date().toISOString().split('T')[0];
-  if (!currentUser || !userData) return;
-
-  // Prevent double-claiming
-  if (localStorage.getItem("gameOfDayClaimed") === today) return;
-
-  await updateDoc(doc(db, "users", currentUser.uid), {
-    azPoints: (userData.azPoints || 0) + 15
-  });
-  userData.azPoints += 15;
-  azPointsSpan.textContent = userData.azPoints;
-  localStorage.setItem("gameOfDayClaimed", today);
-
-  claimBtn.style.display = "none";
-  claimStatus.textContent = "🎉 15 Points Claimed!";
-});
-
-// Run check after store loads
-loadStore().then(checkGameOfDayStatus);
-
+          await updateDoc(doc(db, "users", currentUser.uid), {
+            azPoints: (userData.azPoints || 0) + 15
+          });
+          userData.azPoints += 15;
+          azPointsSpan.textContent = userData.azPoints;
+          localStorage.setItem("gameOfDayClaimed", today);
+          claimStatus.textContent = "🎉 You got 15 points for playing Game of the Day!";
+          playGameBtn.disabled = true;
+        }
+      }, 1000);
+    });
   </script>
 </body>
 </html>
