@@ -224,76 +224,81 @@
     const popup = document.getElementById('popup');
     const userIcon = document.getElementById('userIcon');
 
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        const userDoc = await getDoc(doc(db, "users", user.uid));
-        const userData = userDoc.data();
-        if (userData?.profileIcon) {
-          userIcon.src = userData.profileIcon;
-          userIcon.style.display = 'inline-block';
-        }
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    const userDocRef = doc(db, "users", user.uid);
+    const userDocSnap = await getDoc(userDocRef);
+    const userData = userDocSnap.data();
+    const profileIcon = userData?.profileIcon || "icons/No-Icon.jpg";
 
-        signinBtn.textContent = '🚪 Sign Out';
-        signinBtn.onclick = async () => {
-          await signOut(auth);
-          popup.style.display = 'block';
-          setTimeout(() => {
-            popup.style.opacity = '0';
-            setTimeout(() => {
-              popup.style.display = 'none';
-              window.location.reload();
-            }, 500);
-          }, 1000);
-        };
+    if (userData?.profileIcon) {
+      userIcon.src = userData.profileIcon;
+      userIcon.style.display = 'inline-block';
+    }
 
-        commentsSection.style.display = 'block';
-        userInfoDiv.textContent = `Logged in as ${user.displayName || user.email}`;
+    signinBtn.textContent = '🚪 Sign Out';
+    signinBtn.onclick = async () => {
+      await signOut(auth);
+      popup.style.display = 'block';
+      setTimeout(() => {
+        popup.style.opacity = '0';
+        setTimeout(() => {
+          popup.style.display = 'none';
+          window.location.reload();
+        }, 500);
+      }, 1000);
+    };
 
-        commentForm.addEventListener('submit', async (e) => {
-          e.preventDefault();
-          await addDoc(collection(db, "comments"), {
-            text: commentInput.value,
-            timestamp: serverTimestamp(),
-            username: user.displayName || user.email,
-            userId: user.uid
-          });
-          commentInput.value = '';
-        });
+    commentsSection.style.display = 'block';
+    userInfoDiv.textContent = `Logged in as ${user.displayName || user.email}`;
 
-        const q = query(collection(db, "comments"), orderBy("timestamp", "desc"));
-        onSnapshot(q, snapshot => {
-          commentsDiv.innerHTML = '';
-          snapshot.forEach(doc => {
-           snapshot.forEach(doc => {
-          const comment = doc.data();
-          const messageDiv = document.createElement('div');
-          messageDiv.style.display = 'flex';
-          messageDiv.style.alignItems = 'center';
-          messageDiv.style.marginBottom = '10px';
-        
-          const profileImg = document.createElement('img');
-          profileImg.src = comment.profileIcon || "icons/No-Icon.jpg";
-          profileImg.style.width = "32px";
-          profileImg.style.height = "32px";
-          profileImg.style.borderRadius = "50%";
-          profileImg.style.marginRight = "10px";
-        
-          const textDiv = document.createElement('div');
-          textDiv.innerHTML = `<strong>${comment.username}:</strong> ${comment.text}`;
-        
-          messageDiv.appendChild(profileImg);
-          messageDiv.appendChild(textDiv);
-          commentsDiv.appendChild(messageDiv);
-        });
-
-      } else {
-        signinBtn.textContent = '🔐 Sign In';
-        signinBtn.onclick = () => {
-          window.location.href = 'signin.html';
-        };
-        commentsSection.style.display = 'none';
-      }
+    commentForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      await addDoc(collection(db, "comments"), {
+        text: commentInput.value,
+        timestamp: serverTimestamp(),
+        username: user.displayName || user.email,
+        userId: user.uid,
+        profileIcon: profileIcon
+      });
+      commentInput.value = '';
     });
+
+    const q = query(collection(db, "comments"), orderBy("timestamp", "desc"));
+    onSnapshot(q, snapshot => {
+      commentsDiv.innerHTML = '';
+      snapshot.forEach(doc => {
+        const comment = doc.data();
+        const messageDiv = document.createElement('div');
+        messageDiv.style.display = 'flex';
+        messageDiv.style.alignItems = 'center';
+        messageDiv.style.marginBottom = '10px';
+
+        const profileImg = document.createElement('img');
+        profileImg.src = comment.profileIcon || "icons/No-Icon.jpg";
+        profileImg.style.width = "32px";
+        profileImg.style.height = "32px";
+        profileImg.style.borderRadius = "50%";
+        profileImg.style.marginRight = "10px";
+
+        const textDiv = document.createElement('div');
+        textDiv.innerHTML = `<strong>${comment.username}:</strong> ${comment.text}`;
+
+        messageDiv.appendChild(profileImg);
+        messageDiv.appendChild(textDiv);
+        commentsDiv.appendChild(messageDiv);
+      });
+    });
+
+  } else {
+    signinBtn.textContent = '🔐 Sign In';
+    signinBtn.onclick = () => {
+      window.location.href = 'signin.html';
+    };
+    commentsSection.style.display = 'none';
+  }
+});
+
 
     const toggleButton = document.getElementById('mode-toggle-button');
     toggleButton.addEventListener('click', function() {
