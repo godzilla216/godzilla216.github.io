@@ -3,8 +3,8 @@ const FILES_TO_CACHE = [
   '/',
   '/index.html',
   '/script.js',
-  '/audio/song1.m4a',
-  '/audio/song2.mp3'
+  '/Audio/song1.m4a',
+  '/Audio/song2.mp3'
 ];
 
 self.addEventListener('install', (e) => {
