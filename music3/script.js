@@ -1,5 +1,5 @@
 const audio = document.getElementById("audio");
-const songs = ["/Audio/song1.m4a", "/Audio/song2.m4a"];
+const songs = ["music3/Audio/song1.m4a", "music3/Audio/song2.m4a"];
 let currentSongIndex = 0;
 
 function loadSong(index) {
