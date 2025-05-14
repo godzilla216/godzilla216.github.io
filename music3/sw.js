@@ -1,10 +1,10 @@
 const CACHE_NAME = 'music-cache-v1';
 const FILES_TO_CACHE = [
   '/',
-  '/index.html',
-  '/script.js',
-  '/Audio/song1.m4a',
-  '/Audio/song2.mp3'
+  'index.html',
+  'script.js',
+  'Audio/song1.m4a',
+  'Audio/song2.mp3'
 ];
 
 self.addEventListener('install', (e) => {
