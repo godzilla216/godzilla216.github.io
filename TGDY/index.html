@@ -12,29 +12,67 @@
       margin: 0;
       padding: 40px;
       text-align: center;
+      overflow: hidden;
     }
 
     h1 {
       font-size: 2.5rem;
-      margin-bottom: 30px;
+      margin-bottom: 10px;
       color: #00ffc3;
       text-shadow: 1px 1px 5px #000;
     }
 
+    .subtitle {
+      font-size: 1.2rem;
+      color: #ff7070;
+      margin-bottom: 20px;
+    }
+
+    .disclaimer {
+      font-size: 1rem;
+      color: #888;
+      font-style: italic;
+      margin-bottom: 40px;
+    }
+
     button {
-      background-color: #00ffc3;
-      color: #000;
+      background-color: #ff0077;
+      color: #fff;
       font-weight: bold;
       padding: 15px 30px;
       border: none;
       border-radius: 8px;
-      font-size: 1.2rem;
+      font-size: 1.5rem;
       cursor: pointer;
       transition: background 0.3s;
     }
 
     button:hover {
-      background-color: #00d9aa;
+      background-color: #e6006a;
+    }
+
+    .flashing-info {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 999;
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: #00ffc3;
+      text-shadow: 0 0 5px #00ffc3;
+      animation: flashMove 10s linear infinite;
+    }
+
+    @keyframes flashMove {
+      0% {
+        transform: translateX(100%);
+      }
+      100% {
+        transform: translateX(-100%);
+      }
     }
 
     .info-box {
@@ -59,6 +97,7 @@
       color: #00ffc3;
     }
   </style>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-analytics.js";
@@ -89,8 +128,10 @@
   </script>
 </head>
 <body>
-  <h1>The Great Data Yoinker</h1>
-  <button onclick="showInfo()">Yoink My Info</button>
+  <h1>THE GREAT DATA YOINKER</h1>
+  <div class="subtitle">You clicked? Too late now 😈</div>
+  <div class="disclaimer">Totally won't yoink your data. Trust us. 😇</div>
+  <button onclick="showInfo()">GET YOINKED</button>
 
   <div class="info-box" id="infoBox">
     <p><strong>IP:</strong> <span id="ip-address"></span></p>
@@ -110,6 +151,8 @@
     <p><strong>Session Storage:</strong> <span id="session-storage-enabled"></span></p>
     <p><strong>WebGL:</strong> <span id="webgl-enabled"></span></p>
   </div>
+
+  <div id="flashingText" class="flashing-info" style="display: none;"></div>
 
   <script>
     function showInfo() {
@@ -137,12 +180,19 @@
             timestamp: new Date().toISOString()
           };
 
+          // Update info display
           for (let key in info) {
             const el = document.getElementById(key.replace(/([A-Z])/g, '-$1').toLowerCase());
             if (el) el.innerText = info[key];
           }
 
+          // Send to Firebase
           if (window.sendToFirebase) window.sendToFirebase(info);
+
+          // Flash taunting info banner
+          const flash = document.getElementById("flashingText");
+          flash.innerText = `😈 YOU GOT YOINKED: ${Object.entries(info).map(([k, v]) => `${k}: ${v}`).join(" | ")} 😈`;
+          flash.style.display = "block";
         });
     }
 
