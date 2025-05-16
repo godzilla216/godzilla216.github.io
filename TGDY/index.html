@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>The Great Data Yoinker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background-color: #111;
+      color: #f1f1f1;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 40px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 30px;
+      color: #00ffc3;
+      text-shadow: 1px 1px 5px #000;
+    }
+
+    button {
+      background-color: #00ffc3;
+      color: #000;
+      font-weight: bold;
+      padding: 15px 30px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: #00d9aa;
+    }
+
+    .info-box {
+      margin-top: 30px;
+      text-align: left;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      background: #1e1e1e;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 255, 195, 0.2);
+    }
+
+    .info-box p {
+      margin: 10px 0;
+      font-size: 1rem;
+      color: #ccc;
+    }
+
+    .info-box span {
+      color: #00ffc3;
+    }
+  </style>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-analytics.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDxoIs6Nn5dMCpPj8JjNqbv-O3SVpiac0A",
+      authDomain: "login-6cdd8.firebaseapp.com",
+      projectId: "login-6cdd8",
+      storageBucket: "login-6cdd8.firebasestorage.app",
+      messagingSenderId: "518535069226",
+      appId: "1:518535069226:web:8925106a250805bbf24d53",
+      measurementId: "G-5S5XBHDN02"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const db = getFirestore(app);
+
+    window.sendToFirebase = async function(data) {
+      try {
+        await addDoc(collection(db, "the-great-data-yoinker"), data);
+        console.log("Data sent to Firebase successfully.");
+      } catch (error) {
+        console.error("Failed to send data to Firebase:", error);
+      }
+    };
+  </script>
+</head>
+<body>
+  <h1>The Great Data Yoinker</h1>
+  <button onclick="showInfo()">Yoink My Info</button>
+
+  <div class="info-box" id="infoBox">
+    <p><strong>IP:</strong> <span id="ip-address"></span></p>
+    <p><strong>Screen Size:</strong> <span id="screen-size"></span></p>
+    <p><strong>Color Depth:</strong> <span id="screen-color-depth"></span></p>
+    <p><strong>User Agent:</strong> <span id="user-agent"></span></p>
+    <p><strong>Language:</strong> <span id="language"></span></p>
+    <p><strong>Timezone:</strong> <span id="timezone"></span></p>
+    <p><strong>Manufacturer:</strong> <span id="device-manufacturer"></span></p>
+    <p><strong>OS:</strong> <span id="operating-system"></span></p>
+    <p><strong>Platform:</strong> <span id="platform"></span></p>
+    <p><strong>Browser:</strong> <span id="browser-name"></span></p>
+    <p><strong>Referrer:</strong> <span id="referring-url"></span></p>
+    <p><strong>DNT:</strong> <span id="do-not-track-enabled"></span></p>
+    <p><strong>Cookies:</strong> <span id="cookies-enabled"></span></p>
+    <p><strong>Local Storage:</strong> <span id="local-storage-enabled"></span></p>
+    <p><strong>Session Storage:</strong> <span id="session-storage-enabled"></span></p>
+    <p><strong>WebGL:</strong> <span id="webgl-enabled"></span></p>
+  </div>
+
+  <script>
+    function showInfo() {
+      fetch('https://api.ipify.org/?format=json')
+        .then(res => res.json())
+        .then(data => {
+          const ip = data.ip;
+          const info = {
+            ipAddress: ip,
+            screenSize: `${screen.width}x${screen.height}`,
+            screenColorDepth: screen.colorDepth,
+            userAgent: navigator.userAgent,
+            language: navigator.language,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            deviceManufacturer: navigator.vendor,
+            operatingSystem: getOS(),
+            platform: navigator.platform,
+            browserName: getBrowser(),
+            referringURL: document.referrer,
+            doNotTrackEnabled: (navigator.doNotTrack === "1" || window.doNotTrack === "yes") ? "Enabled" : "Disabled",
+            cookiesEnabled: navigator.cookieEnabled ? "Enabled" : "Disabled",
+            localStorageEnabled: checkLocalStorage(),
+            sessionStorageEnabled: checkSessionStorage(),
+            webglEnabled: getWebGL(),
+            timestamp: new Date().toISOString()
+          };
+
+          for (let key in info) {
+            const el = document.getElementById(key.replace(/([A-Z])/g, '-$1').toLowerCase());
+            if (el) el.innerText = info[key];
+          }
+
+          if (window.sendToFirebase) window.sendToFirebase(info);
+        });
+    }
+
+    function getOS() {
+      const ua = navigator.userAgent;
+      if (ua.includes("Win")) return "Windows";
+      if (ua.includes("Mac")) return "Mac";
+      if (ua.includes("Linux")) return "Linux";
+      if (ua.includes("Android")) return "Android";
+      if (ua.includes("iPhone") || ua.includes("iPad")) return "iOS";
+      return "Unknown";
+    }
+
+    function getBrowser() {
+      const ua = navigator.userAgent;
+      if (/firefox/i.test(ua)) return "Firefox";
+      if (/chrome/i.test(ua) && !/edge|edg/i.test(ua)) return "Chrome";
+      if (/safari/i.test(ua) && !/chrome/i.test(ua)) return "Safari";
+      if (/edg/i.test(ua)) return "Edge";
+      if (/opera|opr/i.test(ua)) return "Opera";
+      if (/trident|msie/i.test(ua)) return "Internet Explorer";
+      return "Unknown";
+    }
+
+    function checkLocalStorage() {
+      try {
+        localStorage.setItem("test", "1");
+        localStorage.removeItem("test");
+        return "Enabled";
+      } catch { return "Disabled"; }
+    }
+
+    function checkSessionStorage() {
+      try {
+        sessionStorage.setItem("test", "1");
+        sessionStorage.removeItem("test");
+        return "Enabled";
+      } catch { return "Disabled"; }
+    }
+
+    function getWebGL() {
+      try {
+        const canvas = document.createElement("canvas");
+        const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+        return gl ? `Enabled (${gl.getParameter(gl.VERSION)})` : "Disabled";
+      } catch {
+        return "Unknown";
+      }
+    }
+  </script>
+</body>
+</html>
