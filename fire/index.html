@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fire Effect with Mouse Click</title>
+    <title>Blowable Fire Effect</title>
     <style>
         body {
             margin: 0;
@@ -40,11 +40,10 @@
             [207, 207, 111],[223, 223, 159],[239, 239, 199],[255, 255, 255]
         ];
 
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        let fireSoundBuffer;
-        const gainNode = audioContext.createGain();
-        gainNode.gain.value = 0.2;
+        let isBlowing = false;
+        let mouseX = 0, mouseY = 0;
 
+        // Fire setup
         function createFireDataStructure() {
             const numberOfPixels = fireWidth * fireHeight;
             for (let i = 0; i < numberOfPixels; i++) {
@@ -60,6 +59,7 @@
                 }
             }
             renderFire();
+            drawText();
         }
 
         function updateFireIntensityPerPixel(currentPixelIndex) {
@@ -70,7 +70,21 @@
             const belowPixelFireIntensity = firePixelsArray[belowPixelIndex];
             const newFireIntensity = Math.max(belowPixelFireIntensity - decay, 0);
 
-            firePixelsArray[currentPixelIndex - decay] = newFireIntensity;
+            // Blowing effect → shifts fire sideways if mouse is held down
+            let offset = 0;
+            if (isBlowing) {
+                const dx = (currentPixelIndex % fireWidth) - Math.floor(mouseX / 10);
+                const dy = Math.floor(currentPixelIndex / fireWidth) - Math.floor(mouseY / 10);
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                if (dist < 15) {
+                    offset = (dx > 0 ? 1 : -1) * 2; // push sideways
+                }
+            }
+
+            const newIndex = currentPixelIndex - decay + offset;
+            if (newIndex >= 0 && newIndex < firePixelsArray.length) {
+                firePixelsArray[newIndex] = newFireIntensity;
+            }
         }
 
         function renderFire() {
@@ -87,51 +101,47 @@
             }
         }
 
-        // Spawn fire at mouse click
-        function createFireAt(x, y) {
-            const col = Math.floor(x / 10);
-            const row = Math.floor(y / 10);
+        function drawText() {
+            const text = 'FIRE';
+            const fontSize = 80;
+            ctx.font = `${fontSize}px Arial`;
+            ctx.fillStyle = 'orange';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(text, canvas.width / 2, fontSize + 20);
+        }
 
-            for (let dx = -2; dx <= 2; dx++) {
-                for (let dy = -2; dy <= 2; dy++) {
-                    const px = col + dx;
-                    const py = row + dy;
-                    if (px >= 0 && px < fireWidth && py >= 0 && py < fireHeight) {
-                        const pixelIndex = px + (py * fireWidth);
-                        firePixelsArray[pixelIndex] = 36;
-                    }
-                }
+        // Always burn at the bottom
+        function createFireSource() {
+            for (let column = 0; column <= fireWidth; column++) {
+                const overflowPixelIndex = fireWidth * fireHeight;
+                const pixelIndex = (overflowPixelIndex - fireWidth) + column;
+                firePixelsArray[pixelIndex] = 36;
             }
-            playFireSound();
         }
 
-        function generateFireSound() {
-            const bufferSize = audioContext.sampleRate * 0.5;
-            const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
-            const data = buffer.getChannelData(0);
-
-            for (let i = 0; i < bufferSize; i++) {
-                data[i] = (Math.random() * 2 - 1) * (Math.random() > 0.95 ? 1 : 0.2);
-            }
-            fireSoundBuffer = buffer;
-        }
-
-        function playFireSound() {
-            const source = audioContext.createBufferSource();
-            source.buffer = fireSoundBuffer;
-            source.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            source.start();
-        }
-
+        // Loop
         function start() {
             createFireDataStructure();
-            setInterval(calculateFirePropagation, 50);
-            generateFireSound();
+            createFireSource();
+            setInterval(() => {
+                createFireSource(); // keep bottom lit
+                calculateFirePropagation();
+            }, 50);
         }
 
-        canvas.addEventListener("click", (e) => {
-            createFireAt(e.clientX, e.clientY);
+        // Mouse blowing
+        canvas.addEventListener("mousedown", e => {
+            isBlowing = true;
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+        canvas.addEventListener("mouseup", () => { isBlowing = false; });
+        canvas.addEventListener("mousemove", e => {
+            if (isBlowing) {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            }
         });
 
         start();
