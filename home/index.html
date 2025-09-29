@@ -56,6 +56,14 @@
       color: #2e462a;
     }
 
+    /* Hit Counter */
+    #hit-counter {
+      font-size: 16px;
+      margin-top: 10px;
+      color: #333;
+      font-weight: bold;
+    }
+
     /* Game grid */
     .game-grid {
       display: grid;
@@ -103,6 +111,9 @@
     <div class="header">
       <h1>Welcome to Games AZ</h1>
       <p>Play free online games anytime, anywhere — no downloads, no restrictions!</p>
+      
+      <!-- 🔥 Hit Counter -->
+      <div id="hit-counter">Loading visitors...</div>
     </div>
 
     <!-- Game Grid -->
@@ -119,9 +130,40 @@
         <img src="slope.jpg" alt="Slope">
         <p>Slope</p>
       </a>
-      <!-- Add more games here by copying blocks -->
     </div>
   </div>
+
+  <!-- Firebase + Counter Script -->
+  <script type="module">
+    // Import Firebase
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, get, set, child } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    // ✅ Your Firebase config (replace with your actual keys)
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // Hit counter logic
+    const counterRef = ref(db, "homepageHits");
+
+    get(counterRef).then((snapshot) => {
+      let hits = snapshot.exists() ? snapshot.val() : 0;
+      hits++;
+      set(counterRef, hits);
+      document.getElementById("hit-counter").innerText = `👥 Visitors: ${hits}`;
+    });
+  </script>
 
 </body>
 </html>
