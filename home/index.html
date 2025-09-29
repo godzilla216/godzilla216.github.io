@@ -2,340 +2,126 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Games AZ | Godzilla216</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Games AZ</title>
   <link rel="stylesheet" href="styles.css">
   <style>
     body {
+      margin: 0;
       font-family: Arial, sans-serif;
-      background-color: #0c0c0c;
-      color: white;
-      text-align: center;
-      padding: 40px;
-    }
-    body.light-mode {
-      background-color: #f4f4f4;
-      color: #111;
-    }
-    .top-right {
-      position: absolute;
-      top: 20px;
-      right: 20px;
       display: flex;
-      align-items: center;
-      gap: 10px;
+      background: #f4f4f4;
     }
-    .signin-button {
-      background-color: #ffcc00;
-      color: #000;
-      padding: 10px 20px;
-      border-radius: 5px;
-      font-weight: bold;
-      font-size: 16px;
-      transition: background-color 0.3s, color 0.3s;
-      cursor: pointer;
-      border: none;
-    }
-    .signin-button:hover {
-      background-color: #ffaa00;
-      color: #fff;
-    }
-    .user-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      border: 2px solid #00ffcc;
-    }
-    .popup {
+
+    /* Sidebar */
+    .sidebar {
+      width: 220px;
+      background: #2e462a;
+      color: white;
+      height: 100vh;
+      padding: 20px 0;
       position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background-color: #00cc66;
-      color: white;
+      overflow-y: auto;
+    }
+    .sidebar h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .sidebar a {
+      display: block;
       padding: 10px 20px;
-      border-radius: 8px;
-      font-size: 16px;
-      display: none;
-      z-index: 1000;
-    }
-    #comments-section {
-      margin-top: 50px;
-      display: none;
-    }
-    #comment-form input {
-      padding: 10px;
-      width: 70%;
-      margin-right: 10px;
-      border-radius: 5px;
-      border: none;
-    }
-    #comment-form button {
-      padding: 10px 20px;
-      border-radius: 5px;
-      border: none;
-      background-color: #00cc66;
       color: white;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    h1 {
-      font-size: 48px;
-      margin-bottom: 10px;
-    }
-    h3 {
-      margin-top: 0;
-      color: #aaaaaa;
-    }
-    ul {
-      list-style-type: none;
-      padding: 0;
-    }
-    li {
-      margin: 15px 0;
-    }
-    a {
-      color: #00ffff;
-      font-size: 20px;
       text-decoration: none;
     }
-    a:hover {
-      text-decoration: underline;
+    .sidebar a:hover, .sidebar a.active {
+      background: #f4c542;
+      color: black;
     }
-    #hitCounter {
-      color: #00ff00;
+
+    /* Main content */
+    .main {
+      margin-left: 220px;
+      padding: 20px;
+      flex: 1;
     }
-    .cover-image {
-      width: 300px;
-      height: auto;
-      margin-top: 30px;
+    .header {
+      text-align: center;
+      background: #ffeb99;
+      padding: 20px;
       border-radius: 10px;
-      box-shadow: 0 0 10px #00ffff;
+      margin-bottom: 20px;
     }
-    .toggle-container {
-      margin-top: 30px;
+    .header h1 {
+      margin: 0;
+      color: #2e462a;
     }
-    #mode-toggle-button {
-      background: none;
-      border: 2px solid #00ffff;
-      padding: 10px 20px;
-      font-size: 24px;
-      color: #00ffff;
-      cursor: pointer;
+
+    /* Game grid */
+    .game-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 15px;
+    }
+    .game-card {
+      background: white;
       border-radius: 10px;
-      transition: background-color 0.3s, color 0.3s;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      text-align: center;
+      padding: 10px;
+      transition: transform 0.2s;
     }
-    #mode-toggle-button:hover {
-      background-color: #00ffff;
-      color: #0c0c0c;
+    .game-card:hover {
+      transform: scale(1.05);
     }
-    #comments div {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-  }
-  #comments img {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    margin-right: 10px;
-  }
+    .game-card img {
+      width: 100px;
+      height: 100px;
+      object-fit: contain;
+    }
+    .game-card p {
+      margin: 10px 0 0;
+      font-size: 14px;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
-  <div class="top-right">
-    <a href="https://godzilla216.github.io/home/points-store?"> <img id="userIcon" class="user-icon" src="" alt="User Icon" style="display:none;"></a>
-    <button id="signin-btn" class="signin-button">🔐 Sign In</button>
-    <a href="account-center.html" class="signin-button">⚙️ Account Center</a>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h2>Games AZ</h2>
+    <a class="active" href="index.html">Home</a>
+    <a href="account-center.html">Account Center</a>
+    <a href="signin.html">Sign In</a>
+    <a href="signup.html">Sign Up</a>
+    <a href="points-store.html">Points Store</a>
+    <a href="#">More Games...</a>
   </div>
 
-  <div id="popup" class="popup">Signed out successfully ✅</div>
-  <h1>Big changes coming soon...</h1></h1>
-  <h3>Homepage Visits: <span id="hitCounter">Loading...</span></h3>
-  <div class="toggle-container">
-    <button id="mode-toggle-button">🌙</button>
-  </div>
-  <hr style="margin: 40px 0;">
-  <h2>Games</h2>
-  <ul>
-    <li><a href="https://sites.google.com/view/games-az/retro-bowl-collage" target="_blank">
-      <img src="RetroBowlC.png" alt="Retro Bowl Cover" class="cover-image">
-    </a></li>
-    <li><a href="https://sites.google.com/view/games-az/slope" target="_blank">
-      <img src="slope.jpg" alt="Slope Cover" class="cover-image">
-    </a></li>
-    <li><a href="https://sites.google.com/view/games-az/basket-random" target="_blank">
-      <img src="BasketRandom.png" alt="Basket Random Cover" class="cover-image">
-    </a></li>
-  </ul>
+  <!-- Main Content -->
+  <div class="main">
+    <div class="header">
+      <h1>Welcome to Games AZ</h1>
+      <p>Play free online games anytime, anywhere — no downloads, no restrictions!</p>
+    </div>
 
-  <div id="comments-section">
-    <h2>Comments</h2>
-    <div id="user-info"></div>
-    <form id="comment-form">
-      <input type="text" id="comment-input" placeholder="Write a comment..." required>
-      <button type="submit">Post</button>
-    </form>
-    <div id="comments"></div>
+    <!-- Game Grid -->
+    <div class="game-grid">
+      <a class="game-card" href="RetroBowl.html">
+        <img src="RetroBowl.png" alt="Retro Bowl">
+        <p>Retro Bowl</p>
+      </a>
+      <a class="game-card" href="BasketRandom.html">
+        <img src="BasketRandom.png" alt="Basket Random">
+        <p>Basket Random</p>
+      </a>
+      <a class="game-card" href="slope.html">
+        <img src="slope.jpg" alt="Slope">
+        <p>Slope</p>
+      </a>
+      <!-- Add more games here by copying blocks -->
+    </div>
   </div>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
-  import {
-    getFirestore,
-    collection,
-    addDoc,
-    serverTimestamp,
-    query,
-    orderBy,
-    onSnapshot,
-    doc,
-    getDoc,
-    setDoc,
-    updateDoc,
-    increment
-  } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
-  import {
-    getAuth,
-    onAuthStateChanged,
-    signOut
-  } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyDxoIs6Nn5dMCpPj8JjNqbv-O3SVpiac0A",
-    authDomain: "login-6cdd8.firebaseapp.com",
-    projectId: "login-6cdd8",
-    storageBucket: "login-6cdd8.firebasestorage.app",
-    messagingSenderId: "518535069226",
-    appId: "1:518535069226:web:8925106a250805bbf24d53"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const auth = getAuth(app);
-
-  const hitCounterSpan = document.getElementById('hitCounter');
-  const counterDoc = doc(db, "counters", "gameHomeHits");
-
-  async function incrementHits() {
-    try {
-      const docSnap = await getDoc(counterDoc);
-      if (docSnap.exists()) {
-        await updateDoc(counterDoc, { hits: increment(1) });
-      } else {
-        await setDoc(counterDoc, { hits: 1 });
-      }
-      const updatedSnap = await getDoc(counterDoc);
-      hitCounterSpan.textContent = updatedSnap.data().hits;
-    } catch (err) {
-      console.error("Hit counter error:", err);
-      hitCounterSpan.textContent = "Error";
-    }
-  }
-
-  incrementHits();
-
-  const commentForm = document.getElementById('comment-form');
-  const commentInput = document.getElementById('comment-input');
-  const commentsDiv = document.getElementById('comments');
-  const userInfoDiv = document.getElementById('user-info');
-  const commentsSection = document.getElementById('comments-section');
-  const signinBtn = document.getElementById('signin-btn');
-  const popup = document.getElementById('popup');
-  const userIcon = document.getElementById('userIcon');
-
-  onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      const userDocRef = doc(db, "users", user.uid);
-      const userDocSnap = await getDoc(userDocRef);
-      const userData = userDocSnap.data();
-      const profileIcon = userData?.profileIcon || "icons/No-Icon.jpg";
-
-      userIcon.src = profileIcon;
-      userIcon.style.display = 'inline-block';
-
-      signinBtn.textContent = '🚪 Sign Out';
-      signinBtn.onclick = async () => {
-        await signOut(auth);
-        popup.style.display = 'block';
-        setTimeout(() => {
-          popup.style.opacity = '0';
-          setTimeout(() => {
-            popup.style.display = 'none';
-            window.location.reload();
-          }, 500);
-        }, 1000);
-      };
-
-      commentsSection.style.display = 'block';
-      userInfoDiv.textContent = `Logged in as ${user.displayName || user.email}`;
-
-      commentForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        await addDoc(collection(db, "comments"), {
-          text: commentInput.value,
-          timestamp: serverTimestamp(),
-          username: user.displayName || user.email,
-          userId: user.uid
-        });
-        commentInput.value = '';
-      });
-
-      const q = query(collection(db, "comments"), orderBy("timestamp", "desc"));
-      onSnapshot(q, async (snapshot) => {
-        commentsDiv.innerHTML = '';
-        const docs = snapshot.docs;
-
-        for (const docSnap of docs) {
-          const comment = docSnap.data();
-          const messageDiv = document.createElement('div');
-          messageDiv.style.display = 'flex';
-          messageDiv.style.alignItems = 'center';
-          messageDiv.style.marginBottom = '10px';
-
-          const profileImg = document.createElement('img');
-          profileImg.src = "icons/No-Icon.jpg";
-          profileImg.style.width = "32px";
-          profileImg.style.height = "32px";
-          profileImg.style.borderRadius = "50%";
-          profileImg.style.marginRight = "10px";
-
-          if (comment.userId) {
-            try {
-              const userDocRef = doc(db, "users", comment.userId);
-              const userSnap = await getDoc(userDocRef);
-              if (userSnap.exists()) {
-                const data = userSnap.data();
-                if (data.profileIcon) {
-                  profileImg.src = data.profileIcon;
-                }
-              }
-            } catch (err) {
-              console.error("Error loading profile icon:", err);
-            }
-          }
-
-          const textDiv = document.createElement('div');
-          textDiv.innerHTML = `<strong>${comment.username}:</strong> ${comment.text}`;
-
-          messageDiv.appendChild(profileImg);
-          messageDiv.appendChild(textDiv);
-          commentsDiv.appendChild(messageDiv);
-        }
-      });
-
-    } else {
-      signinBtn.textContent = '🔐 Sign In';
-      signinBtn.onclick = () => {
-        window.location.href = 'signin.html';
-      };
-      commentsSection.style.display = 'none';
-    }
-  });
-
-  const toggleButton = document.getElementById('mode-toggle-button');
-  toggleButton.addEventListener('click', function () {
-    document.body.classList.toggle('light-mode');
-    toggleButton.textContent = document.body.classList.contains('light-mode') ? '☀️' : '🌙';
-  });
-</script>
 </body>
 </html>
