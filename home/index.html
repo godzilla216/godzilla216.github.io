@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Games AZ</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css" />
   <style>
     body {
       margin: 0;
       font-family: Arial, sans-serif;
       display: flex;
       background: #f4f4f4;
+      color: #222;
     }
 
     /* Sidebar */
@@ -56,13 +57,9 @@
       color: #2e462a;
     }
 
-    /* Hit Counter */
-    #hit-counter {
-      font-size: 16px;
-      margin-top: 10px;
-      color: #333;
-      font-weight: bold;
-    }
+    /* Hit Counter style */
+    h3 { margin: 10px 0 0; color: #333; }
+    #hitCounter { color: #007700; font-weight: 700; }
 
     /* Game grid */
     .game-grid {
@@ -77,6 +74,9 @@
       text-align: center;
       padding: 10px;
       transition: transform 0.2s;
+      display: block; /* so <a class="game-card"> works like a card */
+      color: inherit;
+      text-decoration: none;
     }
     .game-card:hover {
       transform: scale(1.05);
@@ -111,9 +111,9 @@
     <div class="header">
       <h1>Welcome to Games AZ</h1>
       <p>Play free online games anytime, anywhere — no downloads, no restrictions!</p>
-      
-      <!-- 🔥 Hit Counter -->
-      <div id="hit-counter">Loading visitors...</div>
+
+      <!-- REPLACED COUNTER: uses your Firestore implementation -->
+      <h3>Homepage Visits: <span id="hitCounter">Loading...</span></h3>
     </div>
 
     <!-- Game Grid -->
@@ -122,47 +122,72 @@
         <img src="RetroBowl.png" alt="Retro Bowl">
         <p>Retro Bowl</p>
       </a>
+
+      <a class="game-card" href="RetroBowlC.html">
+        <img src="RetroBowlC.png" alt="Retro Bowl Collage">
+        <p>Retro Bowl Collage</p>
+      </a>
+
       <a class="game-card" href="BasketRandom.html">
         <img src="BasketRandom.png" alt="Basket Random">
         <p>Basket Random</p>
       </a>
+
       <a class="game-card" href="slope.html">
         <img src="slope.jpg" alt="Slope">
         <p>Slope</p>
       </a>
+
+      <!-- add more cards for other assets -->
     </div>
   </div>
 
-  <!-- Firebase + Counter Script -->
+  <!-- FIRESTORE HIT COUNTER (module) -->
   <script type="module">
-    // Import Firebase
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, get, set, child } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+    import {
+      getFirestore,
+      doc,
+      getDoc,
+      setDoc,
+      updateDoc,
+      increment
+    } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
 
-    // ✅ Your Firebase config (replace with your actual keys)
+    // YOUR FIREBASE CONFIG (from your snippet)
     const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-      databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_PROJECT_ID.appspot.com",
-      messagingSenderId: "YOUR_SENDER_ID",
-      appId: "YOUR_APP_ID"
+      apiKey: "AIzaSyDxoIs6Nn5dMCpPj8JjNqbv-O3SVpiac0A",
+      authDomain: "login-6cdd8.firebaseapp.com",
+      projectId: "login-6cdd8",
+      storageBucket: "login-6cdd8.firebasestorage.app",
+      messagingSenderId: "518535069226",
+      appId: "1:518535069226:web:8925106a250805bbf24d53"
     };
 
-    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
+    const db = getFirestore(app);
 
-    // Hit counter logic
-    const counterRef = ref(db, "homepageHits");
+    const hitCounterSpan = document.getElementById('hitCounter');
+    const counterDoc = doc(db, "counters", "gameHomeHits");
 
-    get(counterRef).then((snapshot) => {
-      let hits = snapshot.exists() ? snapshot.val() : 0;
-      hits++;
-      set(counterRef, hits);
-      document.getElementById("hit-counter").innerText = `👥 Visitors: ${hits}`;
-    });
+    async function incrementHits() {
+      try {
+        const docSnap = await getDoc(counterDoc);
+        if (docSnap.exists()) {
+          await updateDoc(counterDoc, { hits: increment(1) });
+        } else {
+          await setDoc(counterDoc, { hits: 1 });
+        }
+        const updatedSnap = await getDoc(counterDoc);
+        hitCounterSpan.textContent = updatedSnap.data().hits;
+      } catch (err) {
+        console.error("Hit counter error:", err);
+        hitCounterSpan.textContent = "Error";
+      }
+    }
+
+    // call on load
+    incrementHits();
   </script>
 
 </body>
