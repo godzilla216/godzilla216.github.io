@@ -91,6 +91,39 @@
       font-size: 14px;
       font-weight: bold;
     }
+    /* Glow effect */
+.featured {
+  position: relative;
+  border: 2px solid gold;
+  box-shadow: 0 0 15px gold, 0 0 30px orange, 0 0 45px red;
+  animation: glowPulse 1.5s infinite alternate;
+}
+
+/* Badge */
+.featured::before {
+  content: "#1 Weekly Most Played";
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: gold;
+  color: black;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+}
+
+/* Glowing animation */
+@keyframes glowPulse {
+  from {
+    box-shadow: 0 0 10px gold, 0 0 20px orange, 0 0 30px red;
+  }
+  to {
+    box-shadow: 0 0 20px gold, 0 0 40px orange, 0 0 60px red;
+  }
+}
   </style>
 </head>
 <body>
@@ -123,7 +156,7 @@
         <p>Retro Bowl</p>
       </a>
 
-      <a class="game-card" target="_blank" rel="noopener noreferrer" href="https://sites.google.com/view/games-az/retro-bowl-collage">
+      <a class="game-card featured" target="_blank" rel="noopener noreferrer" href="https://sites.google.com/view/games-az/retro-bowl-collage">
         <img src="RetroBowlC.png" alt="Retro Bowl Collage">
         <p>Retro Bowl Collage</p>
       </a>
