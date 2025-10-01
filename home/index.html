@@ -1,15 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Games AZ</title>
-  <link rel="stylesheet" href="styles.css" />
+  <meta charset="UTF-8">
+  <title>Games AZ | Home</title>
   <style>
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      display: flex;
       background: #f4f4f4;
       color: #222;
     }
@@ -57,10 +54,6 @@
       color: #2e462a;
     }
 
-    /* Hit Counter style */
-    h3 { margin: 10px 0 0; color: #333; }
-    #hitCounter { color: #007700; font-weight: 700; }
-
     /* Game grid */
     .game-grid {
       display: grid;
@@ -74,7 +67,7 @@
       text-align: center;
       padding: 10px;
       transition: transform 0.2s;
-      display: block; /* so <a class="game-card"> works like a card */
+      display: block;
       color: inherit;
       text-decoration: none;
     }
@@ -91,39 +84,56 @@
       font-size: 14px;
       font-weight: bold;
     }
-    /* Glow effect */
-.featured {
-  position: relative;
-  border: 2px solid gold;
-  box-shadow: 0 0 15px gold, 0 0 30px orange, 0 0 45px red;
-  animation: glowPulse 1.5s infinite alternate;
-}
 
-/* Badge */
-.featured::before {
-  content: "#1 Weekly Most Played";
-  position: absolute;
-  top: -12px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: gold;
-  color: black;
-  font-size: 12px;
-  font-weight: bold;
-  padding: 2px 6px;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.4);
-}
+    /* Featured glowing effect */
+    .featured {
+      position: relative;
+      border: 2px solid gold;
+      box-shadow: 0 0 15px gold, 0 0 30px orange, 0 0 45px red;
+      animation: glowPulse 1.5s infinite alternate;
+    }
+    .featured::before {
+      content: "#1 Weekly Most Played";
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: gold;
+      color: black;
+      font-size: 12px;
+      font-weight: bold;
+      padding: 2px 6px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+    }
+    @keyframes glowPulse {
+      from {
+        box-shadow: 0 0 10px gold, 0 0 20px orange, 0 0 30px red;
+      }
+      to {
+        box-shadow: 0 0 20px gold, 0 0 40px orange, 0 0 60px red;
+      }
+    }
 
-/* Glowing animation */
-@keyframes glowPulse {
-  from {
-    box-shadow: 0 0 10px gold, 0 0 20px orange, 0 0 30px red;
-  }
-  to {
-    box-shadow: 0 0 20px gold, 0 0 40px orange, 0 0 60px red;
-  }
-}
+    /* Profile Icon in top-right */
+    .profile-icon {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      width: 55px;
+      height: 55px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #fff;
+      background: #000;
+      cursor: pointer;
+      z-index: 1000;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      transition: transform 0.2s;
+    }
+    .profile-icon:hover {
+      transform: scale(1.1);
+    }
   </style>
 </head>
 <body>
@@ -144,60 +154,54 @@
     <div class="header">
       <h1>Welcome to Games AZ</h1>
       <p>Play free online games anytime, anywhere — no downloads, no restrictions!</p>
-
-      <!-- REPLACED COUNTER: uses your Firestore implementation -->
-      <h3>Homepage Visits: <span id="hitCounter">Loading...</span></h3>
     </div>
 
     <!-- Game Grid -->
     <div class="game-grid">
-      <a class="game-card" target="_blank" rel="noopener noreferrer" href="https://sites.google.com/view/games-az/retro-bowl">
+      <a class="game-card" target="_blank" href="https://sites.google.com/view/games-az/retro-bowl">
         <img src="RetroBowl.png" alt="Retro Bowl">
         <p>Retro Bowl</p>
       </a>
 
-      <a class="game-card featured" target="_blank" rel="noopener noreferrer" href="https://sites.google.com/view/games-az/retro-bowl-collage">
+      <a class="game-card featured" target="_blank" href="https://sites.google.com/view/games-az/retro-bowl-collage">
         <img src="RetroBowlC.png" alt="Retro Bowl Collage">
         <p>Retro Bowl Collage</p>
       </a>
 
-      <a class="game-card" target="_blank" rel="noopener noreffer" href="https://sites.google.com/view/games-az/basket-random">
+      <a class="game-card" target="_blank" href="https://sites.google.com/view/games-az/basket-random">
         <img src="BasketRandom.png" alt="Basket Random">
         <p>Basket Random</p>
       </a>
 
-      <a class="game-card" target="_blank" rel="noopener noreferrer" href="https://sites.google.com/view/games-az/slope">
+      <a class="game-card" target="_blank" href="https://sites.google.com/view/games-az/slope">
         <img src="slope.jpg" alt="Slope">
         <p>Slope</p>
       </a>
 
-      <a class="game-card" target="_blank" rel="noopener noreferrer" href="https://sites.google.com/view/games-az/3d-snow-rider">
+      <a class="game-card" target="_blank" href="https://sites.google.com/view/games-az/3d-snow-rider">
         <img src="SR3d.png" alt="Snow Rider 3d">
         <p>Snow Rider 3d</p>
       </a>
 
-      <a class="game-card" target="_blank" rel="noopener noreferrer" href="https://sites.google.com/view/games-az/my-rusty-submarine">
+      <a class="game-card" target="_blank" href="https://sites.google.com/view/games-az/my-rusty-submarine">
         <img src="MRR.png" alt="My Rusty Submarine">
         <p>My Rusty Submarine</p>
       </a>
-      
-      <!-- add more cards for other assets -->
     </div>
   </div>
 
-  <!-- FIRESTORE HIT COUNTER (module) -->
+  <!-- Top Right Profile Icon -->
+  <a href="account-center.html">
+    <img src="icons/No-Icon.jpg" alt="Profile Icon" id="profileIcon" class="profile-icon">
+  </a>
+
+  <!-- Firebase Script -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
-    import {
-      getFirestore,
-      doc,
-      getDoc,
-      setDoc,
-      updateDoc,
-      increment
-    } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
 
-    // YOUR FIREBASE CONFIG (from your snippet)
+    // Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyDxoIs6Nn5dMCpPj8JjNqbv-O3SVpiac0A",
       authDomain: "login-6cdd8.firebaseapp.com",
@@ -208,30 +212,30 @@
     };
 
     const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
     const db = getFirestore(app);
 
-    const hitCounterSpan = document.getElementById('hitCounter');
-    const counterDoc = doc(db, "counters", "gameHomeHits");
+    const profileIconImg = document.getElementById("profileIcon");
 
-    async function incrementHits() {
-      try {
-        const docSnap = await getDoc(counterDoc);
-        if (docSnap.exists()) {
-          await updateDoc(counterDoc, { hits: increment(1) });
-        } else {
-          await setDoc(counterDoc, { hits: 1 });
-        }
-        const updatedSnap = await getDoc(counterDoc);
-        hitCounterSpan.textContent = updatedSnap.data().hits;
-      } catch (err) {
-        console.error("Hit counter error:", err);
-        hitCounterSpan.textContent = "Error";
+    // Load user's equipped icon
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        profileIconImg.src = "icons/No-Icon.jpg";
+        return;
       }
-    }
-
-    // call on load
-    incrementHits();
+      try {
+        const userRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(userRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          if (data.profileIcon) {
+            profileIconImg.src = data.profileIcon;
+          }
+        }
+      } catch (err) {
+        console.error("Error loading profile icon:", err);
+      }
+    });
   </script>
-
 </body>
 </html>
