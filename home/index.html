@@ -404,33 +404,88 @@
       void footerCounterSpan.offsetWidth;
       footerCounterSpan.classList.add("bounce");
     }
-    const textDiv = document.createElement('div');
-let adminTag = comment.isAdmin ? ' <span style="color:red; font-weight:bold;">[ADMIN]</span>' : '';
-textDiv.innerHTML = `<strong>${comment.username}${adminTag}:</strong> ${comment.text}`;
-
-    await setDoc(doc(db, "users", user.uid), {
-  email: user.email,
-  profileIcon: "icons/No-Icon.jpg",
-  isAdmin: false // default
-});
-
-if (comment.userId) {
-  try {
-    const userDocRef = doc(db, "users", comment.userId);
-    const userSnap = await getDoc(userDocRef);
-    if (userSnap.exists()) {
-      const userData = userSnap.data();
-      if (userData.profileIcon) profileImg.src = userData.profileIcon;
-      if (userData.isAdmin) {
-        textDiv.innerHTML = `<strong>${comment.username} <span style="color:red; font-weight:bold;">[ADMIN]</span>:</strong> ${comment.text}`;
-      }
-    }
-  } catch (err) { console.error(err); }
-}
-if (data.isAdmin) {
-  userInfoDiv.innerHTML += ' <span style="color:red; font-weight:bold;">[ADMIN]</span>';
-}
-
   </script>
+  <script type="module">
+  import { getFirestore, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
+
+  const db = getFirestore();
+  const auth = getAuth();
+
+  const commentForm = document.getElementById('comment-form');
+  const commentInput = document.getElementById('comment-input');
+  const commentsDiv = document.getElementById('comments');
+  const userInfoDiv = document.getElementById('user-info');
+  const commentsSection = document.getElementById('comments-section');
+
+  // Only show comments section if logged in
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      userInfoDiv.textContent = `Logged in as ${user.displayName || user.email}`;
+
+      // Posting new comment
+      commentForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await addDoc(collection(db, "comments"), {
+          text: commentInput.value,
+          timestamp: serverTimestamp(),
+          username: user.displayName || user.email,
+          userId: user.uid
+        });
+        commentInput.value = '';
+      });
+
+      // Listen for comments
+      const q = query(collection(db, "comments"), orderBy("timestamp", "desc"));
+      onSnapshot(q, async (snapshot) => {
+        commentsDiv.innerHTML = '';
+        for (const docSnap of snapshot.docs) {
+          const comment = docSnap.data();
+
+          const messageDiv = document.createElement('div');
+          messageDiv.style.display = 'flex';
+          messageDiv.style.alignItems = 'center';
+          messageDiv.style.marginBottom = '10px';
+
+          const profileImg = document.createElement('img');
+          profileImg.src = "icons/No-Icon.jpg";
+          profileImg.style.width = "32px";
+          profileImg.style.height = "32px";
+          profileImg.style.borderRadius = "50%";
+          profileImg.style.marginRight = "10px";
+
+          const textDiv = document.createElement('div');
+
+          // Check user data for admin status
+          if (comment.userId) {
+            try {
+              const userDocRef = doc(db, "users", comment.userId);
+              const userSnap = await getDoc(userDocRef);
+              if (userSnap.exists()) {
+                const userData = userSnap.data();
+                if (userData.profileIcon) profileImg.src = userData.profileIcon;
+
+                if (userData.isAdmin) {
+                  textDiv.innerHTML = `<strong>${comment.username} <span style="color:red; font-weight:bold;">[ADMIN]</span>:</strong> ${comment.text}`;
+                } else {
+                  textDiv.innerHTML = `<strong>${comment.username}:</strong> ${comment.text}`;
+                }
+              }
+            } catch (err) { console.error("Error loading profile:", err); }
+          } else {
+            textDiv.innerHTML = `<strong>${comment.username}:</strong> ${comment.text}`;
+          }
+
+          messageDiv.appendChild(profileImg);
+          messageDiv.appendChild(textDiv);
+          commentsDiv.appendChild(messageDiv);
+        }
+      });
+
+    } else {
+      commentsSection.style.display = 'none';
+    }
+  });
+</script>
 </body>
 </html>
