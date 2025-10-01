@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -44,7 +44,7 @@
       flex: 1;
     }
 
-    /* Hit Counter (now at top) */
+    /* Hit Counter */
     .hit-counter {
       text-align: center;
       padding: 15px;
@@ -184,6 +184,14 @@
       transition: transform 0.2s;
     }
     .profile-icon:hover { transform: scale(1.1); }
+
+    /* Comments Section */
+    #comments-section { margin-top:50px; display:none; }
+    #comments-section h2 { margin-bottom: 10px; }
+    #comment-form input { padding: 10px; width: 70%; margin-right: 10px; border-radius: 5px; border: none; }
+    #comment-form button { padding: 10px 20px; border-radius: 5px; border: none; background-color: #00cc66; color: white; font-weight: bold; cursor: pointer; }
+    #comments div { display: flex; align-items: center; margin-bottom: 10px; }
+    #comments img { width: 32px; height: 32px; border-radius: 50%; margin-right: 10px; }
   </style>
 </head>
 <body>
@@ -244,6 +252,18 @@
         <p>My Rusty Submarine</p>
       </a>
     </div>
+
+    <!-- Comments Section -->
+    <div id="comments-section">
+      <h2>Comments</h2>
+      <div id="user-info"></div>
+      <form id="comment-form">
+        <input type="text" id="comment-input" placeholder="Write a comment..." required>
+        <button type="submit">Post</button>
+      </form>
+      <div id="comments"></div>
+    </div>
+
   </div>
 
   <!-- Profile Icon -->
@@ -255,7 +275,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, onSnapshot } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, onSnapshot, collection, addDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDxoIs6Nn5dMCpPj8JjNqbv-O3SVpiac0A",
@@ -273,25 +293,78 @@
     // Profile icon
     const profileIconImg = document.getElementById("profileIcon");
     onAuthStateChanged(auth, async (user) => {
+      const commentsSection = document.getElementById("comments-section");
+      const userInfoDiv = document.getElementById("user-info");
+      const commentForm = document.getElementById("comment-form");
+      const commentInput = document.getElementById("comment-input");
+      const commentsDiv = document.getElementById("comments");
+
       if (!user) {
         profileIconImg.src = "icons/No-Icon.jpg";
+        commentsSection.style.display = "none";
         return;
       }
+
       try {
         const userRef = doc(db, "users", user.uid);
         const docSnap = await getDoc(userRef);
         if (docSnap.exists()) {
           const data = docSnap.data();
-          if (data.profileIcon) {
-            profileIconImg.src = data.profileIcon;
-          }
+          if (data.profileIcon) profileIconImg.src = data.profileIcon;
         }
-      } catch (err) {
-        console.error("Error loading profile icon:", err);
-      }
+      } catch (err) { console.error(err); }
+
+      commentsSection.style.display = "block";
+      userInfoDiv.textContent = `Logged in as ${user.displayName || user.email}`;
+
+      commentForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await addDoc(collection(db, "comments"), {
+          text: commentInput.value,
+          timestamp: serverTimestamp(),
+          username: user.displayName || user.email,
+          userId: user.uid
+        });
+        commentInput.value = '';
+      });
+
+      const q = query(collection(db, "comments"), orderBy("timestamp", "desc"));
+      onSnapshot(q, async (snapshot) => {
+        commentsDiv.innerHTML = '';
+        for (const docSnap of snapshot.docs) {
+          const comment = docSnap.data();
+          const messageDiv = document.createElement('div');
+          messageDiv.style.display = 'flex';
+          messageDiv.style.alignItems = 'center';
+          messageDiv.style.marginBottom = '10px';
+
+          const profileImg = document.createElement('img');
+          profileImg.src = "icons/No-Icon.jpg";
+          profileImg.style.width = "32px";
+          profileImg.style.height = "32px";
+          profileImg.style.borderRadius = "50%";
+          profileImg.style.marginRight = "10px";
+
+          if (comment.userId) {
+            try {
+              const userDocRef = doc(db, "users", comment.userId);
+              const userSnap = await getDoc(userDocRef);
+              if (userSnap.exists() && userSnap.data().profileIcon) {
+                profileImg.src = userSnap.data().profileIcon;
+              }
+            } catch (err) { console.error(err); }
+          }
+
+          const textDiv = document.createElement('div');
+          textDiv.innerHTML = `<strong>${comment.username}:</strong> ${comment.text}`;
+          messageDiv.appendChild(profileImg);
+          messageDiv.appendChild(textDiv);
+          commentsDiv.appendChild(messageDiv);
+        }
+      });
     });
 
-    // Hit counter
+    // Hit Counter
     const footerCounterSpan = document.getElementById('footerHitCounter');
     const progressBar = document.getElementById('progressBar');
     const counterDoc = doc(db, "counters", "gameHomeHits");
@@ -307,26 +380,19 @@
           lastHits = hits;
           if (!initialized) {
             initialized = true;
-            try {
-              await updateDoc(counterDoc, { hits: increment(1) });
-            } catch {
-              await setDoc(counterDoc, { hits: 1 });
-            }
+            try { await updateDoc(counterDoc, { hits: increment(1) }); }
+            catch { await setDoc(counterDoc, { hits: 1 }); }
           }
         } else {
           footerCounterSpan.textContent = '0';
           lastHits = 0;
           if (!initialized) {
             initialized = true;
-            try {
-              await setDoc(counterDoc, { hits: 1 });
-            } catch (err) { console.error(err); }
+            try { await setDoc(counterDoc, { hits: 1 }); } 
+            catch (err) { console.error(err); }
           }
         }
-      } catch (err) {
-        console.error("Snapshot error:", err);
-        footerCounterSpan.textContent = "Error";
-      }
+      } catch (err) { console.error("Snapshot error:", err); footerCounterSpan.textContent = "Error"; }
     });
 
     function triggerAnimations() {
