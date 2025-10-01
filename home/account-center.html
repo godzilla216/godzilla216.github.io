@@ -84,7 +84,7 @@
   <p id="message"></p>
   <div id="popup">Signed out successfully ✅</div>
 <a href="https://godzilla216.github.io/home/" class="home-button">🏠 Home</a>  
-  <script type="module">
+ <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
     import { getAuth, updateProfile, deleteUser, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
     import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
@@ -93,7 +93,7 @@
       apiKey: "AIzaSyDxoIs6Nn5dMCpPj8JjNqbv-O3SVpiac0A",
       authDomain: "login-6cdd8.firebaseapp.com",
       projectId: "login-6cdd8",
-      storageBucket: "login-6cdd8.firebaseapp.com",
+      storageBucket: "login-6cdd8",
       messagingSenderId: "518535069226",
       appId: "1:518535069226:web:8925106a250805bbf24d53"
     };
@@ -102,65 +102,20 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
+    const userDisplay = document.getElementById('user-display');
+    const message = document.getElementById('message');
+    const popup = document.getElementById('popup');
+
     const newNameInput = document.getElementById('new-name');
     const renameBtn = document.getElementById('rename-btn');
     const deleteBtn = document.getElementById('delete-account-btn');
     const signoutBtn = document.getElementById('signout-btn');
-    const message = document.getElementById('message');
-    const popup = document.getElementById('popup');
-    const userDisplay = document.getElementById('user-display');
 
     const azPointsSpan = document.getElementById("azPoints");
     const claimPointsBtn = document.getElementById("claimPointsBtn");
     const claimMsg = document.getElementById("claimMsg");
 
     let currentUser;
-
-    onAuthStateChanged(auth, async user => {
-      if (user) {
-        currentUser = user;
-        userDisplay.textContent = `Signed in as: ${user.displayName || user.email}`;
-        await loadAzPoints();
-      } else {
-        window.location.href = 'signin.html';
-      }
-    });
-
-    renameBtn.addEventListener('click', async () => {
-      if (!currentUser) return;
-      const newName = newNameInput.value.trim();
-      if (newName) {
-        try {
-          await updateProfile(currentUser, { displayName: newName });
-          message.textContent = "Name updated successfully!";
-          userDisplay.textContent = `Signed in as: ${newName}`;
-        } catch (error) {
-          message.textContent = error.message;
-        }
-      }
-    });
-
-    deleteBtn.addEventListener('click', async () => {
-      if (!currentUser) return;
-      const confirmDelete = confirm("Are you sure you want to permanently delete your account?");
-      if (confirmDelete) {
-        try {
-          await deleteUser(currentUser);
-          alert('Account deleted.');
-          window.location.href = 'signup.html';
-        } catch (error) {
-          message.textContent = error.message;
-        }
-      }
-    });
-
-    signoutBtn.addEventListener('click', async () => {
-      await signOut(auth);
-      popup.style.display = 'block';
-      setTimeout(() => {
-        window.location.href = 'index.html';
-      }, 1500);
-    });
 
     async function loadAzPoints() {
       const userRef = doc(db, "users", currentUser.uid);
@@ -170,67 +125,92 @@
         await setDoc(userRef, { azPoints: 0, lastClaim: null });
         data = { azPoints: 0, lastClaim: null };
       }
-      azPointsSpan.textContent = data.azPoints;
+      azPointsSpan.textContent = data.azPoints || 0;
 
       const now = new Date();
       const today = now.toISOString().split("T")[0];
-      const last = data.lastClaim?.toDate().toISOString().split("T")[0];
+      const last = data.lastClaim?.toDate?.()?.toISOString().split("T")[0];
       if (last === today) {
         claimPointsBtn.disabled = true;
         claimMsg.textContent = "You already claimed today's points!";
+      } else {
+        claimPointsBtn.disabled = false;
+        claimMsg.textContent = "";
       }
     }
 
-    claimPointsBtn.addEventListener("click", async () => {
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) return window.location.href = 'signin.html';
+
+      currentUser = user;
+      userDisplay.textContent = `Signed in as: ${user.displayName || user.email}`;
+
+      // Load AZ points
+      await loadAzPoints();
+
+      // Show admin badge if applicable
+      const userRef = doc(db, "users", user.uid);
+      const snap = await getDoc(userRef);
+      const data = snap.data();
+      if (data?.isAdmin) {
+        userDisplay.innerHTML += ' <span style="color:red; font-weight:bold;">[ADMIN]</span>';
+      }
+    });
+
+    renameBtn.addEventListener('click', async () => {
+      const newName = newNameInput.value.trim();
+      if (!newName || !currentUser) return;
+      try {
+        await updateProfile(currentUser, { displayName: newName });
+        message.textContent = "Name updated successfully!";
+        userDisplay.textContent = `Signed in as: ${newName}`;
+      } catch (err) {
+        message.textContent = err.message;
+      }
+    });
+
+    deleteBtn.addEventListener('click', async () => {
+      if (!currentUser) return;
+      if (!confirm("Are you sure you want to permanently delete your account?")) return;
+      try {
+        await deleteUser(currentUser);
+        alert('Account deleted.');
+        window.location.href = 'signup.html';
+      } catch (err) {
+        message.textContent = err.message;
+      }
+    });
+
+    signoutBtn.addEventListener('click', async () => {
+      await signOut(auth);
+      popup.style.display = 'block';
+      setTimeout(() => window.location.href = 'index.html', 1500);
+    });
+
+    claimPointsBtn.addEventListener('click', async () => {
+      if (!currentUser) return;
       const userRef = doc(db, "users", currentUser.uid);
       const snap = await getDoc(userRef);
       const data = snap.data();
       const now = new Date();
       const today = now.toISOString().split("T")[0];
-      const last = data.lastClaim?.toDate().toISOString().split("T")[0];
+      const last = data.lastClaim?.toDate?.()?.toISOString().split("T")[0];
+
       if (last === today) {
         claimMsg.textContent = "You already claimed today's points!";
         claimPointsBtn.disabled = true;
         return;
       }
+
       await updateDoc(userRef, {
         azPoints: (data.azPoints || 0) + 10,
         lastClaim: serverTimestamp()
       });
+
       claimMsg.textContent = "✅ You earned 10 AZ Points!";
       claimPointsBtn.disabled = true;
       loadAzPoints();
     });
   </script>
-  <script type="module">
-  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
-
-  const db = getFirestore();
-  const auth = getAuth();
-
-  const userInfoDiv = document.getElementById('user-info');
-
-  onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      try {
-        const userDocRef = doc(db, "users", user.uid);
-        const userSnap = await getDoc(userDocRef);
-
-        if (userSnap.exists()) {
-          const data = userSnap.data();
-          userInfoDiv.innerHTML = `Logged in as ${user.displayName || user.email}`;
-          if (data.isAdmin) {
-            userInfoDiv.innerHTML += ' <span style="color:red; font-weight:bold;">[ADMIN]</span>';
-          }
-        }
-      } catch (err) {
-        console.error("Error loading account data:", err);
-      }
-    } else {
-      userInfoDiv.textContent = "Not logged in";
-    }
-  });
-</script>
 </body>
 </html>
