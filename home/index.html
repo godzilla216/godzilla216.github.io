@@ -272,220 +272,64 @@
   </a>
 
   <!-- Firebase Scripts -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, onSnapshot, collection, addDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+ <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+  import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp, collection, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDxoIs6Nn5dMCpPj8JjNqbv-O3SVpiac0A",
-      authDomain: "login-6cdd8.firebaseapp.com",
-      projectId: "login-6cdd8",
-      storageBucket: "login-6cdd8.appspot.com",
-      messagingSenderId: "518535069226",
-      appId: "1:518535069226:web:8925106a250805bbf24d53"
-    };
+  const firebaseConfig = {
+    apiKey: "AIzaSyDxoIs6Nn5dMCpPj8JjNqbv-O3SVpiac0A",
+    authDomain: "login-6cdd8.firebaseapp.com",
+    projectId: "login-6cdd8",
+    storageBucket: "login-6cdd8",
+    messagingSenderId: "518535069226",
+    appId: "1:518535069226:web:8925106a250805bbf24d53"
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
-    // Profile icon
-    const profileIconImg = document.getElementById("profileIcon");
-    onAuthStateChanged(auth, async (user) => {
-      const commentsSection = document.getElementById("comments-section");
-      const userInfoDiv = document.getElementById("user-info");
-      const commentForm = document.getElementById("comment-form");
-      const commentInput = document.getElementById("comment-input");
-      const commentsDiv = document.getElementById("comments");
+  // ----------------- Hit Counter -----------------
+  const hitCounter = document.getElementById('hitCounter'); // Make sure you have <span id="hitCounter"></span> in HTML
 
-      if (!user) {
-        profileIconImg.src = "icons/No-Icon.jpg";
-        commentsSection.style.display = "none";
-        return;
-      }
+  async function updateHitCounter() {
+    const docRef = doc(db, "counters", "homepageHits");
+    const snap = await getDoc(docRef);
 
-      try {
-        const userRef = doc(db, "users", user.uid);
-        const docSnap = await getDoc(userRef);
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          if (data.profileIcon) profileIconImg.src = data.profileIcon;
-        }
-      } catch (err) { console.error(err); }
-
-      commentsSection.style.display = "block";
-      userInfoDiv.textContent = `Logged in as ${user.displayName || user.email}`;
-
-      commentForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        await addDoc(collection(db, "comments"), {
-          text: commentInput.value,
-          timestamp: serverTimestamp(),
-          username: user.displayName || user.email,
-          userId: user.uid
-        });
-        commentInput.value = '';
-      });
-
-      const q = query(collection(db, "comments"), orderBy("timestamp", "desc"));
-      onSnapshot(q, async (snapshot) => {
-        commentsDiv.innerHTML = '';
-        for (const docSnap of snapshot.docs) {
-          const comment = docSnap.data();
-          const messageDiv = document.createElement('div');
-          messageDiv.style.display = 'flex';
-          messageDiv.style.alignItems = 'center';
-          messageDiv.style.marginBottom = '10px';
-
-          const profileImg = document.createElement('img');
-          profileImg.src = "icons/No-Icon.jpg";
-          profileImg.style.width = "32px";
-          profileImg.style.height = "32px";
-          profileImg.style.borderRadius = "50%";
-          profileImg.style.marginRight = "10px";
-
-          if (comment.userId) {
-            try {
-              const userDocRef = doc(db, "users", comment.userId);
-              const userSnap = await getDoc(userDocRef);
-              if (userSnap.exists() && userSnap.data().profileIcon) {
-                profileImg.src = userSnap.data().profileIcon;
-              }
-            } catch (err) { console.error(err); }
-          }
-
-          const textDiv = document.createElement('div');
-          textDiv.innerHTML = `<strong>${comment.username}:</strong> ${comment.text}`;
-          messageDiv.appendChild(profileImg);
-          messageDiv.appendChild(textDiv);
-          commentsDiv.appendChild(messageDiv);
-        }
-      });
-    });
-
-    // Hit Counter
-    const footerCounterSpan = document.getElementById('footerHitCounter');
-    const progressBar = document.getElementById('progressBar');
-    const counterDoc = doc(db, "counters", "gameHomeHits");
-    let lastHits = null;
-    let initialized = false;
-
-    onSnapshot(counterDoc, async (snap) => {
-      try {
-        if (snap.exists()) {
-          const hits = snap.data().hits || 0;
-          footerCounterSpan.textContent = hits;
-          if (initialized && lastHits !== null && hits > lastHits) triggerAnimations();
-          lastHits = hits;
-          if (!initialized) {
-            initialized = true;
-            try { await updateDoc(counterDoc, { hits: increment(1) }); }
-            catch { await setDoc(counterDoc, { hits: 1 }); }
-          }
-        } else {
-          footerCounterSpan.textContent = '0';
-          lastHits = 0;
-          if (!initialized) {
-            initialized = true;
-            try { await setDoc(counterDoc, { hits: 1 }); } 
-            catch (err) { console.error(err); }
-          }
-        }
-      } catch (err) { console.error("Snapshot error:", err); footerCounterSpan.textContent = "Error"; }
-    });
-
-    function triggerAnimations() {
-      progressBar.style.animation = "none";
-      progressBar.style.width = "0";
-      void progressBar.offsetWidth;
-      progressBar.style.animation = "fillBar 1.8s forwards";
-      footerCounterSpan.classList.remove("bounce");
-      void footerCounterSpan.offsetWidth;
-      footerCounterSpan.classList.add("bounce");
-    }
-  </script>
-  <script type="module">
-  import { getFirestore, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
-
-  const db = getFirestore();
-  const auth = getAuth();
-
-  const commentForm = document.getElementById('comment-form');
-  const commentInput = document.getElementById('comment-input');
-  const commentsDiv = document.getElementById('comments');
-  const userInfoDiv = document.getElementById('user-info');
-  const commentsSection = document.getElementById('comments-section');
-
-  // Only show comments section if logged in
-  onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      userInfoDiv.textContent = `Logged in as ${user.displayName || user.email}`;
-
-      // Posting new comment
-      commentForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        await addDoc(collection(db, "comments"), {
-          text: commentInput.value,
-          timestamp: serverTimestamp(),
-          username: user.displayName || user.email,
-          userId: user.uid
-        });
-        commentInput.value = '';
-      });
-
-      // Listen for comments
-      const q = query(collection(db, "comments"), orderBy("timestamp", "desc"));
-      onSnapshot(q, async (snapshot) => {
-        commentsDiv.innerHTML = '';
-        for (const docSnap of snapshot.docs) {
-          const comment = docSnap.data();
-
-          const messageDiv = document.createElement('div');
-          messageDiv.style.display = 'flex';
-          messageDiv.style.alignItems = 'center';
-          messageDiv.style.marginBottom = '10px';
-
-          const profileImg = document.createElement('img');
-          profileImg.src = "icons/No-Icon.jpg";
-          profileImg.style.width = "32px";
-          profileImg.style.height = "32px";
-          profileImg.style.borderRadius = "50%";
-          profileImg.style.marginRight = "10px";
-
-          const textDiv = document.createElement('div');
-
-          // Check user data for admin status
-          if (comment.userId) {
-            try {
-              const userDocRef = doc(db, "users", comment.userId);
-              const userSnap = await getDoc(userDocRef);
-              if (userSnap.exists()) {
-                const userData = userSnap.data();
-                if (userData.profileIcon) profileImg.src = userData.profileIcon;
-
-                if (userData.isAdmin) {
-                  textDiv.innerHTML = `<strong>${comment.username} <span style="color:red; font-weight:bold;">[ADMIN]</span>:</strong> ${comment.text}`;
-                } else {
-                  textDiv.innerHTML = `<strong>${comment.username}:</strong> ${comment.text}`;
-                }
-              }
-            } catch (err) { console.error("Error loading profile:", err); }
-          } else {
-            textDiv.innerHTML = `<strong>${comment.username}:</strong> ${comment.text}`;
-          }
-
-          messageDiv.appendChild(profileImg);
-          messageDiv.appendChild(textDiv);
-          commentsDiv.appendChild(messageDiv);
-        }
-      });
-
+    if (!snap.exists()) {
+      await setDoc(docRef, { count: 1, lastUpdated: serverTimestamp() });
+      hitCounter.textContent = "1";
     } else {
-      commentsSection.style.display = 'none';
+      const data = snap.data();
+      const newCount = (data.count || 0) + 1;
+      await updateDoc(docRef, { count: newCount, lastUpdated: serverTimestamp() });
+      hitCounter.textContent = newCount;
     }
-  });
+  }
+
+  updateHitCounter();
+
+  // ----------------- Comments Section -----------------
+  const commentsContainer = document.getElementById('commentsContainer'); // <div id="commentsContainer"></div> in HTML
+
+  async function loadComments() {
+    commentsContainer.innerHTML = ""; // Clear existing to prevent duplicates
+    const commentsQuery = query(collection(db, "comments"), orderBy("timestamp", "desc"), limit(20));
+    const snap = await getDocs(commentsQuery);
+
+    snap.forEach(docSnap => {
+      const data = docSnap.data();
+      const commentEl = document.createElement('div');
+      commentEl.className = 'comment';
+      commentEl.innerHTML = `
+        <strong>${data.username || "Anonymous"}</strong>: ${data.text}
+        <span style="font-size:12px;color:gray;">${data.timestamp?.toDate().toLocaleString() || ''}</span>
+      `;
+      commentsContainer.appendChild(commentEl);
+    });
+  }
+
+  loadComments();
 </script>
+
 </body>
 </html>
