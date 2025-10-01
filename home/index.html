@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -52,6 +52,7 @@
       color: #00ff00;
       background: linear-gradient(90deg, #001a00, #003300, #001a00);
       box-shadow: 0px 2px 10px rgba(0,255,0,0.3);
+      overflow: hidden;
       border-radius: 0 0 10px 10px;
       margin-bottom: 20px;
     }
@@ -59,6 +60,47 @@
       font-weight: bold;
       text-shadow: 0 0 8px #00ff00, 0 0 16px #00ff00;
     }
+    .hit-counter:hover { transform: scale(1.02); transition: transform 0.3s ease; }
+
+    @keyframes glow { 
+      0% {text-shadow:0 0 5px #00ff00} 
+      50% {text-shadow:0 0 15px #00ff00} 
+      100% {text-shadow:0 0 5px #00ff00} 
+    }
+    #footerHitCounter { animation: glow 2s infinite alternate; display:inline-block; transform-origin:center; }
+
+    @keyframes popBounce {
+      0%   { transform: scale(1); }
+      30%  { transform: scale(1.4); }
+      50%  { transform: scale(0.9); }
+      70%  { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+    .bounce { animation: popBounce 0.6s ease; }
+
+    .footer-icon { margin-right: 8px; animation: pulse 2s infinite; }
+    @keyframes pulse { 0% { opacity: 0.6; transform: scale(1);} 50% { opacity: 1; transform: scale(1.15);} 100% { opacity: 0.6; transform: scale(1);} }
+
+    .progress-container {
+      position: relative;
+      margin-top: 8px;
+      width: 60%;
+      height: 6px;
+      background: #003300;
+      border-radius: 5px;
+      margin-left: auto;
+      margin-right: auto;
+      overflow: hidden;
+      box-shadow: 0 0 10px #00ff00 inset;
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, #00ff00, #66ff66);
+      box-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00;
+      border-radius: 5px;
+    }
+    @keyframes fillBar { from { width: 0%; } to { width: 100%; } }
 
     /* Header */
     .header {
@@ -99,6 +141,32 @@
       font-weight: bold;
     }
 
+    /* Featured glowing effect */
+    .featured {
+      position: relative;
+      border: 2px solid gold;
+      box-shadow: 0 0 15px gold, 0 0 30px orange, 0 0 45px red;
+      animation: glowPulse 1.5s infinite alternate;
+    }
+    .featured::before {
+      content: "#1 Weekly Most Played";
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: gold;
+      color: black;
+      font-size: 12px;
+      font-weight: bold;
+      padding: 2px 6px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+    }
+    @keyframes glowPulse {
+      from { box-shadow: 0 0 10px gold, 0 0 20px orange, 0 0 30px red; }
+      to   { box-shadow: 0 0 20px gold, 0 0 40px orange, 0 0 60px red; }
+    }
+
     /* Profile Icon */
     .profile-icon {
       position: fixed;
@@ -124,12 +192,6 @@
     #comment-form button { padding: 10px 20px; border-radius: 5px; border: none; background-color: #00cc66; color: white; font-weight: bold; cursor: pointer; }
     #comments div { display: flex; align-items: center; margin-bottom: 10px; }
     #comments img { width: 32px; height: 32px; border-radius: 50%; margin-right: 10px; }
-
-    /* Admin Panel */
-    #admin-panel { display:none; margin-top:20px; padding:15px; background:#222; color:#fff; border-radius:10px; }
-    #admin-panel button { padding:8px 15px; border:none; border-radius:5px; cursor:pointer; color:white; margin-right:10px; }
-    #make-admin { background:#00cc66; }
-    #remove-admin { background:#cc3300; }
   </style>
 </head>
 <body>
@@ -150,7 +212,11 @@
 
     <!-- Hit Counter -->
     <div class="hit-counter">
+      <span class="footer-icon">💡</span>
       Page Visits: <span id="footerHitCounter">Loading...</span>
+      <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
     </div>
 
     <!-- Header -->
@@ -187,12 +253,15 @@
       </a>
     </div>
 
-    <!-- Admin Panel -->
-    <div id="admin-panel">
-      <h3>Admin Panel</h3>
-      <button id="make-admin">Make Me Admin</button>
-      <button id="remove-admin">Remove Admin</button>
-      <p id="admin-status"></p>
+    <!-- Comments Section -->
+    <div id="comments-section">
+      <h2>Comments</h2>
+      <div id="user-info"></div>
+      <form id="comment-form">
+        <input type="text" id="comment-input" placeholder="Write a comment..." required>
+        <button type="submit">Post</button>
+      </form>
+      <div id="comments"></div>
     </div>
 
   </div>
@@ -221,55 +290,32 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
+    // Profile icon
     const profileIconImg = document.getElementById("profileIcon");
-    const adminPanel = document.getElementById("admin-panel");
-    const makeAdminBtn = document.getElementById("make-admin");
-    const removeAdminBtn = document.getElementById("remove-admin");
-    const adminStatus = document.getElementById("admin-status");
-
     onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        profileIconImg.src = "icons/No-Icon.jpg";
-        document.getElementById("comments-section").style.display = "none";
-        adminPanel.style.display = "none";
-        return;
-      }
-
-      const userRef = doc(db, "users", user.uid);
-      let userSnap = await getDoc(userRef);
-      if (!userSnap.exists()) {
-        await setDoc(userRef, { isAdmin: false }, { merge: true });
-        userSnap = await getDoc(userRef);
-      }
-
-      // Profile Icon
-      if (userSnap.exists() && userSnap.data().profileIcon) {
-        profileIconImg.src = userSnap.data().profileIcon;
-      }
-
-      // Show sections
-      document.getElementById("comments-section").style.display = "block";
-      adminPanel.style.display = "block";
-
-      // Admin Panel
-      function updateAdminUI(isAdmin) {
-        adminStatus.textContent = isAdmin ? "✅ You are an Admin" : "❌ Not an Admin";
-        adminStatus.style.color = isAdmin ? "lime" : "red";
-      }
-
-      makeAdminBtn.onclick = async () => { await updateDoc(userRef, { isAdmin: true }); };
-      removeAdminBtn.onclick = async () => { await updateDoc(userRef, { isAdmin: false }); };
-
-      onSnapshot(userRef, (snap) => {
-        if (snap.exists()) {
-          updateAdminUI(snap.data().isAdmin);
-        }
-      });
-
-      // Comments
+      const commentsSection = document.getElementById("comments-section");
+      const userInfoDiv = document.getElementById("user-info");
       const commentForm = document.getElementById("comment-form");
       const commentInput = document.getElementById("comment-input");
       const commentsDiv = document.getElementById("comments");
+
+      if (!user) {
+        profileIconImg.src = "icons/No-Icon.jpg";
+        commentsSection.style.display = "none";
+        return;
+      }
+
+      try {
+        const userRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(userRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          if (data.profileIcon) profileIconImg.src = data.profileIcon;
+        }
+      } catch (err) { console.error(err); }
+
+      commentsSection.style.display = "block";
+      userInfoDiv.textContent = `Logged in as ${user.displayName || user.email}`;
 
       commentForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -288,18 +334,29 @@
         for (const docSnap of snapshot.docs) {
           const comment = docSnap.data();
           const messageDiv = document.createElement('div');
+          messageDiv.style.display = 'flex';
+          messageDiv.style.alignItems = 'center';
+          messageDiv.style.marginBottom = '10px';
 
           const profileImg = document.createElement('img');
           profileImg.src = "icons/No-Icon.jpg";
+          profileImg.style.width = "32px";
+          profileImg.style.height = "32px";
+          profileImg.style.borderRadius = "50%";
+          profileImg.style.marginRight = "10px";
+
+          if (comment.userId) {
+            try {
+              const userDocRef = doc(db, "users", comment.userId);
+              const userSnap = await getDoc(userDocRef);
+              if (userSnap.exists() && userSnap.data().profileIcon) {
+                profileImg.src = userSnap.data().profileIcon;
+              }
+            } catch (err) { console.error(err); }
+          }
 
           const textDiv = document.createElement('div');
-          let userDoc = await getDoc(doc(db, "users", comment.userId));
-          let adminTag = '';
-          if (userDoc.exists() && userDoc.data().isAdmin) {
-            adminTag = ' <span style="color:gold; font-weight:bold;">[Admin]</span>';
-          }
-          textDiv.innerHTML = `<strong>${comment.username}${adminTag}:</strong> ${comment.text}`;
-
+          textDiv.innerHTML = `<strong>${comment.username}:</strong> ${comment.text}`;
           messageDiv.appendChild(profileImg);
           messageDiv.appendChild(textDiv);
           commentsDiv.appendChild(messageDiv);
@@ -309,24 +366,44 @@
 
     // Hit Counter
     const footerCounterSpan = document.getElementById('footerHitCounter');
+    const progressBar = document.getElementById('progressBar');
     const counterDoc = doc(db, "counters", "gameHomeHits");
+    let lastHits = null;
     let initialized = false;
+
     onSnapshot(counterDoc, async (snap) => {
-      if (snap.exists()) {
-        footerCounterSpan.textContent = snap.data().hits || 0;
-        if (!initialized) {
-          initialized = true;
-          try { await updateDoc(counterDoc, { hits: increment(1) }); }
-          catch { await setDoc(counterDoc, { hits: 1 }); }
+      try {
+        if (snap.exists()) {
+          const hits = snap.data().hits || 0;
+          footerCounterSpan.textContent = hits;
+          if (initialized && lastHits !== null && hits > lastHits) triggerAnimations();
+          lastHits = hits;
+          if (!initialized) {
+            initialized = true;
+            try { await updateDoc(counterDoc, { hits: increment(1) }); }
+            catch { await setDoc(counterDoc, { hits: 1 }); }
+          }
+        } else {
+          footerCounterSpan.textContent = '0';
+          lastHits = 0;
+          if (!initialized) {
+            initialized = true;
+            try { await setDoc(counterDoc, { hits: 1 }); } 
+            catch (err) { console.error(err); }
+          }
         }
-      } else {
-        if (!initialized) {
-          initialized = true;
-          try { await setDoc(counterDoc, { hits: 1 }); } 
-          catch (err) { console.error(err); }
-        }
-      }
+      } catch (err) { console.error("Snapshot error:", err); footerCounterSpan.textContent = "Error"; }
     });
+
+    function triggerAnimations() {
+      progressBar.style.animation = "none";
+      progressBar.style.width = "0";
+      void progressBar.offsetWidth;
+      progressBar.style.animation = "fillBar 1.8s forwards";
+      footerCounterSpan.classList.remove("bounce");
+      void footerCounterSpan.offsetWidth;
+      footerCounterSpan.classList.add("bounce");
+    }
   </script>
 </body>
 </html>
