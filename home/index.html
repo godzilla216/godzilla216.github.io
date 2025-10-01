@@ -404,6 +404,33 @@
       void footerCounterSpan.offsetWidth;
       footerCounterSpan.classList.add("bounce");
     }
+    const textDiv = document.createElement('div');
+let adminTag = comment.isAdmin ? ' <span style="color:red; font-weight:bold;">[ADMIN]</span>' : '';
+textDiv.innerHTML = `<strong>${comment.username}${adminTag}:</strong> ${comment.text}`;
+
+    await setDoc(doc(db, "users", user.uid), {
+  email: user.email,
+  profileIcon: "icons/No-Icon.jpg",
+  isAdmin: false // default
+});
+
+if (comment.userId) {
+  try {
+    const userDocRef = doc(db, "users", comment.userId);
+    const userSnap = await getDoc(userDocRef);
+    if (userSnap.exists()) {
+      const userData = userSnap.data();
+      if (userData.profileIcon) profileImg.src = userData.profileIcon;
+      if (userData.isAdmin) {
+        textDiv.innerHTML = `<strong>${comment.username} <span style="color:red; font-weight:bold;">[ADMIN]</span>:</strong> ${comment.text}`;
+      }
+    }
+  } catch (err) { console.error(err); }
+}
+if (data.isAdmin) {
+  userInfoDiv.innerHTML += ' <span style="color:red; font-weight:bold;">[ADMIN]</span>';
+}
+
   </script>
 </body>
 </html>
