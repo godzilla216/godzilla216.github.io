@@ -378,45 +378,50 @@ onAuthStateChanged(auth, async (user) => {
   onSnapshot(q, async (snapshot) => {
     commentsDiv.innerHTML = '';
     for (const docSnap of snapshot.docs) {
-      const comment = docSnap.data();
+  const comment = docSnap.data();
 
-      const messageDiv = document.createElement('div');
-      messageDiv.style.display = 'flex';
-      messageDiv.style.alignItems = 'center';
-      messageDiv.style.marginBottom = '10px';
+  const messageDiv = document.createElement('div');
+  messageDiv.style.display = 'flex';
+  messageDiv.style.alignItems = 'center';
+  messageDiv.style.marginBottom = '10px';
 
-      const profileImg = document.createElement('img');
-      profileImg.src = "icons/No-Icon.jpg";
-      profileImg.style.width = "32px";
-      profileImg.style.height = "32px";
-      profileImg.style.borderRadius = "50%";
-      profileImg.style.marginRight = "10px";
+  const profileImg = document.createElement('img');
+  profileImg.src = "icons/No-Icon.jpg";
+  profileImg.style.width = "32px";
+  profileImg.style.height = "32px";
+  profileImg.style.borderRadius = "50%";
+  profileImg.style.marginRight = "10px";
 
-      const textDiv = document.createElement('div');
+  const textDiv = document.createElement('div');
 
-      // Load user profile and admin status
-      if (comment.userId) {
-        try {
-          const userDocRef = doc(db, "users", comment.userId);
-          const userSnap = await getDoc(userDocRef);
-          if (userSnap.exists()) {
-            const userData = userSnap.data();
-            if (userData.profileIcon) profileImg.src = userData.profileIcon;
-            if (userData.isAdmin) {
-              textDiv.innerHTML = `<strong>${comment.username} <span style="color:red; font-weight:bold;">[ADMIN]</span>:</strong> ${comment.text}`;
-            } else {
-              textDiv.innerHTML = `<strong>${comment.username}:</strong> ${comment.text}`;
-            }
-          }
-        } catch (err) { console.error("Error loading profile:", err); }
+  const username = comment.username || "Anonymous";
+  const text = comment.text || "[No message]";
+
+  if (comment.userId) {
+    try {
+      const userDocRef = doc(db, "users", comment.userId);
+      const userSnap = await getDoc(userDocRef);
+      if (userSnap.exists()) {
+        const userData = userSnap.data();
+        if (userData.profileIcon) profileImg.src = userData.profileIcon;
+        if (userData.isAdmin) {
+          textDiv.innerHTML = `<strong>${username} <span style="color:red; font-weight:bold;">[ADMIN]</span>:</strong> ${text}`;
+        } else {
+          textDiv.innerHTML = `<strong>${username}:</strong> ${text}`;
+        }
       } else {
-        textDiv.innerHTML = `<strong>${comment.username}:</strong> ${comment.text}`;
+        textDiv.innerHTML = `<strong>${username}:</strong> ${text}`;
       }
+    } catch (err) { console.error("Error loading profile:", err); }
+  } else {
+    textDiv.innerHTML = `<strong>${username}:</strong> ${text}`;
+  }
 
-      messageDiv.appendChild(profileImg);
-      messageDiv.appendChild(textDiv);
-      commentsDiv.appendChild(messageDiv);
-    }
+  messageDiv.appendChild(profileImg);
+  messageDiv.appendChild(textDiv);
+  commentsDiv.appendChild(messageDiv);
+}
+
   });
 });
 </script>
