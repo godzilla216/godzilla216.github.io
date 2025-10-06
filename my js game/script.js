@@ -139,6 +139,7 @@ function update() {
 }
 
 function draw() {
+    context.clearRect(0, 0, board.width, board.height);
     context.drawImage(pacman.image, pacman.x, pacman.y, pacman.width, pacman.height);
     for(let ghost of ghosts.values()) {
     context.drawImage(ghost.image, ghost.x, ghost.y, ghost.width, ghost.height);
