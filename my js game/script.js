@@ -5,7 +5,10 @@ let rowCount = 21;
 const tileSize = 32;
 const boardWidth = columnCount*tileSize;
 const boardHeight = rowCount*tileSize;
+const scoreboard = document.getElementById('score')
 let context;
+lives = 3;
+points = 0;
 
 //X = wal p = pac man
 
@@ -58,12 +61,16 @@ window.onload = function() {
     loadImages();
     loadMap();
     update();
-    document.addEventListener('keyup', movePacman)
+    
+    document.addEventListener('keydown', movePacman)
     console.log(ghosts.size);
     console.log(walls.size);
     console.log(foods.size);
 }
 
+function updateScoreBoard() {
+scoreboard.innerText = 'test'
+}
 
 function loadImages() {
     wallImage = new Image();
@@ -84,6 +91,9 @@ function loadImages() {
     pacmanUpImage.src = 'Assets/pacmanUp.png';
     pacmanRightImage = new Image();
     pacmanRightImage.src = 'Assets/pacmanRight.png';
+    pacmanLeftImage = new Image();
+    pacmanLeftImage.src = 'Assets/pacmanLeft.png';
+
 }
 
 function loadMap() {
@@ -168,9 +178,31 @@ function movePacman(e) {
     }
 }
 
+
+function collisionDetection(a, b) {
+    return  a.x < b.x + b.width &&
+            a.x + a.width > b.x &&
+            a.y < b.y + b.height &&
+            a.y + a.height > b.y;
+}
+
+
 function move() {
-    pacman.x += pacman.velocityX;
-    pacman.y += pacman.velocityY;
+        pacman.x += pacman.velocityX;
+        pacman.y += pacman.velocityY;
+    for (let wall of walls.values()) {
+        if (collisionDetection(pacman, wall)) {
+            pacman.x -= pacman.velocityX;
+            pacman.y -= pacman.velocityY;
+            break;
+        }
+    }
+    if (pacman.x < -32) {
+        pacman.x = 608
+    }
+    if (pacman.x > 608) {
+        pacman.x = -32
+    }
 }
 
 class Block {
@@ -198,18 +230,22 @@ class Block {
         if (this.direction == 'U') {
             this.velocityX = 0;
             this.velocityY = -tileSize/4;
+            pacman.image = pacmanUpImage;
         }
         else if (this.direction == 'D') {
             this.velocityX = 0;
             this.velocityY = tileSize/4;
+            pacman.image = pacmanDownImage;
         }
             else if (this.direction == 'L') {
             this.velocityX = -tileSize/4;
             this.velocityY = 0;
+            pacman.image = pacmanLeftImage;
         }
             else if (this.direction == 'R') {
             this.velocityX = tileSize/4;
             this.velocityY = 0;
+            pacman.image = pacmanRightImage;
         }
     }
 }
