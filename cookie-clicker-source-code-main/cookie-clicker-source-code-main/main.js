@@ -16850,41 +16850,50 @@ LAUNCH THIS THING
 //try {Game.Launch();}
 //catch(err) {console.log('ERROR : '+err.message);}
 
-window.onload=function()
-{
-	if (!Game.ready)
-	{
-		var loadLangAndLaunch=function(lang,firstLaunch)
-		{
-			if (!firstLaunch) localStorageSet('CookieClickerLang',lang);
-			
-			//LoadLang('../Cookie Clicker Localization/EN.js',function(lang){return function(){
-			LoadLang('loc/EN.js?v='+Game.version,function(lang){return function(){
-				locStringsFallback=locStrings;
-				LoadLang('loc/'+lang+'.js?v='+Game.version,function(){
-					var launch=function(){
-						Game.Launch();
-						if (top!=self) launch();
-						else
-						{
-							console.log('[=== '+choose([
-								'Oh, hello!',
-								'hey, how\'s it hangin',
-								'About to cheat in some cookies or just checking for bugs?',
-								'Remember : cheated cookies taste awful!',
-								'Hey, Orteil here. Cheated cookies taste awful... or do they?',
-							])+' ===]');
-							Game.Load(function(){Game.Init();if (firstLaunch) Game.showLangSelection(true);});
-							//try {Game.Load(Game.Init);}
-							//catch(err) {console.log('ERROR : '+err.message);}
-						}
-					}
-					if (App && App.loadMods) App.loadMods(launch);
-					else launch();
-				});
-			}}(lang));
-		}
-		
+window.onload = function () {
+    // Always launch, no matter what
+    var loadLangAndLaunch = function (lang, firstLaunch) {
+        if (!firstLaunch) localStorageSet('CookieClickerLang', lang);
+
+        // Load English first as fallback
+        LoadLang('loc/EN.js?v=' + Game.version, function (lang) {
+            return function () {
+                locStringsFallback = locStrings;
+
+                // Load chosen language
+                LoadLang('loc/' + lang + '.js?v=' + Game.version, function () {
+                    var launch = function () {
+                        // Force the game to launch regardless of window context
+                        Game.Launch();
+
+                        // Skip self/top check — always initialize
+                        console.log('[=== ' + choose([
+                            'Oh, hello!',
+                            'Hey, how\'s it hangin?',
+                            'About to cheat in some cookies or just checking for bugs?',
+                            'Remember: cheated cookies taste awful!',
+                            'Hey, Orteil here. Cheated cookies taste awful... or do they?',
+                        ]) + ' ===]');
+
+                        Game.Load(function () {
+                            Game.Init();
+                            if (firstLaunch) Game.showLangSelection(true);
+                        });
+                    };
+
+                    // Run mods if available, otherwise launch directly
+                    if (App && App.loadMods) App.loadMods(launch);
+                    else launch();
+                });
+            };
+        }(lang));
+    };
+
+    // Always run this, even if Game.ready is false
+    var savedLang = localStorageGet('CookieClickerLang') || 'EN';
+    loadLangAndLaunch(savedLang, true);
+};
+
 		var showLangSelect=function(callback)
 		{
 			var str='';
