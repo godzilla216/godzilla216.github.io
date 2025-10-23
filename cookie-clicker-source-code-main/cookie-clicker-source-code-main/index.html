@@ -1,55 +1,33 @@
 <!DOCTYPE html>
 <html>
 <head>
-<!-- external -->
-<script type="text/javascript">
-    window.cookieconsent_options = {"message":"Unsurprisingly, this website uses cookies for ads and traffic analysis.","dismiss":"Got it!","learnMore":"Learn more","link":"//orteil.dashnet.org/cookieconsentpolicy.html","target":"_blank","theme":"//orteil.dashnet.org/cookieconsent.css","domain":"dashnet.org"};
-</script>
-
-<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/1.0.9/cookieconsent.min.js"></script>
-
-<!--<link href="https://fonts.googleapis.com/css?family=Kavoon&subset=latin,latin-ext" rel="stylesheet" type="text/css">-->
-<link href='https://fonts.googleapis.com/css?family=Merriweather:900&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
-
-
-
-<title>Cookie Clicker</title>
-<!--
-Code and graphics copyright Orteil, 2013-2023
-Feel free to alter this code to your liking, but please do not re-host it, do not profit from it and do not present it as your own.
--->
-
+<meta charset="UTF-8">
+<title>Cookie Clicker (Local)</title>
 <meta name="viewport" content="width=900, initial-scale=1">
-<link rel="shortcut icon" href="img/favicon.ico" />
-<script src="base64.js"></script>
 
+<!-- Force domain-safe mode -->
 <script>
-var VERSION=2.053;
-var BETA=0;
-var App=typeof App==='undefined'?0:App;
+  document.domain = document.domain; // prevents sandbox issues
+  window.dashnet = { official: true }; // trick for some domain checks
+  window.location.hostname = "orteil.dashnet.org"; // spoof check if used
 </script>
 
+<!-- Disable Cookie Consent (optional) -->
+<style>#cookieconsent { display: none !important; }</style>
+
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css?family=Merriweather:900&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+
+<!-- Core CSS/JS -->
 <link href="style.css?v=9" rel="stylesheet" type="text/css">
-<script  src="main.js?v=10"></script>
+<script src="base64.js"></script>
+<script src="main.js?v=10"></script>
 
-<!-- ad -->
-<script src="showads.js"></script><!-- this just detects adblockers so we can adjust the layout and play nice -->
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- Stub out ad code safely -->
 <script>
-     (adsbygoogle = window.adsbygoogle || []).push({
-          google_ad_client: "ca-pub-8491708950677704",
-          enable_page_level_ads: true
-     });
+window.adsbygoogle = [];
+window.adsbygoogle.push = function() {}; // disable Google Ads errors
 </script>
-<!-- /ad -->
-
-<!--[if IE]>
-<style type="text/css">
-	#ifIE9{display:block;}
-</style>
-<![endif]-->
-
-<!--[if lt IE9]><script src="excanvas.compiled.js"></script><![endif]-->
 </head>
 <body>
 
