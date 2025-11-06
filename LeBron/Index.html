@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LeBron Particle Portrait Drift</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: #000;
+    height: 100%;
+    width: 100%;
+  }
+  canvas {
+    display: block;
+  }
+</style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const img = new Image();
+img.crossOrigin = "anonymous";
+img.src = "lebron.png"; // replace with your image path
+
+let particles = [];
+let targetPoints = [];
+let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+
+function generateTargetPoints() {
+  targetPoints = [];
+  const offCanvas = document.createElement("canvas");
+  const offCtx = offCanvas.getContext("2d");
+
+  const scale = Math.min(canvas.width / img.width, canvas.height / img.height);
+  offCanvas.width = img.width * scale;
+  offCanvas.height = img.height * scale;
+  offCtx.drawImage(img, 0, 0, offCanvas.width, offCanvas.height);
+
+  const data = offCtx.getImageData(0, 0, offCanvas.width, offCanvas.height).data;
+
+  for (let y = 0; y < offCanvas.height; y += 2) {
+    for (let x = 0; x < offCanvas.width; x += 2) {
+      const i = (y * offCanvas.width + x) * 4;
+      const r = data[i];
+      const g = data[i + 1];
+      const b = data[i + 2];
+      const brightness = r + g + b;
+      if (brightness > 50) {
+        targetPoints.push({
+          x: canvas.width / 2 - offCanvas.width / 2 + x,
+          y: canvas.height / 2 - offCanvas.height / 2 + y,
+          color: `rgb(${r},${g},${b})`
+        });
+      }
+    }
+  }
+}
+
+img.onload = generateTargetPoints;
+
+class Particle {
+  constructor(target) {
+    this.x = mouse.x;
+    this.y = mouse.y;
+    this.size = Math.random() * 2 + 1;
+    this.color = target.color;
+    this.target = target;
+  }
+
+  update() {
+    // Smooth drift: move a fraction of the distance each frame
+    const dx = this.target.x - this.x;
+    const dy = this.target.y - this.y;
+    this.x += dx * 0.02; // smaller fraction = slower drift
+    this.y += dy * 0.02;
+
+    // optional tiny random drift for softness
+    this.x += (Math.random() - 0.5) * 0.2;
+    this.y += (Math.random() - 0.5) * 0.2;
+  }
+
+  draw() {
+    ctx.fillStyle = this.color;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function spawnParticlesAtMouse() {
+  if (targetPoints.length === 0) return;
+  for (let i = 0; i < 3; i++) {
+    const target = targetPoints[Math.floor(Math.random() * targetPoints.length)];
+    particles.push(new Particle(target));
+  }
+}
+
+function animate() {
+  ctx.fillStyle = "rgba(0,0,0,0.15)";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  particles.forEach(p => {
+    p.update();
+    p.draw();
+  });
+
+  requestAnimationFrame(animate);
+}
+animate();
+
+window.addEventListener("mousemove", (e) => {
+  mouse.x = e.clientX;
+  mouse.y = e.clientY;
+  spawnParticlesAtMouse();
+});
+
+window.addEventListener("resize", () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  generateTargetPoints();
+});
+</script>
+</body>
+</html>
