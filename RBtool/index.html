@@ -15,12 +15,15 @@
         h1, h2 {
             text-align: center;
         }
-        input {
+        input, textarea {
             padding: 10px;
-            margin-right: 10px;
+            margin-top: 10px;
+            width: 100%;
+            box-sizing: border-box;
         }
         button {
-            padding: 10px;
+            padding: 10px 20px;
+            margin-top: 10px;
         }
         .section {
             margin-top: 30px;
@@ -34,6 +37,11 @@
             font-size: 0.9em;
             color: #888;
             text-align: center;
+        }
+        #exportOutput {
+            height: 120px;
+            resize: none;
+            font-family: monospace;
         }
     </style>
 </head>
@@ -69,6 +77,15 @@
             <button id="addFund">Increase Fund</button>
         </div>
         <div id="fundMessage" style="margin-top: 20px; color: green;"></div>
+    </div>
+
+    <!-- Save Exporter -->
+    <div class="section">
+        <h2>Save Exporter</h2>
+        <p>Click the button below to export your full <code>savedata.ini</code> as a Base64 string.</p>
+        <button id="exportSave">Export Save to Base64</button>
+        <textarea id="exportOutput" readonly placeholder="Your Base64 save will appear here..."></textarea>
+        <div id="exportMessage" style="margin-top: 10px; color: green;"></div>
     </div>
 
     <div class="note">
@@ -144,6 +161,22 @@
                 }
             } else {
                 document.getElementById('fundMessage').innerText = "You must open up a new game save first!";
+            }
+        });
+
+        // Export Save as Base64
+        document.getElementById('exportSave').addEventListener('click', function() {
+            const saveData = localStorage.getItem(saveDataKey);
+            const output = document.getElementById('exportOutput');
+            const message = document.getElementById('exportMessage');
+
+            if (saveData) {
+                const base64Data = btoa(unescape(encodeURIComponent(saveData)));
+                output.value = base64Data;
+                message.innerText = "Save exported successfully!";
+            } else {
+                output.value = "";
+                message.innerText = "No save data found to export.";
             }
         });
 
