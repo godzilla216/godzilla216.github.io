@@ -143,8 +143,8 @@
             const fundToAdd = parseInt(document.getElementById('fundAdd').value);
             if (localStorage.getItem(saveDataKey)) {
                 let saveData = localStorage.getItem(saveDataKey);
-                const match = saveData.match(/recruitment_credits="(\d+)"/);
-                const capMatch = saveData.match(/recruitment_credits_cap="(\d+)"/);
+                const match = saveData.match(/boost_salary_cap="(\d+)"/);
+                const capMatch = saveData.match(/salary_cap="(\d+)"/);
 
                 if (match && capMatch) {
                     const currentFund = parseInt(match[1]);
@@ -152,8 +152,8 @@
                     const newCap = Math.max(parseInt(capMatch[1]), newFund);
 
                     saveData = saveData
-                        .replace(/recruitment_credits="\d+"/, `recruitment_credits="${newFund}"`)
-                        .replace(/recruitment_credits_cap="\d+"/, `recruitment_credits_cap="${newCap}"`);
+                        .replace(/recruitment_credits="\d+"/, `boost_salary_cap="${newFund}"`)
+                        .replace(/recruitment_credits_cap="\d+"/, `salary_cap="${newCap}"`);
 
                     localStorage.setItem(saveDataKey, saveData);
                     document.getElementById('fundMessage').innerText = "Scholarship fund increased successfully!";
