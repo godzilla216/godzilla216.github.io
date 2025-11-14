@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Charset & Viewport -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+
+    <!-- Canonical & Robots -->
+    <link rel="canonical" href="https://staticquasar931.github.io/Retro-Bowl/" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Title -->
+    <title>Play Retro Bowl – StaticQuasar931 Unblocked Football (Browser)</title>
+
+    <!-- SEO Meta -->
+    <meta name="description" content="Play Retro Bowl online in your browser — classic football management & arcade gameplay. Free, fullscreen, school-safe, and works on Chromebook, PC, and mobile." />
+    <meta name="keywords" content="Retro Bowl, Retro Bowl unblocked, play Retro Bowl online, Retro Bowl browser, football manager game, pixel football, school safe football game, Chromebook football game, StaticQuasar931 Retro Bowl" />
+
+    <!-- Social Metadata -->
+    <meta property="og:title" content="Retro Bowl – Unblocked Football by StaticQuasar931" />
+    <meta property="og:description" content="Call plays, pass, run, and manage your team in Retro Bowl. Free, fullscreen, and school-safe." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://staticquasar931.github.io/Retro-Bowl/" />
+    <meta property="og:image" content="https://res.cloudinary.com/dcsrqennd/image/upload/v1758247337/Retro_Bowl_StaticQuasar931_t2epwp.jpg" />
+    <meta property="og:image:alt" content="Retro Bowl cover art — pixel football scene for StaticQuasar931" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://res.cloudinary.com/dcsrqennd/image/upload/v1758247337/Retro_Bowl_StaticQuasar931_t2epwp.jpg" />
+    <meta name="twitter:image:alt" content="Retro Bowl cover art — pixel football scene for StaticQuasar931" />
+
+    <!-- Preload rotating popup images (Google Form → Discord → Instagram) -->
+    <link rel="preload" as="image" href="https://res.cloudinary.com/dcsrqennd/image/upload/v1747533056/raw_um4pvq.png" />
+    <link rel="preload" as="image" href="https://res.cloudinary.com/dcsrqennd/image/upload/v1758072526/Join_Our_Discord_StaticQuassar931_lcplrf.png" />
+    <link rel="preload" as="image" href="https://res.cloudinary.com/dcsrqennd/image/upload/v1747533158/raw_cw34yi.png" />
+
+    <!-- Page Styles (kept simple to avoid interfering with GameMaker canvas) -->
+    <style>
+      body {
+        background: #000;
+        color: #cccccc;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      }
+      canvas {
+        image-rendering: optimizeSpeed;
+        -webkit-interpolation-mode: nearest-neighbor;
+        -ms-touch-action: none;
+        margin: 0;
+        padding: 0;
+        border: 0;
+      }
+      :-webkit-full-screen #canvas { width: 100%; height: 100%; }
+      div.gm4html5_div_class { margin: 0; padding: 0; border: 0; }
+
+      /* START - Login Dialog Box (original) */
+      div.gm4html5_login {
+        padding: 20px;
+        position: absolute;
+        border: solid 2px #000000;
+        background-color: #404040;
+        color: #00ff00;
+        border-radius: 15px;
+        box-shadow: #101010 20px 20px 40px;
+      }
+      div.gm4html5_cancel_button { float: right; }
+      div.gm4html5_login_button { float: left; }
+      div.gm4html5_login_header { text-align: center; }
+      /* END - Login Dialog Box */
+      :-webkit-full-screen { width: 100%; height: 100%; }
+
+      /* Static Menu (top-left) */
+      #staticMenu {
+        position: fixed; top: 10px; left: 10px; z-index: 9999;
+        background: #111; color: #0ff; padding: 10px 16px; border-radius: 10px; font-size: 14px;
+        animation: glow 2s infinite alternate;
+        transition: opacity .35s ease, transform .35s ease, visibility .35s ease;
+      }
+      #staticMenu a { color: #0ff; text-decoration: none; font-weight: bold; }
+      #closeStaticMenu { margin-left: 12px; color: #f55; cursor: pointer; }
+      @keyframes glow { 0% { opacity: .7; } 100% { opacity: 1; box-shadow: 0 0 10px #0ff; } }
+
+      /* Bottom-right rotating icon (Google Form → Discord → Instagram) */
+      #staticSlideMenu {
+        position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+        width: 90px; height: 90px; display: flex; align-items: center; justify-content: center;
+        opacity: 0; transform: translateX(120px) scale(.96); pointer-events: none;
+        will-change: transform, opacity;
+      }
+      #staticSlideMenu img {
+        width: 100%; height: 100%; object-fit: cover; border-radius: 50%; user-select: none;
+      }
+      /* 2s slide-in/out from right */
+      .slideInRight2s { animation: slideInRight2s 2s ease forwards; }
+      .slideOutRight2s { animation: slideOutRight2s 2s ease forwards; }
+      @keyframes slideInRight2s { from { opacity: 0; transform: translateX(120px) scale(.96);} to { opacity: 1; transform: translateX(0) scale(1);} }
+      @keyframes slideOutRight2s { from { opacity: 1; transform: translateX(0) scale(1);} to { opacity: 0; transform: translateX(120px) scale(.96);} }
+
+      /* Hide-all toggle (Y+U+I) */
+      .menus-hidden #staticMenu,
+      .menus-hidden #staticSlideMenu {
+        opacity: 0; transform: translateY(10px) scale(.98); visibility: hidden;
+      }
+
+      /* Hidden SEO block — no visual impact */
+      .seo-hidden {
+        position: absolute; width: 1px; height: 1px; overflow: hidden;
+        clip: rect(1px, 1px, 1px, 1px); white-space: nowrap;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Static Menu -->
+    <div id="staticMenu" aria-label="Static menu with site link">
+      <a href="https://sites.google.com/view/staticquasar931/gm3z" target="_blank" rel="noopener"
+         aria-label="Open more unblocked games by StaticQuasar931 in a new tab">More Unblocked Games by Static</a>
+      <span id="closeStaticMenu" aria-label="Hide Static Menu for 3 minutes" role="button" tabindex="0">✕</span>
+    </div>
+
+    <!-- Rotating quick link (Form → Discord → Instagram) -->
+    <a id="staticSlideMenu" href="https://sites.google.com/view/staticquasar931/google-form" target="_blank" rel="noopener"
+       aria-label="Rotating quick link: Google Form, Discord, or Instagram">
+      <img
+        src="https://res.cloudinary.com/dcsrqennd/image/upload/v1747533056/raw_um4pvq.png"
+        alt="Open StaticQuasar931 Google Form (feedback & game requests) — opens in a new tab"
+        loading="lazy" decoding="async" referrerpolicy="no-referrer" />
+    </a>
+
+    <!-- Game container (original) -->
+    <div class="gm4html5_div_class" id="gm4html5_div_id">
+      <img src="html5game/splash.png" id="GM4HTML5_loadingscreen" alt="Retro Bowl loading screen" style="display: none;" />
+      <canvas id="canvas" width="960" height="540">
+        <p>Your browser doesn't support HTML5 canvas.</p>
+      </canvas>
+    </div>
+
+    <!-- Hidden SEO (content only for crawlers/screen readers) -->
+    <div class="seo-hidden" aria-hidden="true">
+      <h1>Play Retro Bowl – Unblocked Football Game Online</h1>
+      <p><strong>Retro Bowl</strong> mixes team management with arcade football. Draft players, manage the roster and salary cap, and then take control on the field for passes and runs. Free, fullscreen, and school-safe on Chromebook, desktop, and mobile via StaticQuasar931.</p>
+      <ul>
+        <li>🏈 Simple, satisfying offense with taps and swipes</li>
+        <li>📋 Team building: drafts, trades, staff upgrades</li>
+        <li>💻 Works on Chromebook, PC, and mobile</li>
+      </ul>
+    </div>
+
+    <!-- Game code (original) -->
+    <script type="text/javascript" src="html5game/RetroBowl.js?WAEAC=1633155445"></script>
+
+    <script>
+      /* Keep GameMaker’s onload exactly as-is */
+      window.onload = GameMaker_Init;
+
+      /* --- Static Menu close/return --- */
+      (function initStaticMenuClose(){
+        var menu = document.getElementById("staticMenu");
+        var btn = document.getElementById("closeStaticMenu");
+        if (!menu || !btn) return;
+        btn.onclick = function () {
+          menu.style.display = "none";
+          setTimeout(function(){ menu.style.display = "block"; }, 180000); // 3 minutes
+        };
+      })();
+
+      /* --- Slide popup rotation (Google Form → Discord → Instagram) --- */
+      var FORM  = {
+        src: "https://res.cloudinary.com/dcsrqennd/image/upload/v1747533056/raw_um4pvq.png",
+        alt: "Open StaticQuasar931 Google Form (feedback & game requests) — opens in a new tab",
+        link: "https://sites.google.com/view/staticquasar931/google-form"
+      };
+      var DISCORD = {
+        src: "https://res.cloudinary.com/dcsrqennd/image/upload/v1758072526/Join_Our_Discord_StaticQuassar931_lcplrf.png",
+        alt: "Join the StaticQuasar931 Discord community — opens in a new tab",
+        link: "https://discord.gg/DP2hM7RRhR"
+      };
+      var INSTA = {
+        src: "https://res.cloudinary.com/dcsrqennd/image/upload/v1747533158/raw_cw34yi.png",
+        alt: "Visit StaticQuasar931 on Instagram — opens in a new tab",
+        link: "https://www.instagram.com/freeschoolgamepage/"
+      };
+      var ROTATION = [FORM, DISCORD, INSTA];
+
+      // Timing: 2s in → 5s visible → 2s out → 20s hidden
+      var T_IN = 2000, T_SHOW = 5000, T_OUT = 2000, T_HIDDEN = 20000;
+
+      function preload(src, cb){
+        var im = new Image();
+        im.onload = im.onerror = cb;
+        im.src = src;
+      }
+      function restartAnim(el, cls){
+        el.classList.remove("slideInRight2s","slideOutRight2s");
+        void el.offsetWidth; // reflow
+        el.classList.add(cls);
+      }
+
+      (function rotatePopup(){
+        var anchor = document.getElementById("staticSlideMenu");
+        var img = anchor ? anchor.querySelector("img") : null;
+        if(!anchor || !img) return;
+
+        // Preload all then start
+        var left = ROTATION.length;
+        ROTATION.forEach(function(i){
+          preload(i.src, function(){
+            left--;
+            if(left === 0){ start(); }
+          });
+        });
+
+        function delay(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+
+        async function start(){
+          var idx = 0;
+          while(true){
+            var st = ROTATION[idx];
+            img.src = st.src; img.alt = st.alt; anchor.href = st.link;
+            anchor.style.pointerEvents = "auto";
+            restartAnim(anchor, "slideInRight2s");
+            await delay(T_IN + T_SHOW);
+            restartAnim(anchor, "slideOutRight2s");
+            await delay(T_OUT);
+            anchor.style.pointerEvents = "none";
+            await delay(T_HIDDEN);
+            idx = (idx + 1) % ROTATION.length;
+          }
+        }
+      })();
+
+      /* --- Menus global toggle via Y+U+I (press together) --- */
+      (function menusHotkey(){
+        var down = {};
+        function check(){
+          if (down['y'] && down['u'] && down['i']){
+            document.body.classList.toggle('menus-hidden');  // smooth via CSS
+          }
+        }
+        window.addEventListener('keydown', function(e){ down[e.key && e.key.toLowerCase()] = true; check(); }, false);
+        window.addEventListener('keyup',   function(e){ delete down[e.key && e.key.toLowerCase()]; }, false);
+        window.addEventListener('blur', function(){ down = {}; }, false);
+      })();
+    </script>
+  </body>
+</html>
