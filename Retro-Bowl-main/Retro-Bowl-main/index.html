@@ -89,5 +89,19 @@
     </div>
     <!-- Game code (original) -->
     <script type="text/javascript" src="html5game/RetroBowl.js?WAEAC=1633155445"></script>
+        <script>
+      /* Keep GameMaker’s onload exactly as-is */
+      window.onload = GameMaker_Init;
+
+      /* --- Static Menu close/return --- */
+      (function initStaticMenuClose(){
+        var menu = document.getElementById("staticMenu");
+        var btn = document.getElementById("closeStaticMenu");
+        if (!menu || !btn) return;
+        btn.onclick = function () {
+          menu.style.display = "none";
+          setTimeout(function(){ menu.style.display = "block"; }, 180000); // 3 minutes
+        };
+      })();
   </body>
 </html>
