@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Credit & Scholarship Manipulator</title>
+    <title>Credit & Salary Cap Manipulator</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -47,7 +47,7 @@
 </head>
 <body>
 
-    <h1>Retro Bowl College Save Editor</h1>
+    <h1>Retro Bowl Save Editor</h1>
 
     <!-- Credit Modifier -->
     <div class="section">
@@ -64,18 +64,24 @@
         <div id="message" style="margin-top: 20px; color: green;"></div>
     </div>
 
-    <!-- Scholarship Fund Increaser -->
+    <!-- Salary Cap / Salary Boost Modifier -->
     <div class="section">
-        <h2>Scholarship Fund Increaser</h2>
+        <h2>Salary Boost & Salary Cap Modifier</h2>
         <div>
-            <label for="currentFund">Current Scholarship Fund ($1,000s):</label>
+            <label for="currentFund">Current Salary Boost:</label>
             <span id="currentFund">Loading...</span>
         </div>
-        <div style="margin-top: 20px;">
-            <label for="fundAdd">Add to Scholarship Fund ($1,000 each):</label>
-            <input type="number" id="fundAdd" placeholder="e.g., 10" required>
-            <button id="addFund">Increase Fund</button>
+        <div style="margin-top: 10px;">
+            <label for="currentCap">Current Salary Cap:</label>
+            <span id="currentCap">Loading...</span>
         </div>
+
+        <div style="margin-top: 20px;">
+            <label for="fundAdd">Add to Salary Boost:</label>
+            <input type="number" id="fundAdd" placeholder="e.g., 10" required>
+            <button id="addFund">Increase Salary Boost</button>
+        </div>
+
         <div id="fundMessage" style="margin-top: 20px; color: green;"></div>
     </div>
 
@@ -96,6 +102,7 @@
         const saveDataKey = "RetroBowl.0.savedata.ini";
         const currentCreditsElement = document.getElementById('currentCredits');
         const currentFundElement = document.getElementById('currentFund');
+        const currentCapElement = document.getElementById('currentCap');
 
         // Load current coach credits
         function loadCurrentCredits() {
@@ -108,14 +115,25 @@
             }
         }
 
-        // Load current scholarship fund
+        // Load current salary boost
         function loadCurrentFund() {
             const saveData = localStorage.getItem(saveDataKey);
             if (saveData) {
-                const match = saveData.match(/recruitment_credits="(\d+)"/);
+                const match = saveData.match(/boost_salary_cap="(\d+)"/);
                 currentFundElement.innerText = match ? match[1] : "Not found";
             } else {
                 currentFundElement.innerText = "No game save found.";
+            }
+        }
+
+        // Load current salary cap
+        function loadCurrentCap() {
+            const saveData = localStorage.getItem(saveDataKey);
+            if (saveData) {
+                const match = saveData.match(/salary_cap="(\d+)"/);
+                currentCapElement.innerText = match ? match[1] : "Not found";
+            } else {
+                currentCapElement.innerText = "No game save found.";
             }
         }
 
@@ -138,26 +156,31 @@
             }
         });
 
-        // Add Scholarship Fund
+        // Add Salary Boost
         document.getElementById('addFund').addEventListener('click', function() {
             const fundToAdd = parseInt(document.getElementById('fundAdd').value);
             if (localStorage.getItem(saveDataKey)) {
                 let saveData = localStorage.getItem(saveDataKey);
-                const match = saveData.match(/boost_salary_cap="(\d+)"/);
+
+                const boostMatch = saveData.match(/boost_salary_cap="(\d+)"/);
                 const capMatch = saveData.match(/salary_cap="(\d+)"/);
 
-                if (match && capMatch) {
-                    const currentFund = parseInt(match[1]);
-                    const newFund = currentFund + fundToAdd;
-                    const newCap = Math.max(parseInt(capMatch[1]), newFund);
+                if (boostMatch && capMatch) {
+                    const currentBoost = parseInt(boostMatch[1]);
+                    const currentCap = parseInt(capMatch[1]);
+
+                    const newBoost = currentBoost + fundToAdd;
+                    const newCap = Math.max(currentCap, newBoost);
 
                     saveData = saveData
-                        .replace(/recruitment_credits="\d+"/, `boost_salary_cap="${newFund}"`)
-                        .replace(/recruitment_credits_cap="\d+"/, `salary_cap="${newCap}"`);
+                        .replace(/boost_salary_cap="\d+"/, `boost_salary_cap="${newBoost}"`)
+                        .replace(/salary_cap="\d+"/, `salary_cap="${newCap}"`);
 
                     localStorage.setItem(saveDataKey, saveData);
-                    document.getElementById('fundMessage').innerText = "Scholarship fund increased successfully!";
+
+                    document.getElementById('fundMessage').innerText = "Salary boost updated!";
                     loadCurrentFund();
+                    loadCurrentCap();
                 }
             } else {
                 document.getElementById('fundMessage').innerText = "You must open up a new game save first!";
@@ -183,6 +206,7 @@
         // Initial load
         loadCurrentCredits();
         loadCurrentFund();
+        loadCurrentCap();
     </script>
 
 </body>
