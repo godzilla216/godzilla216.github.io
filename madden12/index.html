@@ -1,24 +1,32 @@
+<!DOCTYPE html>
 <html>
-    <head>
-        <!--HTML file auto generated using EmulatorJS codehelper-->
-    </head>
-    <body>
-        <div style="width:1080px;height:720px;max-width:100%">
-            <div id="game"></div>
-        </div>
+<head>
+    <meta charset="UTF-8">
+    <title>PSP EmulatorJS Loader</title>
+</head>
+<body>
+    <div style="width:960px;height:540px;max-width:100%">
+        <div id="game"></div>
+    </div>
 
-        <script>
-            EJS_player = "#game";
-            EJS_core = "psp"; 
-            EJS_color = "#0064ff";
-            EJS_startOnLoaded = true;
-            EJS_pathtodata = "https://cdn.emulatorjs.org/stable/data/emulator.min.zip";
+    <script type="text/javascript">
+        // Where the emulator appears
+        EJS_player = "#game";
 
+        // PSP core
+        EJS_core = "psp";  // or "ppsspp"
 
-            EJS_gameUrl = "https://raw.githubusercontent.com/godzilla216/madden12/master/Madden%20NFL%2012%20(USA).iso";
-        </script>
+        // Your PSP ISO URL (RAW link!)
+        EJS_gameUrl = "https://raw.githubusercontent.com/godzilla216/madden12/master/Madden%20NFL%2012%20(USA).iso";
 
+        // Required for PSP
+        EJS_threads = true;
 
-        <script src="https://cdn.emulatorjs.org/stable/emulator.min.js"></script>
-    </body>
+        // EmulatorJS data path
+        EJS_pathtodata = "https://cdn.emulatorjs.org/stable/data/";
+    </script>
+
+    <!-- EmulatorJS loader -->
+    <script src="https://cdn.emulatorjs.org/stable/data/loader.js"></script>
+</body>
 </html>
