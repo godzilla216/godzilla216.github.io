@@ -10,6 +10,7 @@ let context;
 let lastTime = 0;
 lives = 3;
 points = 0;
+speed = 16;
 poweredUp = false;
 poweredUpDisplay = false;
 powerUpLength = 8000;
@@ -216,20 +217,11 @@ function draw() {
 }
 
 function movePacman(e) {
-    if (e.code == "ArrowUp" || e.code == 'KeyW') {
-        pacman.updateDirection('U')
-    }
-    else if (e.code == "ArrowDown" || e.code == 'KeyS') {
-        pacman.updateDirection('D')
-    }
-    else if (e.code == "ArrowLeft" || e.code == 'KeyA') {
-        pacman.updateDirection('L')
-    }
-    else if (e.code == "ArrowRight" || e.code == 'KeyD') {
-        pacman.updateDirection('R')
-    }
+    if (e.code === "ArrowUp"   || e.code === "KeyW") pacman.nextDirection = 'U';
+    if (e.code === "ArrowDown" || e.code === "KeyS") pacman.nextDirection = 'D';
+    if (e.code === "ArrowLeft" || e.code === "KeyA") pacman.nextDirection = 'L';
+    if (e.code === "ArrowRight"|| e.code === "KeyD") pacman.nextDirection = 'R';
 }
-
 
 function collisionDetection(a, b) {
     return a.x < b.x + b.width &&
@@ -238,24 +230,65 @@ function collisionDetection(a, b) {
         a.y + a.height > b.y;
 }
 
+function isCenteredOnGrid(entity) {
+    return (
+        Math.round(entity.x) % tileSize === 0 &&
+        Math.round(entity.y) % tileSize === 0
+    );
+}
+
+function willHitWallNextTurn(entity, direction) {
+    let testVelX = 0;
+    let testVelY = 0;
+
+    // Determine test movement based on direction
+    if (direction === 'U') testVelY = -tileSize / speed;
+    if (direction === 'D') testVelY = tileSize / speed;
+    if (direction === 'L') testVelX = -tileSize / speed;
+    if (direction === 'R') testVelX = tileSize / speed;
+
+    // Move temporarily
+    entity.x += testVelX;
+    entity.y += testVelY;
+
+    // Check collision
+    let hitWall = false;
+    for (let wall of walls.values()) {
+        if (collisionDetection(entity, wall)) {
+            hitWall = true;
+            break;
+        }
+    }
+
+    // Restore original position
+    entity.x -= testVelX;
+    entity.y -= testVelY;
+
+    return hitWall;
+}
 
 
 function move() {
 
+    // 1. Try turning if centered on grid
+    if (isCenteredOnGrid(pacman)) {
+
+        if (!willHitWallNextTurn(pacman, pacman.nextDirection)) {
+            pacman.updateDirection(pacman.nextDirection);
+        }
+    }
+
+    // 2. Move Pac-Man
     pacman.x += pacman.velocityX;
     pacman.y += pacman.velocityY;
 
+    // 3. Keep normal collision handling
     for (let wall of walls.values()) {
         if (collisionDetection(pacman, wall)) {
             pacman.x -= pacman.velocityX;
             pacman.y -= pacman.velocityY;
             break;
         }
-    }
-
-    for (let ghost of ghosts.values()) {
-        ghost.x += ghost.velocityY;
-        ghost.y += ghost.velocityY;
     }
 
     if (pacman.x < -32) {
@@ -350,6 +383,7 @@ class Block {
         this.startY = x;
 
         this.direction = 'R';
+        this.nextDirection = 'R';
         this.velocityX = 0;
         this.velocityY = 0;
     }
@@ -373,19 +407,19 @@ class Block {
     updateVelocity() {
         if (this.direction == 'U') {
             this.velocityX = 0;
-            this.velocityY = -tileSize / 8;
+            this.velocityY = -tileSize / speed;
         }
         else if (this.direction == 'D') {
             this.velocityX = 0;
-            this.velocityY = tileSize / 8;
+            this.velocityY = tileSize / speed;
         }
         else if (this.direction == 'L') {
-            this.velocityX = -tileSize / 8;
+            this.velocityX = -tileSize / speed;
             this.velocityY = 0;
 
         }
         else if (this.direction == 'R') {
-            this.velocityX = tileSize / 8;
+            this.velocityX = tileSize / speed;
             this.velocityY = 0;
         }
     }
