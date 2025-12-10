@@ -1,7 +1,25 @@
 body {
     text-align: center;
+    background-color: rgb(44, 41, 41);
+    overflow: hidden;
+}
+
+#score {
+    color: white;
+    font-size: 24px;
+    margin-top: 10px;
+    font-family:'font';
 }
 
 #board {
     background-color: black;
+    border: 2px solid gray;
+    display: block;
+    margin: 10px auto;
 }
+
+    @font-face {
+        font-family: "font";
+        src: url("Assets/font.ttf") format("truetype"); 
+
+    }
