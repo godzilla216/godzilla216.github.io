@@ -1,4 +1,4 @@
-//board
+//board 67
 let board;
 let columnCount = 19;
 let rowCount = 21;
@@ -10,11 +10,10 @@ let context;
 let lastTime = 0;
 lives = 3;
 points = 0;
-speed = 16;
+speed = 8;
 poweredUp = false;
-poweredUpDisplay = false;
-powerUpLength = 8000;
-powerUpRemaning = 8000;
+let powerUpLength
+let moving
 
 const directions = ['U', 'D', 'L', 'R'];
 
@@ -38,16 +37,16 @@ const tileMap = [
     "X    L   X        X",
     "X XX XXX X XXX XX X",
     "X       L         X",
-    "X XX X X  XX X XX X",
+    "X XX X XX XX X XX X",
     "X    X       X    X",
-    "XXXX XX   XXXX XXXX",
+    "XXXX XXXX XXXX XXXX",
     "OOOX X       X XOOO",
-    "XXXX X X rXX X XXXX",
+    "XXXX X XXrXX X XXXX",
     "O       bpo       O",
     "XXXX X XXXXX X XXXX",
     "OOOX X       X XOOO",
     "XXXX X XXXXX X XXXX",
-    "X        X   L    X",
+    "X  L     X   L    X",
     "X XX XXX X XXX XX X",
     "X  X     P     X  X",
     "XX X X XXXXX X X XX",
@@ -166,6 +165,19 @@ function loadMap() {
     }
 }
 
+let isPlaying = false;
+
+function playSound(url) {
+    const audio = new Audio(url);
+
+    return audio.play()
+        .then(() => audio)
+        .catch(err => {
+            console.error("Audio error", err);
+            throw err;
+        });
+}
+
 function gameLoop(timestamp) {
     const delta = timestamp - lastTime;
     lastTime = timestamp;
@@ -196,7 +208,7 @@ function draw() {
     context.clearRect(0, 0, board.width, board.height);
     context.drawImage(pacman.image, pacman.x, pacman.y, pacman.width, pacman.height);
     for (let ghost of ghosts.values()) {
-        if (poweredUpDisplay == false) {
+        if (poweredUp == false) {
             context.drawImage(ghost.image, ghost.x, ghost.y, ghost.width, ghost.height);
         }
         else {
@@ -216,6 +228,7 @@ function draw() {
     }
 }
 
+//looks nicer than before but still works
 function movePacman(e) {
     if (e.code === "ArrowUp"   || e.code === "KeyW") pacman.nextDirection = 'U';
     if (e.code === "ArrowDown" || e.code === "KeyS") pacman.nextDirection = 'D';
@@ -230,6 +243,7 @@ function collisionDetection(a, b) {
         a.y + a.height > b.y;
 }
 
+
 function isCenteredOnGrid(entity) {
     return (
         Math.round(entity.x) % tileSize === 0 &&
@@ -240,18 +254,12 @@ function isCenteredOnGrid(entity) {
 function willHitWallNextTurn(entity, direction) {
     let testVelX = 0;
     let testVelY = 0;
-
-    // Determine test movement based on direction
     if (direction === 'U') testVelY = -tileSize / speed;
     if (direction === 'D') testVelY = tileSize / speed;
     if (direction === 'L') testVelX = -tileSize / speed;
     if (direction === 'R') testVelX = tileSize / speed;
-
-    // Move temporarily
     entity.x += testVelX;
     entity.y += testVelY;
-
-    // Check collision
     let hitWall = false;
     for (let wall of walls.values()) {
         if (collisionDetection(entity, wall)) {
@@ -260,7 +268,6 @@ function willHitWallNextTurn(entity, direction) {
         }
     }
 
-    // Restore original position
     entity.x -= testVelX;
     entity.y -= testVelY;
 
@@ -269,28 +276,32 @@ function willHitWallNextTurn(entity, direction) {
 
 
 function move() {
-
-    // 1. Try turning if centered on grid
-    if (isCenteredOnGrid(pacman)) {
-
-        if (!willHitWallNextTurn(pacman, pacman.nextDirection)) {
+    if (isCenteredOnGrid(pacman) && moving ===  true) {
+        playSound("Assets/back.mp3");
+    }
+    
+    
+    if (!willHitWallNextTurn (pacman, pacman.nextDirection) && pacman.x > 0) { 
             pacman.updateDirection(pacman.nextDirection);
         }
-    }
-
-    // 2. Move Pac-Man
     pacman.x += pacman.velocityX;
     pacman.y += pacman.velocityY;
+    for (wall of walls) {
+    }    
+        
+    let collided = false;
 
-    // 3. Keep normal collision handling
     for (let wall of walls.values()) {
         if (collisionDetection(pacman, wall)) {
             pacman.x -= pacman.velocityX;
             pacman.y -= pacman.velocityY;
+            collided = true;
             break;
         }
     }
-
+    
+    moving = !collided;
+    
     if (pacman.x < -32) {
         pacman.x = 608
     }
@@ -316,17 +327,21 @@ function removeObjects() {
         if (collisionDetection(food, pacman)) {
             foods.delete(food)
             points += 10;
+            playSound("Assets/dot.mp3");
         }
     }
 
     for (let powerPellet of powerPellets) {
         if (collisionDetection(powerPellet, pacman)) {
-            powerUpRemaning = 10000;
             powerPellets.delete(powerPellet)
             points += 50;
+            playSound("Assets/frightened.mp3");
             poweredUp = true;
-            poweredUpDisplay = true;
-            blinkLoop();
+            powerUpLength = 6000;
+            playSound("Assets/bonus.mp3");
+            setTimeout(function(){
+            poweredUp = false;
+            }, powerUpLength)
         }
     }
     for (let ghost of ghosts) {
@@ -337,39 +352,6 @@ function removeObjects() {
 }
 
 
-
-function blinkLoop() {
-    setTimeout(function () {
-        powerUpRemaning -= 100;
-        blinkGhosts();
-        if (powerUpRemaning >= 0) {
-            blinkLoop();
-            console.log(powerUpRemaning)
-        }
-    }, 100);
-}
-
-function blinkGhosts() {
-    if (powerUpRemaning >= 4000) {
-        poweredUpDisplay = true;
-    }
-    else if (powerUpRemaning < 4000 && powerUpRemaning > 3000) {
-        poweredUpDisplay = false;
-    }
-    else if (powerUpRemaning < 3000 && powerUpRemaning > 2000) {
-        poweredUpDisplay = true;
-    }
-    else if (powerUpRemaning < 2000 && powerUpRemaning >= 1000) {
-        poweredUpDisplay = false;
-    }
-    else if (powerUpRemaning < 1000 && powerUpRemaning >= 1) {
-        poweredUpDisplay = true;
-    }
-    else if (powerUpRemaning == 0 || powerUpRemaning < 0) {
-        poweredUpDisplay = false;
-        poweredUp = false;
-    }
-}
 
 class Block {
     constructor(image, x, y, width, height) {
@@ -391,9 +373,6 @@ class Block {
     updateDirection(direction) {
         this.direction = direction;
         this.updateVelocity();
-        this.x += this.velocityX;
-        this.y += this.velocityY;
-
         for (let wall of walls.values()) {
             if (collisionDetection(this, wall)) {
                 this.x -= this.velocityX;
