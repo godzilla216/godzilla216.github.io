@@ -10,10 +10,11 @@ let context;
 let lastTime = 0;
 lives = 3;
 points = 0;
-speed = 8;
+speed = 16;
 poweredUp = false;
-let powerUpLength
-let moving
+let powerUpLength;
+moving = false;
+started = false;
 
 const directions = ['U', 'D', 'L', 'R'];
 
@@ -230,6 +231,7 @@ function draw() {
 
 //looks nicer than before but still works
 function movePacman(e) {
+    started = true;
     if (e.code === "ArrowUp"   || e.code === "KeyW") pacman.nextDirection = 'U';
     if (e.code === "ArrowDown" || e.code === "KeyS") pacman.nextDirection = 'D';
     if (e.code === "ArrowLeft" || e.code === "KeyA") pacman.nextDirection = 'L';
@@ -276,8 +278,8 @@ function willHitWallNextTurn(entity, direction) {
 
 
 function move() {
-    if (isCenteredOnGrid(pacman) && moving ===  true) {
-        playSound("Assets/back.mp3");
+    if (isCenteredOnGrid(pacman) && moving ===  true && started === true) {
+            playSound("Assets/back.mp3");        
     }
     
     
@@ -288,7 +290,8 @@ function move() {
     pacman.y += pacman.velocityY;
     for (wall of walls) {
     }    
-        
+    
+    
     let collided = false;
 
     for (let wall of walls.values()) {
@@ -300,6 +303,8 @@ function move() {
         }
     }
     
+    
+
     moving = !collided;
     
     if (pacman.x < -32) {
@@ -347,8 +352,23 @@ function removeObjects() {
     for (let ghost of ghosts) {
         if (collisionDetection(ghost, pacman) && poweredUp == true) {
             ghosts.delete(ghost)
+            points += 200;
+        }
+        else if (collisionDetection(ghost, pacman) && poweredUp == false) {
+            playSound("Assets/dead.mp3");
+            pacman.x = pacman.startX;
+            pacman.y = 480;
+            lives -= 1;
+            if (lives == 0) {
+                alert("Game Over! Your final score is: " + points);
+                points = 0;
+                lives = 3;
+                loadMap();
+                started = false;
+            }
         }
     }
+    
 }
 
 
@@ -364,8 +384,8 @@ class Block {
         this.startX = x;
         this.startY = x;
 
-        this.direction = 'R';
-        this.nextDirection = 'R';
+        this.direction = '';
+        this.nextDirection = '';
         this.velocityX = 0;
         this.velocityY = 0;
     }
@@ -382,6 +402,7 @@ class Block {
         }
     }
 
+    
 
     updateVelocity() {
         if (this.direction == 'U') {
