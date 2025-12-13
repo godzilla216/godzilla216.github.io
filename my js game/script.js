@@ -231,11 +231,10 @@ function draw() {
 
 //looks nicer than before but still works
 function movePacman(e) {
-    started = true;
-    if (e.code === "ArrowUp"   || e.code === "KeyW") pacman.nextDirection = 'U';
-    if (e.code === "ArrowDown" || e.code === "KeyS") pacman.nextDirection = 'D';
-    if (e.code === "ArrowLeft" || e.code === "KeyA") pacman.nextDirection = 'L';
-    if (e.code === "ArrowRight"|| e.code === "KeyD") pacman.nextDirection = 'R';
+    if (e.code === "ArrowUp"   || e.code === "KeyW") pacman.nextDirection = 'U', started = true;
+    if (e.code === "ArrowDown" || e.code === "KeyS") pacman.nextDirection = 'D', started = true;
+    if (e.code === "ArrowLeft" || e.code === "KeyA") pacman.nextDirection = 'L', started = true;
+    if (e.code === "ArrowRight"|| e.code === "KeyD") pacman.nextDirection = 'R', started = true;
 }
 
 function collisionDetection(a, b) {
@@ -278,7 +277,7 @@ function willHitWallNextTurn(entity, direction) {
 
 
 function move() {
-    if (isCenteredOnGrid(pacman) && moving ===  true && started === true) {
+    if (isCenteredOnGrid(pacman) && moving === true && started === true) {
             playSound("Assets/back.mp3");        
     }
     
@@ -424,3 +423,4 @@ class Block {
         }
     }
 }
+
