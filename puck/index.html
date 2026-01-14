@@ -4,11 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Puck Multiplayer Game</title>
-
 <style>
 body { margin:0; background:#222; color:white; font-family:Arial; text-align:center; }
 button { padding:10px 16px; margin:6px; font-size:16px; cursor:pointer; }
-canvas { background:#1b5e20; border:5px solid #8d6e63; touch-action:none; display:block; margin:auto; }
+canvas { background:#1b5e20; border:5px solid #8d6e63; display:block; margin:auto; }
 #scoreboard { display:flex; justify-content:space-between; padding:10px 20px; font-weight:bold; }
 .p1 { background:#29b6f6; padding:8px 14px; border-radius:20px; }
 .p2 { background:#ef5350; padding:8px 14px; border-radius:20px; }
@@ -17,7 +16,6 @@ canvas { background:#1b5e20; border:5px solid #8d6e63; touch-action:none; displa
 input { padding:6px; margin:4px; width:120px; }
 </style>
 </head>
-
 <body>
 
 <div id="overlay">
@@ -25,7 +23,6 @@ input { padding:6px; margin:4px; width:120px; }
     <h3>Choose Mode</h3>
     <button onclick="startLocal()">Local Multiplayer</button>
     <button onclick="showOnline()">Online Multiplayer</button>
-
     <div id="online" style="display:none; margin-top:10px;">
       <button onclick="createRoom()">Create Room</button><br><br>
       <input id="roomCode" placeholder="Room Code">
@@ -46,7 +43,7 @@ input { padding:6px; margin:4px; width:120px; }
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
 import { getDatabase, ref, set, onValue, get, update as fbUpdate } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
 
-/* ================= FIREBASE ================= */
+/* ===== FIREBASE ===== */
 const firebaseConfig = {
   apiKey: "AIzaSyDxoIs6Nn5dMCpPj8JjNqbv-O3SVpiac0A",
   authDomain: "login-6cdd8.firebaseapp.com",
@@ -56,25 +53,20 @@ const firebaseConfig = {
   messagingSenderId: "518535069226",
   appId: "1:518535069226:web:8925106a250805bbf24d53"
 };
-
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-/* ================= STATE ================= */
+/* ===== STATE ===== */
 let mode="local", roomId=null, isHost=false, myPlayer=null;
 const canvas=document.getElementById("game");
 const ctx=canvas.getContext("2d");
 const W=canvas.width, H=canvas.height;
 
 const R=12, FRICTION=0.99, BASE_SPEED=0.15;
-
-let pucks=[];
-let phase="aim";
-let currentTurn=1;
-let aimCounts={1:0,2:0};
+let pucks=[], phase="aim", currentTurn=1, aimCounts={1:0,2:0};
 let aiming=false, pointer={x:0,y:0};
 
-/* ================= INIT ================= */
+/* ===== INIT PUCKS ===== */
 function initPucks(){
   pucks=[];
   for(let i=0;i<3;i++){
@@ -85,14 +77,14 @@ function initPucks(){
 initPucks();
 updateScore();
 
-/* ================= UI ================= */
+/* ===== UI ===== */
 function updateScore(){
   document.getElementById("p1count").innerText=pucks.filter(p=>p.owner===1).length;
   document.getElementById("p2count").innerText=pucks.filter(p=>p.owner===2).length;
 }
 function updateStatus(t){ document.getElementById("status").innerText=t; }
 
-/* ================= MODE ================= */
+/* ===== MODE ===== */
 window.startLocal=()=>{
   mode="local";
   document.getElementById("overlay").style.display="none";
@@ -100,12 +92,11 @@ window.startLocal=()=>{
 };
 window.showOnline=()=> document.getElementById("online").style.display="block";
 
+/* ===== ONLINE ===== */
 window.createRoom=async()=>{
   mode="online"; isHost=true; myPlayer=1;
   roomId=Math.random().toString(36).substring(2,7);
-  await set(ref(db,"rooms/"+roomId),{
-    pucks, phase, currentTurn, aimCounts
-  });
+  await set(ref(db,"rooms/"+roomId),{pucks,phase,currentTurn,aimCounts});
   alert("Room Code: "+roomId);
   document.getElementById("overlay").style.display="none";
   listenRoom();
@@ -118,14 +109,11 @@ window.joinRoom=async()=>{
   document.getElementById("overlay").style.display="none";
   listenRoom();
 };
-
-/* ================= ONLINE ================= */
 function listenRoom(){
   onValue(ref(db,"rooms/"+roomId),snap=>{
     if(!snap.exists()) return;
     const d=snap.val();
-    pucks=d.pucks; phase=d.phase;
-    currentTurn=d.currentTurn; aimCounts=d.aimCounts;
+    pucks=d.pucks; phase=d.phase; currentTurn=d.currentTurn; aimCounts=d.aimCounts;
     updateScore();
     updateStatus(
       phase==="aim"
@@ -136,14 +124,9 @@ function listenRoom(){
     );
   });
 }
-function sync(){
-  if(!isHost) return;
-  fbUpdate(ref(db,"rooms/"+roomId),{
-    pucks, phase, currentTurn, aimCounts
-  });
-}
+function sync(){ if(isHost) fbUpdate(ref(db,"rooms/"+roomId),{pucks,phase,currentTurn,aimCounts}); }
 
-/* ================= INPUT ================= */
+/* ===== INPUT ===== */
 function getPos(e){
   const r=canvas.getBoundingClientRect();
   const t=e.touches?e.touches[0]:e;
@@ -162,48 +145,67 @@ function moveAim(e){ if(aiming) pointer=getPos(e); }
 function releaseAim(){
   if(!aiming) return;
   const puck=pucks.find(p=>p.owner===currentTurn && p.vx===0 && p.vy===0);
+  if(!puck) return;
   const dx=pointer.x-puck.x, dy=pointer.y-puck.y;
   puck.vx=dx*BASE_SPEED; puck.vy=dy*BASE_SPEED;
-  aiming=false;
-  aimCounts[currentTurn]++;
-  if(aimCounts[currentTurn]===3){
-    currentTurn=currentTurn===1?2:1;
-    if(aimCounts[1]===3 && aimCounts[2]===3){
-      phase="play";
-    }
-  }
-  if(mode==="online") sync();
+  aiming=false; aimCounts[currentTurn]++;
+  if(aimCounts[currentTurn]===3) currentTurn=currentTurn===1?2:1;
+  if(mode==="online"){
+    if(isHost && aimCounts[1]===3 && aimCounts[2]===3) phase="play";
+    sync();
+  } else if(aimCounts[1]===3 && aimCounts[2]===3) phase="play";
 }
 
-/* ================= GAME LOOP ================= */
+/* ===== COLLISIONS ===== */
+function handleCollisions(){
+  // walls
+  pucks.forEach(p=>{
+    if(p.x<R){ p.x=R; p.vx*=-1; }
+    if(p.x>W-R){ p.x=W-R; p.vx*=-1; }
+    if(p.y<R){ p.y=R; p.vy*=-1; }
+    if(p.y>H-R){ p.y=H-R; p.vy*=-1; }
+  });
+  // puck-puck
+  for(let i=0;i<pucks.length;i++){
+    for(let j=i+1;j<pucks.length;j++){
+      const a=pucks[i], b=pucks[j];
+      const dx=b.x-a.x, dy=b.y-a.y;
+      const dist=Math.hypot(dx,dy);
+      if(dist>0 && dist<2*R){
+        const nx=dx/dist, ny=dy/dist;
+        const overlap=2*R-dist;
+        a.x-=nx*overlap/2; a.y-=ny*overlap/2;
+        b.x+=nx*overlap/2; b.y+=ny*overlap/2;
+        const dvx=b.vx-a.vx, dvy=b.vy-a.vy;
+        const impact=dvx*nx+dvy*ny;
+        if(impact<0){ a.vx+=impact*nx; a.vy+=impact*ny; b.vx-=impact*nx; b.vy-=impact*ny; }
+      }
+    }
+  }
+}
+
+/* ===== GAME LOOP ===== */
 function updateGame(){
   if(phase==="play" && (mode!=="online"||isHost)){
-    pucks.forEach(p=>{
-      p.x+=p.vx; p.y+=p.vy;
-      p.vx*=FRICTION; p.vy*=FRICTION;
-    });
+    pucks.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; p.vx*=FRICTION; p.vy*=FRICTION; });
+    handleCollisions();
+    // end round
     if(pucks.every(p=>Math.abs(p.vx)<0.05 && Math.abs(p.vy)<0.05)){
       pucks.forEach(p=>p.vx=p.vy=0);
       phase="aim"; aimCounts={1:0,2:0}; currentTurn=1;
-      if(mode==="online") sync();
+      if(mode==="online" && isHost) sync();
     }
   }
 }
 function draw(){
   ctx.clearRect(0,0,W,H);
   pucks.forEach(p=>{
-    ctx.beginPath();
-    ctx.arc(p.x,p.y,R,0,Math.PI*2);
-    ctx.fillStyle=p.owner===1?"#29b6f6":"#ef5350";
-    ctx.fill();
+    ctx.beginPath(); ctx.arc(p.x,p.y,R,0,Math.PI*2);
+    ctx.fillStyle=p.owner===1?"#29b6f6":"#ef5350"; ctx.fill();
   });
   if(aiming){
     const puck=pucks.find(p=>p.owner===currentTurn && p.vx===0 && p.vy===0);
-    ctx.strokeStyle="yellow";
-    ctx.beginPath();
-    ctx.moveTo(puck.x,puck.y);
-    ctx.lineTo(pointer.x,pointer.y);
-    ctx.stroke();
+    if(puck){ ctx.strokeStyle="yellow"; ctx.beginPath(); ctx.moveTo(puck.x,puck.y); ctx.lineTo(pointer.x,pointer.y); ctx.stroke(); }
   }
 }
 function loop(){ updateGame(); draw(); requestAnimationFrame(loop); }
