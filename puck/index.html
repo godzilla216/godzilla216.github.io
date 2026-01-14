@@ -1,9 +1,10 @@
-d<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Puck Multiplayer Game</title>
+
 <style>
 body { margin:0; background:#222; color:white; font-family:Arial; text-align:center; }
 button { padding:10px 16px; margin:6px; font-size:16px; cursor:pointer; }
@@ -13,9 +14,10 @@ canvas { background:#1b5e20; border:5px solid #8d6e63; touch-action:none; displa
 .p2 { background:#ef5350; padding:8px 14px; border-radius:20px; }
 #overlay { position:fixed; inset:0; background:rgba(0,0,0,.9); display:flex; align-items:center; justify-content:center; z-index:10; }
 #box { background:#333; padding:20px; border-radius:12px; max-width:320px; text-align:center; }
-input { padding:6px; margin:4px; width:100px; }
+input { padding:6px; margin:4px; width:120px; }
 </style>
 </head>
+
 <body>
 
 <div id="overlay">
@@ -34,22 +36,22 @@ input { padding:6px; margin:4px; width:100px; }
 
 <div id="scoreboard">
   <div class="p1">P1: <span id="p1count">3</span></div>
-  <div id="status">Set direction</div>
+  <div id="status">Waiting...</div>
   <div class="p2">P2: <span id="p2count">3</span></div>
 </div>
 
-<div style="margin:8px;">
+<div>
   <button id="startBtn" disabled>Start Round</button>
-  <button id="replayBtn" disabled>Replay Last Round</button>
+  <button id="replayBtn" disabled>Replay</button>
 </div>
 
 <canvas id="game" width="800" height="500"></canvas>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
+import { getDatabase, ref, set, onValue, get, update } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
 
-// ====== PASTE YOUR FIREBASE CONFIG HERE ======
+/* ================= FIREBASE ================= */
 const firebaseConfig = {
   apiKey: "AIzaSyDxoIs6Nn5dMCpPj8JjNqbv-O3SVpiac0A",
   authDomain: "login-6cdd8.firebaseapp.com",
@@ -57,35 +59,36 @@ const firebaseConfig = {
   projectId: "login-6cdd8",
   storageBucket: "login-6cdd8.firebasestorage.app",
   messagingSenderId: "518535069226",
-  appId: "1:518535069226:web:8925106a250805bbf24d53",
-  measurementId: "XXXX"
+  appId: "1:518535069226:web:8925106a250805bbf24d53"
 };
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-// ==============================================
 
-// ====== GLOBAL VARIABLES ======
-let mode = "local"; // local | online
+/* ================= GAME STATE ================= */
+let mode = "local";
 let roomId = null;
 let isHost = false;
+let myPlayer = null;
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 const W = canvas.width, H = canvas.height;
-const R = 12, FRICTION = 0.99, BASE_SPEED = 0.15;
+
+const R = 12;
+const FRICTION = 0.99;
+const BASE_SPEED = 0.15;
 
 let pucks = [];
-let replayState = null;
-let phase = "aim"; // aim | play
+let phase = "aim";
 let index = 0;
 let aiming = false;
 let pointer = {x:0,y:0};
-let controlMode = null;
+let replayState = null;
 
-// ====== INITIAL PUCKS ======
-function initPucks() {
+/* ================= INIT ================= */
+function initPucks(){
   pucks = [];
-  for (let i=0;i<3;i++) {
+  for(let i=0;i<3;i++){
     pucks.push({x:300+i*60,y:H-60,vx:0,vy:0,owner:1});
     pucks.push({x:300+i*60,y:60,vx:0,vy:0,owner:2});
   }
@@ -93,140 +96,145 @@ function initPucks() {
 initPucks();
 updateScore();
 
-// ====== SCOREBOARD ======
-function updateScore() {
+/* ================= UI ================= */
+function updateScore(){
   document.getElementById("p1count").innerText = pucks.filter(p=>p.owner===1).length;
   document.getElementById("p2count").innerText = pucks.filter(p=>p.owner===2).length;
 }
-function updateStatus(text){ document.getElementById("status").innerText=text; }
+function updateStatus(t){ document.getElementById("status").innerText = t; }
 
-// ====== CONTROL SELECTION ======
-function chooseControl() {
-  const c = prompt("Choose Control:\nA = Point to target\nB = Pull opposite to set power","A");
-  if(c!=="A"&&c!=="B") controlMode="A"; else controlMode=c;
-}
-
-// ====== MODE SELECTION ======
-window.startLocal = function() {
+/* ================= MODE ================= */
+window.startLocal = ()=>{
   mode="local";
   document.getElementById("overlay").style.display="none";
-  chooseControl();
-  updateStatus(`Player ${pucks[index].owner}: Set direction`);
-}
-window.showOnline = function() {
-  document.getElementById("online").style.display="block";
-}
-window.createRoom = async function() {
-  mode="online"; isHost=true;
+  updateStatus("Player 1: Set direction");
+};
+
+window.showOnline = ()=> document.getElementById("online").style.display="block";
+
+window.createRoom = async ()=>{
+  mode="online";
+  isHost=true;
+  myPlayer=1;
   roomId=Math.random().toString(36).substring(2,7);
-  await set(ref(db,"rooms/"+roomId), { pucks: null });
+  await set(ref(db,"rooms/"+roomId),{
+    pucks,
+    index:0,
+    currentTurn:1,
+    phase:"aim"
+  });
   alert("Room Code: "+roomId);
   document.getElementById("overlay").style.display="none";
-  chooseControl();
   listenRoom();
-  updateStatus(`Player ${pucks[index].owner}: Set direction`);
-}
-window.joinRoom = async function() {
-  const code = document.getElementById("roomCode").value;
-  if(!code) return alert("Enter code");
-  const snap = await get(ref(db,"rooms/"+code));
-  if(!snap.exists()) return alert("Room not found");
-  mode="online"; isHost=false; roomId=code;
-  document.getElementById("overlay").style.display="none";
-  chooseControl();
-  listenRoom();
-  updateStatus(`Player ${pucks[index].owner}: Set direction`);
-}
+};
 
-// ====== ONLINE SYNC ======
-function syncState(){
-  if(mode!=="online"||!isHost) return;
-  set(ref(db,"rooms/"+roomId+"/pucks"),pucks);
-}
+window.joinRoom = async ()=>{
+  const code=document.getElementById("roomCode").value;
+  const snap=await get(ref(db,"rooms/"+code));
+  if(!snap.exists()) return alert("Room not found");
+  mode="online";
+  isHost=false;
+  myPlayer=2;
+  roomId=code;
+  document.getElementById("overlay").style.display="none";
+  listenRoom();
+};
+
+/* ================= ONLINE SYNC ================= */
 function listenRoom(){
-  onValue(ref(db,"rooms/"+roomId+"/pucks"),snap=>{
-    if(!isHost && snap.exists()){
-      pucks=snap.val();
-    }
+  onValue(ref(db,"rooms/"+roomId), snap=>{
+    if(!snap.exists()) return;
+    const d=snap.val();
+    pucks=d.pucks;
+    index=d.index;
+    phase=d.phase;
+    updateScore();
+    updateStatus(
+      d.currentTurn===myPlayer
+        ? "Your turn"
+        : "Waiting for opponent..."
+    );
   });
 }
 
-// ====== INPUT ======
-function getPos(e){
-  const r = canvas.getBoundingClientRect();
-  const t = e.touches? e.touches[0] : e;
-  return {x: t.clientX - r.left, y: t.clientY - r.top};
+function sync(){
+  if(!isHost) return;
+  update(ref(db,"rooms/"+roomId),{
+    pucks,
+    index,
+    phase,
+    currentTurn: pucks[index]?.owner ?? null
+  });
 }
-canvas.addEventListener("mousedown", startAim);
-canvas.addEventListener("touchstart", startAim);
-canvas.addEventListener("mousemove", moveAim);
-canvas.addEventListener("touchmove", moveAim);
-canvas.addEventListener("mouseup", releaseAim);
-canvas.addEventListener("touchend", releaseAim);
 
-function startAim(e){ if(phase!=="aim") return; aiming=true; pointer=getPos(e); }
-function moveAim(e){ if(!aiming) return; pointer=getPos(e); }
+/* ================= INPUT ================= */
+function getPos(e){
+  const r=canvas.getBoundingClientRect();
+  const t=e.touches?e.touches[0]:e;
+  return {x:t.clientX-r.left,y:t.clientY-r.top};
+}
+
+canvas.addEventListener("mousedown",startAim);
+canvas.addEventListener("touchstart",startAim);
+canvas.addEventListener("mousemove",moveAim);
+canvas.addEventListener("touchmove",moveAim);
+canvas.addEventListener("mouseup",releaseAim);
+canvas.addEventListener("touchend",releaseAim);
+
+function startAim(e){
+  if(phase!=="aim") return;
+  if(mode==="online" && pucks[index].owner!==myPlayer) return;
+  aiming=true;
+  pointer=getPos(e);
+}
+function moveAim(e){
+  if(!aiming) return;
+  pointer=getPos(e);
+}
 function releaseAim(){
   if(!aiming) return;
-  const p = pucks[index];
-  let dx = pointer.x - p.x, dy = pointer.y - p.y;
-  if(controlMode==="A"){ p.vx = dx*BASE_SPEED; p.vy = dy*BASE_SPEED; }
-  else { p.vx=-dx*BASE_SPEED; p.vy=-dy*BASE_SPEED; }
+  const p=pucks[index];
+  const dx=pointer.x-p.x, dy=pointer.y-p.y;
+  p.vx=dx*BASE_SPEED;
+  p.vy=dy*BASE_SPEED;
   aiming=false;
   index++;
-  if(index>=pucks.length){ document.getElementById("startBtn").disabled=false; updateStatus("Ready to start"); }
-  else updateStatus(`Player ${pucks[index].owner}: Set direction`);
+  if(mode==="online") sync();
 }
 
-// ====== BUTTONS ======
-document.getElementById("startBtn").onclick=()=>{
-  replayState=pucks.map(p=>({...p}));
-  phase="play"; index=0;
-  document.getElementById("startBtn").disabled=true;
-}
-document.getElementById("replayBtn").onclick=()=>{
-  if(!replayState) return;
-  pucks=replayState.map(p=>({...p}));
-  phase="play";
-}
-
-// ====== GAME LOOP ======
+/* ================= GAME LOOP ================= */
 function update(){
   if(phase==="play" && (mode!=="online"||isHost)){
-    pucks.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; p.vx*=FRICTION; p.vy*=FRICTION; if(p.x<-40||p.x>W+40||p.y<-40||p.y>H+40) p.remove=true; });
-    // collisions
-    for(let i=0;i<pucks.length;i++){
-      for(let j=i+1;j<pucks.length;j++){
-        const a=pucks[i], b=pucks[j];
-        const dx=b.x-a.x, dy=b.y-a.y;
-        const d=Math.hypot(dx,dy);
-        if(d<R*2 && d>0){
-          const nx=dx/d, ny=dy/d;
-          const dvx=b.vx-a.vx, dvy=b.vy-a.vy;
-          const imp=dvx*nx+dvy*ny;
-          if(imp<0){ a.vx+=imp*nx; a.vy+=imp*ny; b.vx-=imp*nx; b.vy-=imp*ny; }
-        }
-      }
-    }
-    pucks=pucks.filter(p=>!p.remove);
-    updateScore();
-    if(mode==="online" && isHost) syncState();
+    pucks.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy;
+      p.vx*=FRICTION; p.vy*=FRICTION;
+    });
     if(pucks.every(p=>Math.abs(p.vx)<0.05&&Math.abs(p.vy)<0.05)){
       pucks.forEach(p=>p.vx=p.vy=0);
-      if(pucks.length===1){ alert(`PLAYER ${pucks[0].owner} WINS!`); location.reload(); }
-      phase="aim"; index=0; document.getElementById("replayBtn").disabled=false;
-      if(pucks.length>1) updateStatus(`Player ${pucks[0].owner}: Set direction`);
+      phase="aim"; index=0;
+      if(mode==="online") sync();
     }
   }
 }
 function draw(){
   ctx.clearRect(0,0,W,H);
-  pucks.forEach(p=>{ ctx.beginPath(); ctx.arc(p.x,p.y,R,0,Math.PI*2); ctx.fillStyle=p.owner===1?"#29b6f6":"#ef5350"; ctx.fill(); });
-  if(aiming&&phase==="aim"){ const p=pucks[index]; ctx.strokeStyle="yellow"; ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(pointer.x,pointer.y); ctx.stroke(); }
+  pucks.forEach(p=>{
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,R,0,Math.PI*2);
+    ctx.fillStyle=p.owner===1?"#29b6f6":"#ef5350";
+    ctx.fill();
+  });
+  if(aiming){
+    const p=pucks[index];
+    ctx.strokeStyle="yellow";
+    ctx.beginPath();
+    ctx.moveTo(p.x,p.y);
+    ctx.lineTo(pointer.x,pointer.y);
+    ctx.stroke();
+  }
 }
 function loop(){ update(); draw(); requestAnimationFrame(loop); }
 loop();
 </script>
-
 </body>
 </html>
