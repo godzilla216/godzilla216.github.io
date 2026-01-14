@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Puck Multiplayer Game</title>
+<style>
+body { margin:0; background:#222; color:white; font-family:Arial; text-align:center; }
+button { padding:10px 16px; margin:6px; font-size:16px; cursor:pointer; }
+canvas { background:#1b5e20; border:5px solid #8d6e63; touch-action:none; display:block; margin:auto; }
+#scoreboard { display:flex; justify-content:space-between; padding:10px 20px; font-weight:bold; }
+.p1 { background:#29b6f6; padding:8px 14px; border-radius:20px; }
+.p2 { background:#ef5350; padding:8px 14px; border-radius:20px; }
+#overlay { position:fixed; inset:0; background:rgba(0,0,0,.9); display:flex; align-items:center; justify-content:center; z-index:10; }
+#box { background:#333; padding:20px; border-radius:12px; max-width:320px; text-align:center; }
+input { padding:6px; margin:4px; width:100px; }
+</style>
+</head>
+<body>
+
+<div id="overlay">
+  <div id="box">
+    <h3>Choose Mode</h3>
+    <button onclick="startLocal()">Local Multiplayer</button>
+    <button onclick="showOnline()">Online Multiplayer</button>
+
+    <div id="online" style="display:none; margin-top:10px;">
+      <button onclick="createRoom()">Create Room</button><br><br>
+      <input id="roomCode" placeholder="Room Code">
+      <button onclick="joinRoom()">Join</button>
+    </div>
+  </div>
+</div>
+
+<div id="scoreboard">
+  <div class="p1">P1: <span id="p1count">3</span></div>
+  <div id="status">Set direction</div>
+  <div class="p2">P2: <span id="p2count">3</span></div>
+</div>
+
+<div style="margin:8px;">
+  <button id="startBtn" disabled>Start Round</button>
+  <button id="replayBtn" disabled>Replay Last Round</button>
+</div>
+
+<canvas id="game" width="800" height="500"></canvas>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
+
+// ====== PASTE YOUR FIREBASE CONFIG HERE ======
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  databaseURL: "https://YOUR_PROJECT.firebaseio.com",
+  projectId: "YOUR_PROJECT",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "XXXX",
+  appId: "XXXX",
+  measurementId: "XXXX"
+};
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+// ==============================================
+
+// ====== GLOBAL VARIABLES ======
+let mode = "local"; // local | online
+let roomId = null;
+let isHost = false;
+
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+const W = canvas.width, H = canvas.height;
+const R = 12, FRICTION = 0.99, BASE_SPEED = 0.15;
+
+let pucks = [];
+let replayState = null;
+let phase = "aim"; // aim | play
+let index = 0;
+let aiming = false;
+let pointer = {x:0,y:0};
+let controlMode = null;
+
+// ====== INITIAL PUCKS ======
+function initPucks() {
+  pucks = [];
+  for (let i=0;i<3;i++) {
+    pucks.push({x:300+i*60,y:H-60,vx:0,vy:0,owner:1});
+    pucks.push({x:300+i*60,y:60,vx:0,vy:0,owner:2});
+  }
+}
+initPucks();
+updateScore();
+
+// ====== SCOREBOARD ======
+function updateScore() {
+  document.getElementById("p1count").innerText = pucks.filter(p=>p.owner===1).length;
+  document.getElementById("p2count").innerText = pucks.filter(p=>p.owner===2).length;
+}
+function updateStatus(text){ document.getElementById("status").innerText=text; }
+
+// ====== CONTROL SELECTION ======
+function chooseControl() {
+  const c = prompt("Choose Control:\nA = Point to target\nB = Pull opposite to set power","A");
+  if(c!=="A"&&c!=="B") controlMode="A"; else controlMode=c;
+}
+
+// ====== MODE SELECTION ======
+window.startLocal = function() {
+  mode="local";
+  document.getElementById("overlay").style.display="none";
+  chooseControl();
+  updateStatus(`Player ${pucks[index].owner}: Set direction`);
+}
+window.showOnline = function() {
+  document.getElementById("online").style.display="block";
+}
+window.createRoom = async function() {
+  mode="online"; isHost=true;
+  roomId=Math.random().toString(36).substring(2,7);
+  await set(ref(db,"rooms/"+roomId), { pucks: null });
+  alert("Room Code: "+roomId);
+  document.getElementById("overlay").style.display="none";
+  chooseControl();
+  listenRoom();
+  updateStatus(`Player ${pucks[index].owner}: Set direction`);
+}
+window.joinRoom = async function() {
+  const code = document.getElementById("roomCode").value;
+  if(!code) return alert("Enter code");
+  const snap = await get(ref(db,"rooms/"+code));
+  if(!snap.exists()) return alert("Room not found");
+  mode="online"; isHost=false; roomId=code;
+  document.getElementById("overlay").style.display="none";
+  chooseControl();
+  listenRoom();
+  updateStatus(`Player ${pucks[index].owner}: Set direction`);
+}
+
+// ====== ONLINE SYNC ======
+function syncState(){
+  if(mode!=="online"||!isHost) return;
+  set(ref(db,"rooms/"+roomId+"/pucks"),pucks);
+}
+function listenRoom(){
+  onValue(ref(db,"rooms/"+roomId+"/pucks"),snap=>{
+    if(!isHost && snap.exists()){
+      pucks=snap.val();
+    }
+  });
+}
+
+// ====== INPUT ======
+function getPos(e){
+  const r = canvas.getBoundingClientRect();
+  const t = e.touches? e.touches[0] : e;
+  return {x: t.clientX - r.left, y: t.clientY - r.top};
+}
+canvas.addEventListener("mousedown", startAim);
+canvas.addEventListener("touchstart", startAim);
+canvas.addEventListener("mousemove", moveAim);
+canvas.addEventListener("touchmove", moveAim);
+canvas.addEventListener("mouseup", releaseAim);
+canvas.addEventListener("touchend", releaseAim);
+
+function startAim(e){ if(phase!=="aim") return; aiming=true; pointer=getPos(e); }
+function moveAim(e){ if(!aiming) return; pointer=getPos(e); }
+function releaseAim(){
+  if(!aiming) return;
+  const p = pucks[index];
+  let dx = pointer.x - p.x, dy = pointer.y - p.y;
+  if(controlMode==="A"){ p.vx = dx*BASE_SPEED; p.vy = dy*BASE_SPEED; }
+  else { p.vx=-dx*BASE_SPEED; p.vy=-dy*BASE_SPEED; }
+  aiming=false;
+  index++;
+  if(index>=pucks.length){ document.getElementById("startBtn").disabled=false; updateStatus("Ready to start"); }
+  else updateStatus(`Player ${pucks[index].owner}: Set direction`);
+}
+
+// ====== BUTTONS ======
+document.getElementById("startBtn").onclick=()=>{
+  replayState=pucks.map(p=>({...p}));
+  phase="play"; index=0;
+  document.getElementById("startBtn").disabled=true;
+}
+document.getElementById("replayBtn").onclick=()=>{
+  if(!replayState) return;
+  pucks=replayState.map(p=>({...p}));
+  phase="play";
+}
+
+// ====== GAME LOOP ======
+function update(){
+  if(phase==="play" && (mode!=="online"||isHost)){
+    pucks.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; p.vx*=FRICTION; p.vy*=FRICTION; if(p.x<-40||p.x>W+40||p.y<-40||p.y>H+40) p.remove=true; });
+    // collisions
+    for(let i=0;i<pucks.length;i++){
+      for(let j=i+1;j<pucks.length;j++){
+        const a=pucks[i], b=pucks[j];
+        const dx=b.x-a.x, dy=b.y-a.y;
+        const d=Math.hypot(dx,dy);
+        if(d<R*2 && d>0){
+          const nx=dx/d, ny=dy/d;
+          const dvx=b.vx-a.vx, dvy=b.vy-a.vy;
+          const imp=dvx*nx+dvy*ny;
+          if(imp<0){ a.vx+=imp*nx; a.vy+=imp*ny; b.vx-=imp*nx; b.vy-=imp*ny; }
+        }
+      }
+    }
+    pucks=pucks.filter(p=>!p.remove);
+    updateScore();
+    if(mode==="online" && isHost) syncState();
+    if(pucks.every(p=>Math.abs(p.vx)<0.05&&Math.abs(p.vy)<0.05)){
+      pucks.forEach(p=>p.vx=p.vy=0);
+      if(pucks.length===1){ alert(`PLAYER ${pucks[0].owner} WINS!`); location.reload(); }
+      phase="aim"; index=0; document.getElementById("replayBtn").disabled=false;
+      if(pucks.length>1) updateStatus(`Player ${pucks[0].owner}: Set direction`);
+    }
+  }
+}
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  pucks.forEach(p=>{ ctx.beginPath(); ctx.arc(p.x,p.y,R,0,Math.PI*2); ctx.fillStyle=p.owner===1?"#29b6f6":"#ef5350"; ctx.fill(); });
+  if(aiming&&phase==="aim"){ const p=pucks[index]; ctx.strokeStyle="yellow"; ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(pointer.x,pointer.y); ctx.stroke(); }
+}
+function loop(){ update(); draw(); requestAnimationFrame(loop); }
+loop();
+</script>
+
+</body>
+</html>
