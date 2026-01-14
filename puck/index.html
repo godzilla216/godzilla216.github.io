@@ -36,7 +36,7 @@ input { padding:6px; margin:4px; width:120px; }
 
 <div id="scoreboard">
   <div class="p1">P1: <span id="p1count">3</span></div>
-  <div id="status">Waiting...</div>
+  <div id="status">Waiting…</div>
   <div class="p2">P2: <span id="p2count">3</span></div>
 </div>
 
@@ -60,29 +60,23 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-/* ================= GAME STATE ================= */
-let mode = "local";
-let roomId = null;
-let isHost = false;
-let myPlayer = null;
+/* ================= STATE ================= */
+let mode="local", roomId=null, isHost=false, myPlayer=null;
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+const W=canvas.width, H=canvas.height;
 
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
-const W = canvas.width, H = canvas.height;
+const R=12, FRICTION=0.99, BASE_SPEED=0.15;
 
-const R = 12;
-const FRICTION = 0.99;
-const BASE_SPEED = 0.15;
-
-let pucks = [];
-let phase = "aim";
-let index = 0;
-let aiming = false;
-let pointer = {x:0,y:0};
+let pucks=[];
+let phase="aim";
+let currentTurn=1;
+let aimCounts={1:0,2:0};
+let aiming=false, pointer={x:0,y:0};
 
 /* ================= INIT ================= */
 function initPucks(){
-  pucks = [];
+  pucks=[];
   for(let i=0;i<3;i++){
     pucks.push({x:300+i*60,y:H-60,vx:0,vy:0,owner:1});
     pucks.push({x:300+i*60,y:60,vx:0,vy:0,owner:2});
@@ -93,81 +87,59 @@ updateScore();
 
 /* ================= UI ================= */
 function updateScore(){
-  document.getElementById("p1count").innerText = pucks.filter(p=>p.owner===1).length;
-  document.getElementById("p2count").innerText = pucks.filter(p=>p.owner===2).length;
+  document.getElementById("p1count").innerText=pucks.filter(p=>p.owner===1).length;
+  document.getElementById("p2count").innerText=pucks.filter(p=>p.owner===2).length;
 }
-function updateStatus(t){
-  document.getElementById("status").innerText = t;
-}
+function updateStatus(t){ document.getElementById("status").innerText=t; }
 
-/* ================= MODE FUNCTIONS ================= */
-window.startLocal = function(){
+/* ================= MODE ================= */
+window.startLocal=()=>{
   mode="local";
   document.getElementById("overlay").style.display="none";
-  updateStatus("Player 1: Your turn");
+  updateStatus("Player 1: Aim all 3 pucks");
 };
+window.showOnline=()=> document.getElementById("online").style.display="block";
 
-window.showOnline = function(){
-  document.getElementById("online").style.display="block";
-};
-
-window.createRoom = async function(){
-  mode="online";
-  isHost=true;
-  myPlayer=1;
+window.createRoom=async()=>{
+  mode="online"; isHost=true; myPlayer=1;
   roomId=Math.random().toString(36).substring(2,7);
-
   await set(ref(db,"rooms/"+roomId),{
-    pucks,
-    index:0,
-    phase:"aim",
-    currentTurn:1
+    pucks, phase, currentTurn, aimCounts
   });
-
   alert("Room Code: "+roomId);
   document.getElementById("overlay").style.display="none";
   listenRoom();
 };
-
-window.joinRoom = async function(){
+window.joinRoom=async()=>{
   const code=document.getElementById("roomCode").value;
   const snap=await get(ref(db,"rooms/"+code));
   if(!snap.exists()) return alert("Room not found");
-
-  mode="online";
-  isHost=false;
-  myPlayer=2;
-  roomId=code;
-
+  mode="online"; myPlayer=2; roomId=code;
   document.getElementById("overlay").style.display="none";
   listenRoom();
 };
 
-/* ================= ONLINE SYNC ================= */
+/* ================= ONLINE ================= */
 function listenRoom(){
-  onValue(ref(db,"rooms/"+roomId), snap=>{
+  onValue(ref(db,"rooms/"+roomId),snap=>{
     if(!snap.exists()) return;
     const d=snap.val();
-    pucks=d.pucks;
-    index=d.index;
-    phase=d.phase;
+    pucks=d.pucks; phase=d.phase;
+    currentTurn=d.currentTurn; aimCounts=d.aimCounts;
     updateScore();
-
     updateStatus(
-      d.currentTurn===myPlayer
-        ? "Your turn"
-        : "Waiting for opponent..."
+      phase==="aim"
+        ? (currentTurn===myPlayer
+            ? `Your turn: Aim ${3-aimCounts[myPlayer]} pucks`
+            : "Waiting for opponent…")
+        : "Round in progress…"
     );
   });
 }
-
-function syncRoom(){
+function sync(){
   if(!isHost) return;
   fbUpdate(ref(db,"rooms/"+roomId),{
-    pucks,
-    index,
-    phase,
-    currentTurn: pucks[index]?.owner ?? null
+    pucks, phase, currentTurn, aimCounts
   });
 }
 
@@ -177,55 +149,46 @@ function getPos(e){
   const t=e.touches?e.touches[0]:e;
   return {x:t.clientX-r.left,y:t.clientY-r.top};
 }
-
 canvas.addEventListener("mousedown",startAim);
-canvas.addEventListener("touchstart",startAim);
 canvas.addEventListener("mousemove",moveAim);
-canvas.addEventListener("touchmove",moveAim);
 canvas.addEventListener("mouseup",releaseAim);
-canvas.addEventListener("touchend",releaseAim);
 
 function startAim(e){
   if(phase!=="aim") return;
-  if(mode==="online" && pucks[index].owner!==myPlayer) return;
-  aiming=true;
-  pointer=getPos(e);
+  if(mode==="online" && currentTurn!==myPlayer) return;
+  aiming=true; pointer=getPos(e);
 }
-function moveAim(e){
-  if(!aiming) return;
-  pointer=getPos(e);
-}
+function moveAim(e){ if(aiming) pointer=getPos(e); }
 function releaseAim(){
   if(!aiming) return;
-  const p=pucks[index];
-  const dx=pointer.x-p.x;
-  const dy=pointer.y-p.y;
-  p.vx=dx*BASE_SPEED;
-  p.vy=dy*BASE_SPEED;
+  const puck=pucks.find(p=>p.owner===currentTurn && p.vx===0 && p.vy===0);
+  const dx=pointer.x-puck.x, dy=pointer.y-puck.y;
+  puck.vx=dx*BASE_SPEED; puck.vy=dy*BASE_SPEED;
   aiming=false;
-  index++;
-  if(mode==="online") syncRoom();
+  aimCounts[currentTurn]++;
+  if(aimCounts[currentTurn]===3){
+    currentTurn=currentTurn===1?2:1;
+    if(aimCounts[1]===3 && aimCounts[2]===3){
+      phase="play";
+    }
+  }
+  if(mode==="online") sync();
 }
 
 /* ================= GAME LOOP ================= */
 function updateGame(){
   if(phase==="play" && (mode!=="online"||isHost)){
     pucks.forEach(p=>{
-      p.x+=p.vx;
-      p.y+=p.vy;
-      p.vx*=FRICTION;
-      p.vy*=FRICTION;
+      p.x+=p.vx; p.y+=p.vy;
+      p.vx*=FRICTION; p.vy*=FRICTION;
     });
-
     if(pucks.every(p=>Math.abs(p.vx)<0.05 && Math.abs(p.vy)<0.05)){
       pucks.forEach(p=>p.vx=p.vy=0);
-      phase="aim";
-      index=0;
-      if(mode==="online") syncRoom();
+      phase="aim"; aimCounts={1:0,2:0}; currentTurn=1;
+      if(mode==="online") sync();
     }
   }
 }
-
 function draw(){
   ctx.clearRect(0,0,W,H);
   pucks.forEach(p=>{
@@ -234,24 +197,17 @@ function draw(){
     ctx.fillStyle=p.owner===1?"#29b6f6":"#ef5350";
     ctx.fill();
   });
-
   if(aiming){
-    const p=pucks[index];
+    const puck=pucks.find(p=>p.owner===currentTurn && p.vx===0 && p.vy===0);
     ctx.strokeStyle="yellow";
     ctx.beginPath();
-    ctx.moveTo(p.x,p.y);
+    ctx.moveTo(puck.x,puck.y);
     ctx.lineTo(pointer.x,pointer.y);
     ctx.stroke();
   }
 }
-
-function loop(){
-  updateGame();
-  draw();
-  requestAnimationFrame(loop);
-}
+function loop(){ updateGame(); draw(); requestAnimationFrame(loop); }
 loop();
 </script>
-
 </body>
 </html>
