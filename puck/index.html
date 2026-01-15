@@ -68,15 +68,18 @@ canvas {
   
 <script type="module">
 /* ================= FIREBASE ================= */
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { initializeApp } from
+  "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import {
   getDatabase,
   ref,
   set,
   get,
   update,
-  onValue
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+  onValue,
+  runTransaction
+} from
+  "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDxoIs6Nn5dMCpPj8JjNqbv-O3SVpiac0A",
@@ -244,34 +247,7 @@ canvas.onmouseup = async e => {
 
 /* ================= STATE SYNC ================= */
 let stateShots = { player1: 0, player2: 0 };
-
-async function resetRound() {
-  if (!roomCode) return;
-
-  // Remove pucks that are inactive or off the board
-  pucks = pucks.filter(p => 
-    p.active &&
-    p.x >= 0 && p.x <= canvas.width &&
-    p.y >= 0 && p.y <= canvas.height
-  );
-
-  // Reset shots for the next round
-  stateShots = { player1: 0, player2: 0 };
-
-  // Set phase back to aim, start with Player 1
-  phase = "aim";
-  currentPlayer = 1;
-
-  // Update Firebase state
-  await update(ref(db, `rooms/${roomCode}/state`), {
-    pucks,
-    shotsTaken: stateShots,
-    phase,
-    currentPlayer
-  });
-}
-
-  
+ 
 function listenPlayers() {
   onValue(ref(db, `rooms/${roomCode}/players`), snap => {
     const p = snap.val();
@@ -379,12 +355,17 @@ function updateGame() {
   // 🔹 Check for win/lose before resetting
   checkWinLose();
 
-  // Only reset if nothing is moving AND game is not over
-  if (!moving && phase !== "over") {
-    resetRound();
-  }
+if (!moving && phase === "move") {
+  phase = "aim";
 
-  update(ref(db, `rooms/${roomCode}/state`), { pucks });
+  update(ref(db, `rooms/${roomCode}/state`), {
+    pucks,
+    phase,
+    currentPlayer: 1,
+    shotsTaken: { player1: 0, player2: 0 }
+  });
+}
+
 }
 
 async function resetBoard() {
@@ -430,21 +411,31 @@ function checkWinLose() {
 
     phase = "over";
 
+    if (isHost) {
+  update(ref(db, `rooms/${roomCode}/state`), {
+    phase: "over"
+  });
+}
+
     // 🔹 Only the host updates Firebase scores
     if (isHost) {
       const scoreRef = ref(db, `rooms/${roomCode}/scores/player${winner}`);
-      get(scoreRef).then(snap => {
-        const newScore = (snap.val() || 0) + 1;
-        set(scoreRef, newScore);
-      });
+runTransaction(scoreRef, current => (current || 0) + 1);
+
     }
 
     // 🔹 Start next round after 3 seconds
-    setTimeout(async () => {
-      overlay.style.display = "none";
-      roundEnded = false;
-      await resetBoard();
-    }, 3000);
+if (isHost) {
+  setTimeout(async () => {
+    await resetBoard();
+    roundEnded = false;
+  }, 3000);
+}
+
+setTimeout(() => {
+  overlay.style.display = "none";
+}, 3000);
+
   }
 }
   
@@ -487,8 +478,6 @@ function loop() {
   updateGame();
   draw();
   requestAnimationFrame(loop);
-  checkWinLose();
-
 }
 loop();
 
