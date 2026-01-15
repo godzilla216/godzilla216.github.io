@@ -387,30 +387,57 @@ function updateGame() {
   update(ref(db, `rooms/${roomCode}/state`), { pucks });
 }
 
+async function resetBoard() {
+  if (!roomCode) return;
+
+  // Reset all pucks to initial positions
+  pucks = [];
+  createPucks();
+
+  // Reset shots and phase
+  stateShots = { player1: 0, player2: 0 };
+  phase = "aim";
+  currentPlayer = 1;
+
+  // Update Firebase state
+  await update(ref(db, `rooms/${roomCode}/state`), {
+    pucks,
+    shotsTaken: stateShots,
+    phase,
+    currentPlayer
+  });
+}
+  
 function checkWinLose() {
   const p1Pucks = getActivePucks(1).length;
   const p2Pucks = getActivePucks(2).length;
 
-  if (p1Pucks === 0 && p2Pucks === 0) return; // draw, continue or do nothing
+  if (p1Pucks === 0 && p2Pucks === 0) return; // draw, continue
 
   let winner = null;
   if (p1Pucks === 0 && p2Pucks > 0) winner = 2;
   if (p2Pucks === 0 && p1Pucks > 0) winner = 1;
 
-if (winner) {
-  const overlay = document.getElementById("gameOver");
-  const text = document.getElementById("gameOverText");
-  overlay.style.display = "block";
-  text.textContent = myPlayer === winner ? "YOU WIN!" : "YOU LOSE!";
+  if (winner) {
+    const overlay = document.getElementById("gameOver");
+    const text = document.getElementById("gameOverText");
+    overlay.style.display = "block";
+    text.textContent = myPlayer === winner ? "YOU WIN!" : "YOU LOSE!";
+    phase = "over";
 
-  phase = "over";
+    // 🔹 Update score in Firebase
+    const scoreRef = ref(db, `rooms/${roomCode}/scores/player${winner}`);
+    get(scoreRef).then(snap => {
+      const newScore = (snap.val() || 0) + 1;
+      set(scoreRef, newScore);
+    });
 
-  // 🔹 Update score in Firebase
-  const scoreRef = ref(db, `rooms/${roomCode}/scores/player${winner}`);
-  get(scoreRef).then(snap => {
-    const newScore = (snap.val() || 0) + 1;
-    set(scoreRef, newScore);
-  });
+    // 🔹 Start next round after 3 seconds
+    setTimeout(async () => {
+      overlay.style.display = "none"; // hide game over overlay
+      await resetBoard();            // reset pucks
+    }, 3000);
+  }
 }
   
 /* ================= DRAW ================= */
