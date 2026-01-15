@@ -152,7 +152,7 @@ function getActivePucks(player) {
   return pucks.filter(p => p.player === player && p.active);
 }
 
-function canvas.onm() {
+function getCurrentPuck() {
   const list = getActivePucks(currentPlayer);
   const idx = stateShots[`player${currentPlayer}`];
 
@@ -161,6 +161,7 @@ function canvas.onm() {
 
   return list[idx];
 }
+
 
 
 /* ================= INPUT ================= */
@@ -383,7 +384,7 @@ function draw() {
   }
 
   if (aiming && aimPos) {
-    const puck = canvas.on();
+    const puck = getCurrentPuck();
     if (puck) {
       ctx.beginPath();
       ctx.moveTo(puck.x,puck.y);
