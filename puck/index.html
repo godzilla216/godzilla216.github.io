@@ -209,24 +209,22 @@ canvas.onmouseup = async e => {
 let stateShots = { player1: 0, player2: 0 };
 
 async function resetRound() {
-  // Reset pucks for next round
-  createPucks();
-
-  // Reset shots
+  // Do NOT reset puck positions; just reset shots for the next round
   stateShots = { player1: 0, player2: 0 };
 
-  // Set phase back to aim, start with Player 1
+  // Set phase back to aim, start with the next player who should shoot
   phase = "aim";
-  currentPlayer = 1;
+  currentPlayer = 1; // or keep the last player? up to game rules
 
   if (!roomCode) return;
   await update(ref(db, `rooms/${roomCode}/state`), {
-    pucks,
+    // Keep existing pucks in place
     shotsTaken: stateShots,
     phase,
     currentPlayer
   });
 }
+
   
 function listenPlayers() {
   onValue(ref(db, `rooms/${roomCode}/players`), snap => {
