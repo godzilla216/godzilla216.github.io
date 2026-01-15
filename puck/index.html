@@ -100,7 +100,7 @@ let bothPlayersReady = false;
 function generateCode() {
   return Math.random().toString(36).substring(2, 7).toUpperCase();
 }
-
+let roundEnded = false
 document.getElementById("createBtn").onclick = async () => {
   const code = generateCode();
 
@@ -409,23 +409,28 @@ async function resetBoard() {
 }
   
 function checkWinLose() {
+  if (roundEnded) return; // Prevent multiple updates
+
   const p1Pucks = getActivePucks(1).length;
   const p2Pucks = getActivePucks(2).length;
 
-  if (p1Pucks === 0 && p2Pucks === 0) return; // draw, continue
+  if (p1Pucks === 0 && p2Pucks === 0) return; // draw
 
   let winner = null;
   if (p1Pucks === 0 && p2Pucks > 0) winner = 2;
   if (p2Pucks === 0 && p1Pucks > 0) winner = 1;
 
   if (winner) {
+    roundEnded = true; // 🔹 mark that round ended
+
     const overlay = document.getElementById("gameOver");
     const text = document.getElementById("gameOverText");
     overlay.style.display = "block";
     text.textContent = myPlayer === winner ? "YOU WIN!" : "YOU LOSE!";
+
     phase = "over";
 
-    // 🔹 Update score in Firebase
+    // 🔹 Update score in Firebase once
     const scoreRef = ref(db, `rooms/${roomCode}/scores/player${winner}`);
     get(scoreRef).then(snap => {
       const newScore = (snap.val() || 0) + 1;
@@ -434,8 +439,9 @@ function checkWinLose() {
 
     // 🔹 Start next round after 3 seconds
     setTimeout(async () => {
-      overlay.style.display = "none"; // hide game over overlay
-      await resetBoard();            // reset pucks
+      overlay.style.display = "none";
+      roundEnded = false;   // 🔹 reset for next round
+      await resetBoard();   // reset pucks
     }, 3000);
   }
 }
