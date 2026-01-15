@@ -45,6 +45,22 @@ canvas {
 
 <canvas id="game" width="800" height="500"></canvas>
 
+<div id="gameOver" style="
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 48px;
+  color: white;
+  background: rgba(0,0,0,0.8);
+  padding: 40px;
+  border-radius: 20px;
+  display: none;
+  text-align: center;
+  z-index: 100;">
+  <span id="gameOverText"></span>
+</div>
+
+  
 <script type="module">
 /* ================= FIREBASE ================= */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
@@ -167,11 +183,12 @@ function getCurrentPuck() {
 /* ================= INPUT ================= */
 canvas.onmousedown = e => {
   if (!bothPlayersReady) return;
-  if (phase !== "aim") return;
+  if (phase !== "aim") return; // prevent aiming if over
+  if (phase === "over") return;
   if (currentPlayer !== myPlayer) return;
 
   const puck = getCurrentPuck();
-  if (!puck) return; // No puck left for this player
+  if (!puck) return;
 
   aiming = true;
   aimPos = getMouse(e);
@@ -371,6 +388,32 @@ for (let p of pucks) {
   update(ref(db, `rooms/${roomCode}/state`), { pucks });
 }
 
+function checkWinLose() {
+  const p1Pucks = getActivePucks(1).length;
+  const p2Pucks = getActivePucks(2).length;
+
+  if (p1Pucks === 0 && p2Pucks === 0) return; // draw, continue or do nothing
+
+  let winner = null;
+  if (p1Pucks === 0 && p2Pucks > 0) winner = 2;
+  if (p2Pucks === 0 && p1Pucks > 0) winner = 1;
+
+  if (winner) {
+    const overlay = document.getElementById("gameOver");
+    const text = document.getElementById("gameOverText");
+    overlay.style.display = "block";
+    if (myPlayer === winner) {
+      text.textContent = "YOU WIN!";
+    } else {
+      text.textContent = "YOU LOSE!";
+    }
+
+    // Stop further actions
+    phase = "over";
+  }
+}
+
+  
 /* ================= DRAW ================= */
 function draw() {
   ctx.clearRect(0,0,800,500);
@@ -410,6 +453,8 @@ function loop() {
   updateGame();
   draw();
   requestAnimationFrame(loop);
+  checkWinLose();
+
 }
 loop();
 
