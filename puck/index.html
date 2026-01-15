@@ -2,214 +2,358 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Puck Multiplayer Game</title>
+<title>Puck Duel</title>
 <style>
-body { margin:0; background:#222; color:white; font-family:Arial; text-align:center; }
-button { padding:10px 16px; margin:6px; font-size:16px; cursor:pointer; }
-canvas { background:#1b5e20; border:5px solid #8d6e63; display:block; margin:auto; }
-#scoreboard { display:flex; justify-content:space-between; padding:10px 20px; font-weight:bold; }
-.p1 { background:#29b6f6; padding:8px 14px; border-radius:20px; }
-.p2 { background:#ef5350; padding:8px 14px; border-radius:20px; }
-#overlay { position:fixed; inset:0; background:rgba(0,0,0,.9); display:flex; align-items:center; justify-content:center; z-index:10; }
-#box { background:#333; padding:20px; border-radius:12px; max-width:320px; text-align:center; }
-input { padding:6px; margin:4px; width:120px; }
+  body {
+    background: #222;
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
+  }
+  canvas {
+    background: #0a5;
+    border: 4px solid #333;
+    margin-top: 10px;
+  }
+  #info {
+    margin-top: 10px;
+    font-size: 18px;
+  }
+  #scoreboard {
+  display: flex;
+  justify-content: space-between;
+  width: 800px;
+  margin: 0 auto;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+#p1Score {
+  color: #f44;
+}
+
+#p2Score {
+  color: #44f;
+}
+
+#roundCounter {
+  font-size: 18px;
+  margin-bottom: 6px;
+}
+
+.active-player {
+  text-shadow: 0 0 10px white;
+}
+
+#winOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  z-index: 10;
+}
+
+#winText {
+  color: white;
+}
+
 </style>
 </head>
 <body>
 
-<div id="overlay">
-  <div id="box">
-    <h3>Choose Mode</h3>
-    <button onclick="startLocal()">Local Multiplayer</button>
-    <button onclick="showOnline()">Online Multiplayer</button>
-    <div id="online" style="display:none; margin-top:10px;">
-      <button onclick="createRoom()">Create Room</button><br><br>
-      <input id="roomCode" placeholder="Room Code">
-      <button onclick="joinRoom()">Join</button>
-    </div>
-  </div>
+<h1>Puck Duel</h1>
+<div id="info">Player 1: Aim puck 1</div>
+<div id="scoreboard">
+  <span id="p1Score">Player 1: 3</span>
+  <span id="p2Score">Player 2: 3</span>
 </div>
 
-<div id="scoreboard">
-  <div class="p1">P1: <span id="p1count">3</span></div>
-  <div id="status">Waiting…</div>
-  <div class="p2">P2: <span id="p2count">3</span></div>
-</div>
+<div id="roundCounter">Round 1</div>
+
 
 <canvas id="game" width="800" height="500"></canvas>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-import { getDatabase, ref, set, onValue, get, update as fbUpdate } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
+<div id="winOverlay">
+  <div id="winText"></div>
+</div>
 
-/* ===== FIREBASE ===== */
-const firebaseConfig = {
-  apiKey: "AIzaSyDxoIs6Nn5dMCpPj8JjNqbv-O3SVpiac0A",
-  authDomain: "login-6cdd8.firebaseapp.com",
-  databaseURL: "https://login-6cdd8-default-rtdb.firebaseio.com",
-  projectId: "login-6cdd8",
-  storageBucket: "login-6cdd8.firebasestorage.app",
-  messagingSenderId: "518535069226",
-  appId: "1:518535069226:web:8925106a250805bbf24d53"
-};
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+const info = document.getElementById("info");
 
-/* ===== STATE ===== */
-let mode="local", roomId=null, isHost=false, myPlayer=null;
-const canvas=document.getElementById("game");
-const ctx=canvas.getContext("2d");
-const W=canvas.width, H=canvas.height;
+const BOARD_MARGIN = 20;
+const PUCK_RADIUS = 12;
+const FRICTION = 0.99;
 
-const R=12, FRICTION=0.99, BASE_SPEED=0.15;
-let pucks=[], phase="aim", currentTurn=1, aimCounts={1:0,2:0};
-let aiming=false, pointer={x:0,y:0};
+const p1Score = document.getElementById("p1Score");
+const p2Score = document.getElementById("p2Score");
 
-/* ===== INIT PUCKS ===== */
-function initPucks(){
-  pucks=[];
-  for(let i=0;i<3;i++){
-    pucks.push({x:300+i*60,y:H-60,vx:0,vy:0,owner:1});
-    pucks.push({x:300+i*60,y:60,vx:0,vy:0,owner:2});
+let currentPlayer = 1;
+let currentPuckIndex = 0;
+let aiming = false;
+let aimStart = null;
+let phase = "aim";
+let aimCurrent = null;
+let roundNumber = 1;
+
+
+const pucks = [];
+
+function updateScoreboard() {
+  const p1 = getActivePucks(1).length;
+  const p2 = getActivePucks(2).length;
+
+  p1Score.textContent = `Player 1: ${p1}`;
+  p2Score.textContent = `Player 2: ${p2}`;
+
+  p1Score.classList.toggle("active-player", currentPlayer === 1 && phase === "aim");
+  p2Score.classList.toggle("active-player", currentPlayer === 2 && phase === "aim");
+}
+
+function createPucks() {
+  pucks.length = 0;
+  for (let i = 0; i < 3; i++) {
+    pucks.push({
+      x: 150,
+      y: 150 + i * 60,
+      vx: 0,
+      vy: 0,
+      player: 1,
+      active: true,
+      opacity: 1,
+      shake: 0,
+      eliminated: false
+    });
+    pucks.push({
+      x: 650,
+      y: 150 + i * 60,
+      vx: 0,
+      vy: 0,
+      player: 2,
+      active: true,
+      opacity: 1,
+      shake: 0,
+      eliminated: false
+    });
   }
 }
-initPucks();
-updateScore();
 
-/* ===== UI ===== */
-function updateScore(){
-  document.getElementById("p1count").innerText=pucks.filter(p=>p.owner===1).length;
-  document.getElementById("p2count").innerText=pucks.filter(p=>p.owner===2).length;
-}
-function updateStatus(t){ document.getElementById("status").innerText=t; }
+createPucks();
 
-/* ===== MODE ===== */
-window.startLocal=()=>{
-  mode="local";
-  document.getElementById("overlay").style.display="none";
-  updateStatus("Player 1: Aim all 3 pucks");
-};
-window.showOnline=()=> document.getElementById("online").style.display="block";
-
-/* ===== ONLINE ===== */
-window.createRoom=async()=>{
-  mode="online"; isHost=true; myPlayer=1;
-  roomId=Math.random().toString(36).substring(2,7);
-  await set(ref(db,"rooms/"+roomId),{pucks,phase,currentTurn,aimCounts});
-  alert("Room Code: "+roomId);
-  document.getElementById("overlay").style.display="none";
-  listenRoom();
-};
-window.joinRoom=async()=>{
-  const code=document.getElementById("roomCode").value;
-  const snap=await get(ref(db,"rooms/"+code));
-  if(!snap.exists()) return alert("Room not found");
-  mode="online"; myPlayer=2; roomId=code;
-  document.getElementById("overlay").style.display="none";
-  listenRoom();
-};
-function listenRoom(){
-  onValue(ref(db,"rooms/"+roomId),snap=>{
-    if(!snap.exists()) return;
-    const d=snap.val();
-    pucks=d.pucks; phase=d.phase; currentTurn=d.currentTurn; aimCounts=d.aimCounts;
-    updateScore();
-    updateStatus(
-      phase==="aim"
-        ? (currentTurn===myPlayer
-            ? `Your turn: Aim ${3-aimCounts[myPlayer]} pucks`
-            : "Waiting for opponent…")
-        : "Round in progress…"
-    );
-  });
-}
-function sync(){ if(isHost) fbUpdate(ref(db,"rooms/"+roomId),{pucks,phase,currentTurn,aimCounts}); }
-
-/* ===== INPUT ===== */
-function getPos(e){
-  const r=canvas.getBoundingClientRect();
-  const t=e.touches?e.touches[0]:e;
-  return {x:t.clientX-r.left,y:t.clientY-r.top};
-}
-canvas.addEventListener("mousedown",startAim);
-canvas.addEventListener("mousemove",moveAim);
-canvas.addEventListener("mouseup",releaseAim);
-
-function startAim(e){
-  if(phase!=="aim") return;
-  if(mode==="online" && currentTurn!==myPlayer) return;
-  aiming=true; pointer=getPos(e);
-}
-function moveAim(e){ if(aiming) pointer=getPos(e); }
-function releaseAim(){
-  if(!aiming) return;
-  const puck=pucks.find(p=>p.owner===currentTurn && p.vx===0 && p.vy===0);
-  if(!puck) return;
-  const dx=pointer.x-puck.x, dy=pointer.y-puck.y;
-  puck.vx=dx*BASE_SPEED; puck.vy=dy*BASE_SPEED;
-  aiming=false; aimCounts[currentTurn]++;
-  if(aimCounts[currentTurn]===3) currentTurn=currentTurn===1?2:1;
-  if(mode==="online"){
-    if(isHost && aimCounts[1]===3 && aimCounts[2]===3) phase="play";
-    sync();
-  } else if(aimCounts[1]===3 && aimCounts[2]===3) phase="play";
+function getCurrentPuck() {
+  const list = getActivePucks(currentPlayer);
+  return list[currentPuckIndex] || null;
 }
 
-/* ===== COLLISIONS ===== */
-function handleCollisions(){
-  // walls
-  pucks.forEach(p=>{
-    if(p.x<R){ p.x=R; p.vx*=-1; }
-    if(p.x>W-R){ p.x=W-R; p.vx*=-1; }
-    if(p.y<R){ p.y=R; p.vy*=-1; }
-    if(p.y>H-R){ p.y=H-R; p.vy*=-1; }
-  });
-  // puck-puck
-  for(let i=0;i<pucks.length;i++){
-    for(let j=i+1;j<pucks.length;j++){
-      const a=pucks[i], b=pucks[j];
-      const dx=b.x-a.x, dy=b.y-a.y;
-      const dist=Math.hypot(dx,dy);
-      if(dist>0 && dist<2*R){
-        const nx=dx/dist, ny=dy/dist;
-        const overlap=2*R-dist;
-        a.x-=nx*overlap/2; a.y-=ny*overlap/2;
-        b.x+=nx*overlap/2; b.y+=ny*overlap/2;
-        const dvx=b.vx-a.vx, dvy=b.vy-a.vy;
-        const impact=dvx*nx+dvy*ny;
-        if(impact<0){ a.vx+=impact*nx; a.vy+=impact*ny; b.vx-=impact*nx; b.vy-=impact*ny; }
+canvas.addEventListener("mousedown", e => {
+  if (phase !== "aim") return;
+  const puck = getCurrentPuck();
+  if (!puck || !puck.active) return;
+
+  aiming = true;
+  aimCurrent = getMouse(e);
+});
+
+canvas.addEventListener("mousemove", e => {
+  if (!aiming) return;
+  aimCurrent = getMouse(e);
+});
+
+
+canvas.addEventListener("mouseup", e => {
+  if (!aiming) return;
+  aiming = false;
+
+  const puck = getCurrentPuck();
+  const end = getMouse(e);
+
+  puck.vx = (puck.x - end.x) * 0.1;
+  puck.vy = (puck.y - end.y) * 0.1;
+
+  aimCurrent = null;
+
+  currentPuckIndex++;
+
+  if (currentPuckIndex >= getActivePucks(currentPlayer).length) {
+    currentPuckIndex = 0;
+    currentPlayer = currentPlayer === 1 ? 2 : 1;
+    }
+    if (
+    currentPlayer === 1 &&
+    currentPuckIndex === 0 &&
+    phase === "aim"
+  ) {
+
+    phase = "move";
+    info.textContent = "Round in progress...";
+  } else {
+    info.textContent = `Player ${currentPlayer}: Aim puck ${currentPuckIndex + 1}`;
+  }
+});
+
+function getMouse(e) {
+  const rect = canvas.getBoundingClientRect();
+  return {
+    x: e.clientX - rect.left,
+    y: e.clientY - rect.top
+  };
+}
+
+function update() {
+  if (phase === "move") {
+    let moving = false;
+
+    for (let p of pucks) {
+      if (!p.active) continue;
+
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vx *= FRICTION;
+      p.vy *= FRICTION;
+
+      if (Math.abs(p.vx) > 0.05 || Math.abs(p.vy) > 0.05) {
+        moving = true;
+      }
+		if (p.eliminated) {
+        p.opacity -= 0.05;
+        p.shake *= 0.8;
+
+        if (p.opacity <= 0) {
+          p.active = false;
+        }
+      }
+
+      if (
+        p.x < BOARD_MARGIN ||
+        p.x > canvas.width - BOARD_MARGIN ||
+        p.y < BOARD_MARGIN ||
+        p.y > canvas.height - BOARD_MARGIN
+      ) {
+        if (!p.eliminated) {
+          p.eliminated = true;
+          p.shake = 10;
+        }
+
+      }
+    }
+
+    handleCollisions();
+
+    if (!moving) {
+      resetRound();
+    }
+  }
+}
+
+function handleCollisions() {
+  for (let i = 0; i < pucks.length; i++) {
+    for (let j = i + 1; j < pucks.length; j++) {
+      const a = pucks[i];
+      const b = pucks[j];
+      if (!a.active || !b.active) continue;
+
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const dist = Math.hypot(dx, dy);
+
+      if (dist < PUCK_RADIUS * 2) {
+        const nx = dx / dist;
+        const ny = dy / dist;
+
+        const p = 2 * (a.vx * nx + a.vy * ny - b.vx * nx - b.vy * ny) / 2;
+
+        a.vx -= p * nx;
+        a.vy -= p * ny;
+        b.vx += p * nx;
+        b.vy += p * ny;
       }
     }
   }
 }
 
-/* ===== GAME LOOP ===== */
-function updateGame(){
-  if(phase==="play" && (mode!=="online"||isHost)){
-    pucks.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; p.vx*=FRICTION; p.vy*=FRICTION; });
-    handleCollisions();
-    // end round
-    if(pucks.every(p=>Math.abs(p.vx)<0.05 && Math.abs(p.vy)<0.05)){
-      pucks.forEach(p=>p.vx=p.vy=0);
-      phase="aim"; aimCounts={1:0,2:0}; currentTurn=1;
-      if(mode==="online" && isHost) sync();
+function resetRound() {
+  for (let p of pucks) {
+    p.vx = 0;
+    p.vy = 0;
+  }
+  phase = "aim";
+  currentPlayer = 1;
+  currentPuckIndex = 0;
+  info.textContent = "Player 1: Aim puck 1";
+  roundNumber++;
+document.getElementById("roundCounter").textContent = `Round ${roundNumber}`;
+
+  checkWin();
+}
+
+function checkWin() {
+  const p1 = getActivePucks(1).length;
+  const p2 = getActivePucks(2).length;
+
+  if (p1 === 0 || p2 === 0) {
+    const winner = p1 === 0 ? 2 : 1;
+    awardMatchPoint(winner);
+  }
+}
+
+
+function getActivePucks(player) {
+  return pucks.filter(p => p.player === player && p.active);
+}
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  ctx.strokeStyle = "#000";
+  ctx.strokeRect(
+    BOARD_MARGIN,
+    BOARD_MARGIN,
+    canvas.width - BOARD_MARGIN * 2,
+    canvas.height - BOARD_MARGIN * 2
+  );
+
+  for (let p of pucks) {
+    if (!p.active) continue;
+      ctx.save();
+      ctx.globalAlpha = p.opacity;
+
+      const shakeX = (Math.random() - 0.5) * p.shake;
+      const shakeY = (Math.random() - 0.5) * p.shake;
+
+      ctx.beginPath();
+      ctx.arc(p.x + shakeX, p.y + shakeY, PUCK_RADIUS, 0, Math.PI * 2);
+      ctx.fillStyle = p.player === 1 ? "#f44" : "#44f";
+      ctx.fill();
+	  ctx.restore();
+
+  }
+
+  if (aiming && aimCurrent) {
+    const puck = getCurrentPuck();
+    if (puck) {
+      ctx.beginPath();
+      ctx.moveTo(puck.x, puck.y);
+      ctx.lineTo(aimCurrent.x, aimCurrent.y);
+      ctx.strokeStyle = "white";
+      ctx.lineWidth = 2;
+      ctx.stroke();
     }
   }
 }
-function draw(){
-  ctx.clearRect(0,0,W,H);
-  pucks.forEach(p=>{
-    ctx.beginPath(); ctx.arc(p.x,p.y,R,0,Math.PI*2);
-    ctx.fillStyle=p.owner===1?"#29b6f6":"#ef5350"; ctx.fill();
-  });
-  if(aiming){
-    const puck=pucks.find(p=>p.owner===currentTurn && p.vx===0 && p.vy===0);
-    if(puck){ ctx.strokeStyle="yellow"; ctx.beginPath(); ctx.moveTo(puck.x,puck.y); ctx.lineTo(pointer.x,pointer.y); ctx.stroke(); }
-  }
+
+function loop() {
+  update();
+  draw();
+  updateScoreboard();
+  requestAnimationFrame(loop);
 }
-function loop(){ updateGame(); draw(); requestAnimationFrame(loop); }
+
 loop();
 </script>
+
 </body>
 </html>
