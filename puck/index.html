@@ -291,7 +291,6 @@ function updateGame() {
 
   let moving = false;
 
-  // Move pucks
   for (let p of pucks) {
     if (!p.active) continue;
 
@@ -301,16 +300,17 @@ function updateGame() {
     p.vx *= FRICTION;
     p.vy *= FRICTION;
 
-    // Check if puck fell off the board
     if (
       p.x < 0 || p.x > canvas.width ||
       p.y < 0 || p.y > canvas.height
     ) {
       p.active = false;
     }
+
+    if (p.active && (p.vx !== 0 || p.vy !== 0)) moving = true;
   }
 
-  // Check puck-to-puck collisions
+  // Puck collisions (same as before)...
   for (let i = 0; i < pucks.length; i++) {
     for (let j = i + 1; j < pucks.length; j++) {
       let p1 = pucks[i];
@@ -327,13 +327,11 @@ function updateGame() {
         let nx = dx / dist;
         let ny = dy / dist;
 
-        // Move pucks apart
         p1.x -= nx * overlap / 2;
         p1.y -= ny * overlap / 2;
         p2.x += nx * overlap / 2;
         p2.y += ny * overlap / 2;
 
-        // Elastic collision
         let tx = -ny;
         let ty = nx;
         let dpTan1 = p1.vx * tx + p1.vy * ty;
@@ -341,7 +339,6 @@ function updateGame() {
         let dpNorm1 = p1.vx * nx + p1.vy * ny;
         let dpNorm2 = p2.vx * nx + p2.vy * ny;
 
-        // Swap normal velocities
         let m1 = dpNorm2;
         let m2 = dpNorm1;
         p1.vx = tx * dpTan1 + nx * m1;
@@ -349,7 +346,6 @@ function updateGame() {
         p2.vx = tx * dpTan2 + nx * m2;
         p2.vy = ty * dpTan2 + ny * m2;
 
-        // Damping
         p1.vx *= 0.9;
         p1.vy *= 0.9;
         p2.vx *= 0.9;
@@ -358,32 +354,21 @@ function updateGame() {
     }
   }
 
-  // Check if any puck is still moving
-for (let p of pucks) {
-  if (!p.active) continue;
+  // Stop slow pucks
+  for (let p of pucks) {
+    if (!p.active) continue;
 
-  p.x += p.vx;
-  p.y += p.vy;
-
-  p.vx *= FRICTION;
-  p.vy *= FRICTION;
-
-  // Stop really slow pucks
-  if (Math.abs(p.vx) < 0.05) p.vx = 0;
-  if (Math.abs(p.vy) < 0.05) p.vy = 0;
-
-  if (
-    p.x < 0 || p.x > canvas.width ||
-    p.y < 0 || p.y > canvas.height
-  ) {
-    p.active = false;
+    if (Math.abs(p.vx) < 0.05) p.vx = 0;
+    if (Math.abs(p.vy) < 0.05) p.vy = 0;
   }
 
-  if (p.active && (p.vx !== 0 || p.vy !== 0)) moving = true;
-}
+  // 🔹 Check for win/lose before resetting
+  checkWinLose();
 
-
-  if (!moving) resetRound();
+  // Only reset if nothing is moving AND game is not over
+  if (!moving && phase !== "over") {
+    resetRound();
+  }
 
   update(ref(db, `rooms/${roomCode}/state`), { pucks });
 }
