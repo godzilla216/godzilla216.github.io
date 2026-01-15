@@ -209,8 +209,13 @@ canvas.onmouseup = async e => {
 let stateShots = { player1: 0, player2: 0 };
 
 async function resetRound() {
+  // Reset pucks for next round
+  createPucks();
 
+  // Reset shots
   stateShots = { player1: 0, player2: 0 };
+
+  // Set phase back to aim, start with Player 1
   phase = "aim";
   currentPlayer = 1;
 
@@ -258,26 +263,16 @@ function updateGame() {
     p.vx *= FRICTION;
     p.vy *= FRICTION;
 
-    // Stop really slow pucks
-    if (Math.abs(p.vx) < 0.05) p.vx = 0;
-    if (Math.abs(p.vy) < 0.05) p.vy = 0;
-
-    // Mark as inactive if fully off-screen
+    // Check if puck fell off the board
     if (
-      p.x < -PUCK_RADIUS || p.x > canvas.width + PUCK_RADIUS ||
-      p.y < -PUCK_RADIUS || p.y > canvas.height + PUCK_RADIUS
+      p.x < 0 || p.x > canvas.width ||
+      p.y < 0 || p.y > canvas.height
     ) {
       p.active = false;
     }
-
-    // Check if any puck is still moving
-    if (p.active && (p.vx !== 0 || p.vy !== 0)) moving = true;
   }
 
-  // Remove inactive/fallen pucks **after loop**
-  pucks = pucks.filter(p => p.active);
-
-  // Collision detection
+  // Check puck-to-puck collisions
   for (let i = 0; i < pucks.length; i++) {
     for (let j = i + 1; j < pucks.length; j++) {
       let p1 = pucks[i];
@@ -308,6 +303,7 @@ function updateGame() {
         let dpNorm1 = p1.vx * nx + p1.vy * ny;
         let dpNorm2 = p2.vx * nx + p2.vy * ny;
 
+        // Swap normal velocities
         let m1 = dpNorm2;
         let m2 = dpNorm1;
         p1.vx = tx * dpTan1 + nx * m1;
@@ -323,14 +319,6 @@ function updateGame() {
       }
     }
   }
-
-  // If no pucks are moving, start next round
-  if (!moving) resetRound();
-
-  // Update Firebase
-  update(ref(db, `rooms/${roomCode}/state`), { pucks });
-}
-
 
   // Check if any puck is still moving
 for (let p of pucks) {
