@@ -83,7 +83,7 @@ function generateCode() {
 document.getElementById("createBtn").onclick = async () => {
   const code = generateCode();
 
-  await set(ref(db, "rooms/" + code), {
+  await set(ref(db, "rooms/" + tcode), {
     players: { player1: true, player2: false },
     state: {
       phase: "aim",
@@ -249,8 +249,6 @@ function updateGame() {
       p.y < 0 || p.y > canvas.height
     ) {
       p.active = false;
-      p.vx = 0;
-      p.vy = 0;
     }
   }
 
