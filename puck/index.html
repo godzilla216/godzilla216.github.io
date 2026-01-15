@@ -208,6 +208,26 @@ canvas.onmouseup = async e => {
 /* ================= STATE SYNC ================= */
 let stateShots = { player1: 0, player2: 0 };
 
+async function resetRound() {
+  // Reset pucks for next round
+  createPucks();
+
+  // Reset shots
+  stateShots = { player1: 0, player2: 0 };
+
+  // Set phase back to aim, start with Player 1
+  phase = "aim";
+  currentPlayer = 1;
+
+  if (!roomCode) return;
+  await update(ref(db, `rooms/${roomCode}/state`), {
+    pucks,
+    shotsTaken: stateShots,
+    phase,
+    currentPlayer
+  });
+}
+  
 function listenPlayers() {
   onValue(ref(db, `rooms/${roomCode}/players`), snap => {
     const p = snap.val();
@@ -301,9 +321,29 @@ function updateGame() {
   }
 
   // Check if any puck is still moving
-  for (let p of pucks) {
-    if (p.active && (Math.abs(p.vx) > 0.05 || Math.abs(p.vy) > 0.05)) moving = true;
+for (let p of pucks) {
+  if (!p.active) continue;
+
+  p.x += p.vx;
+  p.y += p.vy;
+
+  p.vx *= FRICTION;
+  p.vy *= FRICTION;
+
+  // Stop really slow pucks
+  if (Math.abs(p.vx) < 0.05) p.vx = 0;
+  if (Math.abs(p.vy) < 0.05) p.vy = 0;
+
+  if (
+    p.x < 0 || p.x > canvas.width ||
+    p.y < 0 || p.y > canvas.height
+  ) {
+    p.active = false;
   }
+
+  if (p.active && (p.vx !== 0 || p.vy !== 0)) moving = true;
+}
+
 
   if (!moving) resetRound();
 
