@@ -421,7 +421,7 @@ function checkWinLose() {
   if (p2Pucks === 0 && p1Pucks > 0) winner = 1;
 
   if (winner) {
-    roundEnded = true; // 🔹 mark that round ended
+    roundEnded = true;
 
     const overlay = document.getElementById("gameOver");
     const text = document.getElementById("gameOverText");
@@ -430,18 +430,20 @@ function checkWinLose() {
 
     phase = "over";
 
-    // 🔹 Update score in Firebase once
-    const scoreRef = ref(db, `rooms/${roomCode}/scores/player${winner}`);
-    get(scoreRef).then(snap => {
-      const newScore = (snap.val() || 0) + 1;
-      set(scoreRef, newScore);
-    });
+    // 🔹 Only the host updates Firebase scores
+    if (isHost) {
+      const scoreRef = ref(db, `rooms/${roomCode}/scores/player${winner}`);
+      get(scoreRef).then(snap => {
+        const newScore = (snap.val() || 0) + 1;
+        set(scoreRef, newScore);
+      });
+    }
 
     // 🔹 Start next round after 3 seconds
     setTimeout(async () => {
       overlay.style.display = "none";
-      roundEnded = false;   // 🔹 reset for next round
-      await resetBoard();   // reset pucks
+      roundEnded = false;
+      await resetBoard();
     }, 3000);
   }
 }
