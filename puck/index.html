@@ -43,6 +43,11 @@ canvas {
   </div>
 </div>
 
+<div id="scoreboard" style="margin-bottom: 10px; font-size: 20px;">
+  Player 1 Wins: <span id="player1Wins">0</span> |
+  Player 2 Wins: <span id="player2Wins">0</span>
+</div>
+  
 <canvas id="game" width="800" height="500"></canvas>
 
 <div id="gameOver" style="
@@ -107,7 +112,8 @@ document.getElementById("createBtn").onclick = async () => {
       shotsTaken: { player1: 0, player2: 0 },
       maxShots: 3,
       pucks: []
-    }
+    },
+    scores: { player1: 0, player2: 0 } // add this
   });
 
   roomCode = code;
@@ -281,6 +287,11 @@ function listenState() {
     phase = s.phase;
     currentPlayer = s.currentPlayer;
     stateShots = s.shotsTaken;
+      onValue(ref(db, `rooms/${roomCode}/scores`), snap => {
+      const scores = snap.val() || { player1: 0, player2: 0 };
+      document.getElementById("player1Wins").textContent = scores.player1;
+      document.getElementById("player2Wins").textContent = scores.player2;
+    });
   });
 }
 
@@ -383,21 +394,21 @@ function checkWinLose() {
   if (p1Pucks === 0 && p2Pucks > 0) winner = 2;
   if (p2Pucks === 0 && p1Pucks > 0) winner = 1;
 
-  if (winner) {
-    const overlay = document.getElementById("gameOver");
-    const text = document.getElementById("gameOverText");
-    overlay.style.display = "block";
-    if (myPlayer === winner) {
-      text.textContent = "YOU WIN!";
-    } else {
-      text.textContent = "YOU LOSE!";
-    }
+if (winner) {
+  const overlay = document.getElementById("gameOver");
+  const text = document.getElementById("gameOverText");
+  overlay.style.display = "block";
+  text.textContent = myPlayer === winner ? "YOU WIN!" : "YOU LOSE!";
 
-    // Stop further actions
-    phase = "over";
-  }
+  phase = "over";
+
+  // 🔹 Update score in Firebase
+  const scoreRef = ref(db, `rooms/${roomCode}/scores/player${winner}`);
+  get(scoreRef).then(snap => {
+    const newScore = (snap.val() || 0) + 1;
+    set(scoreRef, newScore);
+  });
 }
-
   
 /* ================= DRAW ================= */
 function draw() {
