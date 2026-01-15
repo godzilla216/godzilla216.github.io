@@ -2,358 +2,358 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Puck Duel</title>
+<title>Puck Duel Online</title>
+
 <style>
-  body {
-    background: #222;
-    color: white;
-    font-family: Arial, sans-serif;
-    text-align: center;
-  }
-  canvas {
-    background: #0a5;
-    border: 4px solid #333;
-    margin-top: 10px;
-  }
-  #info {
-    margin-top: 10px;
-    font-size: 18px;
-  }
-  #scoreboard {
-  display: flex;
-  justify-content: space-between;
-  width: 800px;
-  margin: 0 auto;
-  font-size: 20px;
+body {
+  background: #222;
+  color: white;
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
+
+canvas {
+  background: #0a5;
+  border: 4px solid #333;
+  margin-top: 10px;
+}
+
+#lobby {
+  margin-bottom: 10px;
+}
+
+#status {
+  margin-top: 6px;
   font-weight: bold;
 }
-
-#p1Score {
-  color: #f44;
-}
-
-#p2Score {
-  color: #44f;
-}
-
-#roundCounter {
-  font-size: 18px;
-  margin-bottom: 6px;
-}
-
-.active-player {
-  text-shadow: 0 0 10px white;
-}
-
-#winOverlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.8);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  font-size: 48px;
-  z-index: 10;
-}
-
-#winText {
-  color: white;
-}
-
 </style>
 </head>
+
 <body>
 
 <h1>Puck Duel</h1>
-<div id="info">Player 1: Aim puck 1</div>
-<div id="scoreboard">
-  <span id="p1Score">Player 1: 3</span>
-  <span id="p2Score">Player 2: 3</span>
+
+<div id="lobby">
+  <button id="createBtn">Create Room</button>
+  <input id="codeInput" placeholder="Room code" />
+  <button id="joinBtn">Join Room</button>
+  <div id="status">
+    Room: <span id="roomLabel">-</span> |
+    You: <span id="playerLabel">-</span>
+  </div>
 </div>
-
-<div id="roundCounter">Round 1</div>
-
 
 <canvas id="game" width="800" height="500"></canvas>
 
-<div id="winOverlay">
-  <div id="winText"></div>
-</div>
+<script type="module">
+/* ================= FIREBASE ================= */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import {
+  getDatabase,
+  ref,
+  set,
+  get,
+  update,
+  onValue
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDxoIs6Nn5dMCpPj8JjNqbv-O3SVpiac0A",
+  authDomain: "login-6cdd8.firebaseapp.com",
+  databaseURL: "https://login-6cdd8-default-rtdb.firebaseio.com",
+  projectId: "login-6cdd8",
+  storageBucket: "login-6cdd8.firebasestorage.app",
+  messagingSenderId: "518535069226",
+  appId: "1:518535069226:web:8925106a250805bbf24d53"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+/* ================= LOBBY ================= */
+let roomCode = null;
+let myPlayer = null;
+let isHost = false;
+let bothPlayersReady = false;
+
+function generateCode() {
+  return Math.random().toString(36).substring(2, 7).toUpperCase();
+}
+
+document.getElementById("createBtn").onclick = async () => {
+  const code = generateCode();
+
+  await set(ref(db, "rooms/" + code), {
+    players: { player1: true, player2: false },
+    state: {
+      phase: "aim",
+      currentPlayer: 1,
+      shotsTaken: { player1: 0, player2: 0 },
+      maxShots: 3,
+      pucks: []
+    }
+  });
+
+  roomCode = code;
+  myPlayer = 1;
+  isHost = true;
+
+  document.getElementById("roomLabel").textContent = code;
+  document.getElementById("playerLabel").textContent = "Player 1";
+
+  initGame();
+  listenPlayers();
+  listenState();
+};
+
+document.getElementById("joinBtn").onclick = async () => {
+  const code = document.getElementById("codeInput").value.toUpperCase();
+  const snap = await get(ref(db, "rooms/" + code));
+
+  if (!snap.exists()) return alert("Room not found");
+  if (snap.val().players.player2) return alert("Room full");
+
+  await update(ref(db, "rooms/" + code + "/players"), { player2: true });
+
+  roomCode = code;
+  myPlayer = 2;
+  isHost = false;
+
+  document.getElementById("roomLabel").textContent = code;
+  document.getElementById("playerLabel").textContent = "Player 2";
+
+  listenPlayers();
+  listenState();
+};
+
+/* ================= GAME ================= */
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
-const info = document.getElementById("info");
 
 const BOARD_MARGIN = 20;
 const PUCK_RADIUS = 12;
 const FRICTION = 0.99;
 
-const p1Score = document.getElementById("p1Score");
-const p2Score = document.getElementById("p2Score");
-
-let currentPlayer = 1;
-let currentPuckIndex = 0;
-let aiming = false;
-let aimStart = null;
+let pucks = [];
 let phase = "aim";
-let aimCurrent = null;
-let roundNumber = 1;
-
-
-const pucks = [];
-
-function updateScoreboard() {
-  const p1 = getActivePucks(1).length;
-  const p2 = getActivePucks(2).length;
-
-  p1Score.textContent = `Player 1: ${p1}`;
-  p2Score.textContent = `Player 2: ${p2}`;
-
-  p1Score.classList.toggle("active-player", currentPlayer === 1 && phase === "aim");
-  p2Score.classList.toggle("active-player", currentPlayer === 2 && phase === "aim");
-}
+let currentPlayer = 1;
+let aiming = false;
+let aimPos = null;
 
 function createPucks() {
-  pucks.length = 0;
+  pucks = [];
   for (let i = 0; i < 3; i++) {
-    pucks.push({
-      x: 150,
-      y: 150 + i * 60,
-      vx: 0,
-      vy: 0,
-      player: 1,
-      active: true,
-      opacity: 1,
-      shake: 0,
-      eliminated: false
-    });
-    pucks.push({
-      x: 650,
-      y: 150 + i * 60,
-      vx: 0,
-      vy: 0,
-      player: 2,
-      active: true,
-      opacity: 1,
-      shake: 0,
-      eliminated: false
-    });
+    pucks.push({ x: 150, y: 150 + i*60, vx: 0, vy: 0, player: 1, active: true });
+    pucks.push({ x: 650, y: 150 + i*60, vx: 0, vy: 0, player: 2, active: true });
   }
 }
-
-createPucks();
-
-function getCurrentPuck() {
-  const list = getActivePucks(currentPlayer);
-  return list[currentPuckIndex] || null;
-}
-
-canvas.addEventListener("mousedown", e => {
-  if (phase !== "aim") return;
-  const puck = getCurrentPuck();
-  if (!puck || !puck.active) return;
-
-  aiming = true;
-  aimCurrent = getMouse(e);
-});
-
-canvas.addEventListener("mousemove", e => {
-  if (!aiming) return;
-  aimCurrent = getMouse(e);
-});
-
-
-canvas.addEventListener("mouseup", e => {
-  if (!aiming) return;
-  aiming = false;
-
-  const puck = getCurrentPuck();
-  const end = getMouse(e);
-
-  puck.vx = (puck.x - end.x) * 0.1;
-  puck.vy = (puck.y - end.y) * 0.1;
-
-  aimCurrent = null;
-
-  currentPuckIndex++;
-
-  if (currentPuckIndex >= getActivePucks(currentPlayer).length) {
-    currentPuckIndex = 0;
-    currentPlayer = currentPlayer === 1 ? 2 : 1;
-    }
-    if (
-    currentPlayer === 1 &&
-    currentPuckIndex === 0 &&
-    phase === "aim"
-  ) {
-
-    phase = "move";
-    info.textContent = "Round in progress...";
-  } else {
-    info.textContent = `Player ${currentPlayer}: Aim puck ${currentPuckIndex + 1}`;
-  }
-});
-
-function getMouse(e) {
-  const rect = canvas.getBoundingClientRect();
-  return {
-    x: e.clientX - rect.left,
-    y: e.clientY - rect.top
-  };
-}
-
-function update() {
-  if (phase === "move") {
-    let moving = false;
-
-    for (let p of pucks) {
-      if (!p.active) continue;
-
-      p.x += p.vx;
-      p.y += p.vy;
-      p.vx *= FRICTION;
-      p.vy *= FRICTION;
-
-      if (Math.abs(p.vx) > 0.05 || Math.abs(p.vy) > 0.05) {
-        moving = true;
-      }
-		if (p.eliminated) {
-        p.opacity -= 0.05;
-        p.shake *= 0.8;
-
-        if (p.opacity <= 0) {
-          p.active = false;
-        }
-      }
-
-      if (
-        p.x < BOARD_MARGIN ||
-        p.x > canvas.width - BOARD_MARGIN ||
-        p.y < BOARD_MARGIN ||
-        p.y > canvas.height - BOARD_MARGIN
-      ) {
-        if (!p.eliminated) {
-          p.eliminated = true;
-          p.shake = 10;
-        }
-
-      }
-    }
-
-    handleCollisions();
-
-    if (!moving) {
-      resetRound();
-    }
-  }
-}
-
-function handleCollisions() {
-  for (let i = 0; i < pucks.length; i++) {
-    for (let j = i + 1; j < pucks.length; j++) {
-      const a = pucks[i];
-      const b = pucks[j];
-      if (!a.active || !b.active) continue;
-
-      const dx = b.x - a.x;
-      const dy = b.y - a.y;
-      const dist = Math.hypot(dx, dy);
-
-      if (dist < PUCK_RADIUS * 2) {
-        const nx = dx / dist;
-        const ny = dy / dist;
-
-        const p = 2 * (a.vx * nx + a.vy * ny - b.vx * nx - b.vy * ny) / 2;
-
-        a.vx -= p * nx;
-        a.vy -= p * ny;
-        b.vx += p * nx;
-        b.vy += p * ny;
-      }
-    }
-  }
-}
-
-function resetRound() {
-  for (let p of pucks) {
-    p.vx = 0;
-    p.vy = 0;
-  }
-  phase = "aim";
-  currentPlayer = 1;
-  currentPuckIndex = 0;
-  info.textContent = "Player 1: Aim puck 1";
-  roundNumber++;
-document.getElementById("roundCounter").textContent = `Round ${roundNumber}`;
-
-  checkWin();
-}
-
-function checkWin() {
-  const p1 = getActivePucks(1).length;
-  const p2 = getActivePucks(2).length;
-
-  if (p1 === 0 || p2 === 0) {
-    const winner = p1 === 0 ? 2 : 1;
-    awardMatchPoint(winner);
-  }
-}
-
 
 function getActivePucks(player) {
   return pucks.filter(p => p.player === player && p.active);
 }
 
-function draw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+function getCurrentPuck() {
+  const list = getActivePucks(currentPlayer);
+  const idx = stateShots[`player${currentPlayer}`];
+  return list[idx];
+}
 
-  ctx.strokeStyle = "#000";
-  ctx.strokeRect(
-    BOARD_MARGIN,
-    BOARD_MARGIN,
-    canvas.width - BOARD_MARGIN * 2,
-    canvas.height - BOARD_MARGIN * 2
-  );
+/* ================= INPUT ================= */
+canvas.onmousedown = e => {
+  if (!bothPlayersReady) return;
+  if (phase !== "aim") return;
+  if (currentPlayer !== myPlayer) return;
+  aiming = true;
+  aimPos = getMouse(e);
+};
 
-  for (let p of pucks) {
-    if (!p.active) continue;
-      ctx.save();
-      ctx.globalAlpha = p.opacity;
+canvas.onmousemove = e => aiming && (aimPos = getMouse(e));
 
-      const shakeX = (Math.random() - 0.5) * p.shake;
-      const shakeY = (Math.random() - 0.5) * p.shake;
+canvas.onmouseup = async e => {
+  if (!aiming) return;
+  aiming = false;
 
-      ctx.beginPath();
-      ctx.arc(p.x + shakeX, p.y + shakeY, PUCK_RADIUS, 0, Math.PI * 2);
-      ctx.fillStyle = p.player === 1 ? "#f44" : "#44f";
-      ctx.fill();
-	  ctx.restore();
+  const stateRef = ref(db, `rooms/${roomCode}/state`);
+  const snap = await get(stateRef);
+  const s = snap.val();
 
+  if (s.phase !== "aim") return;
+
+  const puck = getActivePucks(myPlayer)[s.shotsTaken[`player${myPlayer}`]];
+  if (!puck) return;
+
+  const end = getMouse(e);
+  puck.vx = (puck.x - end.x) * 0.1;
+  puck.vy = (puck.y - end.y) * 0.1;
+
+  s.shotsTaken[`player${myPlayer}`]++;
+
+  if (
+    s.shotsTaken.player1 === s.maxShots &&
+    s.shotsTaken.player2 === s.maxShots
+  ) {
+    s.phase = "move";
+  } else if (s.shotsTaken[`player${myPlayer}`] === s.maxShots) {
+    s.currentPlayer = myPlayer === 1 ? 2 : 1;
   }
 
-  if (aiming && aimCurrent) {
+  await update(stateRef, {
+    pucks,
+    shotsTaken: s.shotsTaken,
+    currentPlayer: s.currentPlayer,
+    phase: s.phase
+  });
+};
+
+/* ================= STATE SYNC ================= */
+let stateShots = { player1: 0, player2: 0 };
+
+function listenPlayers() {
+  onValue(ref(db, `rooms/${roomCode}/players`), snap => {
+    const p = snap.val();
+    bothPlayersReady = p.player1 && p.player2;
+  });
+}
+
+function listenState() {
+  onValue(ref(db, `rooms/${roomCode}/state`), snap => {
+    if (!snap.exists()) return;
+    const s = snap.val();
+    pucks = s.pucks || [];
+    phase = s.phase;
+    currentPlayer = s.currentPlayer;
+    stateShots = s.shotsTaken;
+  });
+}
+
+/* ================= HOST PHYSICS ================= */
+function updateGame() {
+  if (!isHost) return;
+  if (phase !== "move") return;
+
+  let moving = false;
+
+  // Move pucks
+  for (let p of pucks) {
+    if (!p.active) continue;
+
+    p.x += p.vx;
+    p.y += p.vy;
+
+    p.vx *= FRICTION;
+    p.vy *= FRICTION;
+
+    // Check if puck fell off the board
+    if (
+      p.x < 0 || p.x > canvas.width ||
+      p.y < 0 || p.y > canvas.height
+    ) {
+      p.active = false;
+      p.vx = 0;
+      p.vy = 0;
+    }
+  }
+
+  // Check puck-to-puck collisions
+  for (let i = 0; i < pucks.length; i++) {
+    for (let j = i + 1; j < pucks.length; j++) {
+      let p1 = pucks[i];
+      let p2 = pucks[j];
+      if (!p1.active || !p2.active) continue;
+
+      let dx = p2.x - p1.x;
+      let dy = p2.y - p1.y;
+      let dist = Math.hypot(dx, dy);
+      let minDist = PUCK_RADIUS * 2;
+
+      if (dist < minDist) {
+        let overlap = minDist - dist;
+        let nx = dx / dist;
+        let ny = dy / dist;
+
+        // Move pucks apart
+        p1.x -= nx * overlap / 2;
+        p1.y -= ny * overlap / 2;
+        p2.x += nx * overlap / 2;
+        p2.y += ny * overlap / 2;
+
+        // Elastic collision
+        let tx = -ny;
+        let ty = nx;
+        let dpTan1 = p1.vx * tx + p1.vy * ty;
+        let dpTan2 = p2.vx * tx + p2.vy * ty;
+        let dpNorm1 = p1.vx * nx + p1.vy * ny;
+        let dpNorm2 = p2.vx * nx + p2.vy * ny;
+
+        // Swap normal velocities
+        let m1 = dpNorm2;
+        let m2 = dpNorm1;
+        p1.vx = tx * dpTan1 + nx * m1;
+        p1.vy = ty * dpTan1 + ny * m1;
+        p2.vx = tx * dpTan2 + nx * m2;
+        p2.vy = ty * dpTan2 + ny * m2;
+
+        // Damping
+        p1.vx *= 0.9;
+        p1.vy *= 0.9;
+        p2.vx *= 0.9;
+        p2.vy *= 0.9;
+      }
+    }
+  }
+
+  // Check if any puck is still moving
+  for (let p of pucks) {
+    if (p.active && (Math.abs(p.vx) > 0.05 || Math.abs(p.vy) > 0.05)) moving = true;
+  }
+
+  if (!moving) resetRound();
+
+  update(ref(db, `rooms/${roomCode}/state`), { pucks });
+}
+
+/* ================= DRAW ================= */
+function draw() {
+  ctx.clearRect(0,0,800,500);
+  ctx.strokeRect(BOARD_MARGIN,BOARD_MARGIN,760,460);
+
+  for (let p of pucks) {
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,PUCK_RADIUS,0,Math.PI*2);
+    ctx.fillStyle = p.player === 1 ? "#f44" : "#44f";
+    ctx.fill();
+  }
+
+  if (aiming && aimPos) {
     const puck = getCurrentPuck();
     if (puck) {
       ctx.beginPath();
-      ctx.moveTo(puck.x, puck.y);
-      ctx.lineTo(aimCurrent.x, aimCurrent.y);
+      ctx.moveTo(puck.x,puck.y);
+      ctx.lineTo(aimPos.x,aimPos.y);
       ctx.strokeStyle = "white";
-      ctx.lineWidth = 2;
       ctx.stroke();
     }
   }
 }
 
-function loop() {
-  update();
-  draw();
-  updateScoreboard();
-  requestAnimationFrame(loop);
+function getMouse(e) {
+  const r = canvas.getBoundingClientRect();
+  return { x: e.clientX - r.left, y: e.clientY - r.top };
 }
 
-loop();
-</script>
+function initGame() {
+  createPucks();
+  set(ref(db, `rooms/${roomCode}/state/pucks`), pucks);
+}
 
+/* ================= LOOP ================= */
+function loop() {
+  updateGame();
+  draw();
+  requestAnimationFrame(loop);
+}
+loop();
+
+</script>
 </body>
 </html>
