@@ -280,6 +280,7 @@ function listenPlayers() {
 }
 
 function listenState() {
+  // Listen for game state
   onValue(ref(db, `rooms/${roomCode}/state`), snap => {
     if (!snap.exists()) return;
     const s = snap.val();
@@ -287,11 +288,13 @@ function listenState() {
     phase = s.phase;
     currentPlayer = s.currentPlayer;
     stateShots = s.shotsTaken;
-      onValue(ref(db, `rooms/${roomCode}/scores`), snap => {
-      const scores = snap.val() || { player1: 0, player2: 0 };
-      document.getElementById("player1Wins").textContent = scores.player1;
-      document.getElementById("player2Wins").textContent = scores.player2;
-    });
+  });
+
+  // Listen for scores separately
+  onValue(ref(db, `rooms/${roomCode}/scores`), snap => {
+    const scores = snap.val() || { player1: 0, player2: 0 };
+    document.getElementById("player1Wins").textContent = scores.player1;
+    document.getElementById("player2Wins").textContent = scores.player2;
   });
 }
 
