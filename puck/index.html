@@ -209,16 +209,25 @@ canvas.onmouseup = async e => {
 let stateShots = { player1: 0, player2: 0 };
 
 async function resetRound() {
-  // Do NOT reset puck positions; just reset shots for the next round
+  if (!roomCode) return;
+
+  // Remove pucks that are inactive or off the board
+  pucks = pucks.filter(p => 
+    p.active &&
+    p.x >= 0 && p.x <= canvas.width &&
+    p.y >= 0 && p.y <= canvas.height
+  );
+
+  // Reset shots for the next round
   stateShots = { player1: 0, player2: 0 };
 
-  // Set phase back to aim, start with the next player who should shoot
+  // Set phase back to aim, start with Player 1
   phase = "aim";
-  currentPlayer = 1; // or keep the last player? up to game rules
+  currentPlayer = 1;
 
-  if (!roomCode) return;
+  // Update Firebase state
   await update(ref(db, `rooms/${roomCode}/state`), {
-    // Keep existing pucks in place
+    pucks,
     shotsTaken: stateShots,
     phase,
     currentPlayer
