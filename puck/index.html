@@ -83,7 +83,7 @@ function generateCode() {
 document.getElementById("createBtn").onclick = async () => {
   const code = generateCode();
 
-  await set(ref(db, "rooms/" + tcode), {
+  await set(ref(db, "rooms/" + code), {
     players: { player1: true, player2: false },
     state: {
       phase: "aim",
