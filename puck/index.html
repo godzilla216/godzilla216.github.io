@@ -152,35 +152,45 @@ function getActivePucks(player) {
   return pucks.filter(p => p.player === player && p.active);
 }
 
-function getCurrentPuck() {
+function canvas.onm() {
   const list = getActivePucks(currentPlayer);
   const idx = stateShots[`player${currentPlayer}`];
+
+  // If player has no more pucks, return null
+  if (!list || idx >= list.length) return null;
+
   return list[idx];
 }
+
 
 /* ================= INPUT ================= */
 canvas.onmousedown = e => {
   if (!bothPlayersReady) return;
   if (phase !== "aim") return;
   if (currentPlayer !== myPlayer) return;
+
+  const puck = getCurrentPuck();
+  if (!puck) return; // No puck left for this player
+
   aiming = true;
   aimPos = getMouse(e);
 };
 
-canvas.onmousemove = e => aiming && (aimPos = getMouse(e));
+canvas.onmousemove = e => {
+  if (!aiming) return;
+  aimPos = getMouse(e);
+};
 
 canvas.onmouseup = async e => {
   if (!aiming) return;
   aiming = false;
 
+  const puck = getCurrentPuck();
+  if (!puck) return; // No puck left for this player
+
   const stateRef = ref(db, `rooms/${roomCode}/state`);
   const snap = await get(stateRef);
   const s = snap.val();
-
-  if (s.phase !== "aim") return;
-
-  const puck = getActivePucks(myPlayer)[s.shotsTaken[`player${myPlayer}`]];
-  if (!puck) return;
 
   const end = getMouse(e);
   puck.vx = (puck.x - end.x) * 0.1;
@@ -188,12 +198,14 @@ canvas.onmouseup = async e => {
 
   s.shotsTaken[`player${myPlayer}`]++;
 
+  // Check if both players have finished their shots
   if (
-    s.shotsTaken.player1 === s.maxShots &&
-    s.shotsTaken.player2 === s.maxShots
+    s.shotsTaken.player1 >= getActivePucks(1).length &&
+    s.shotsTaken.player2 >= getActivePucks(2).length
   ) {
     s.phase = "move";
-  } else if (s.shotsTaken[`player${myPlayer}`] === s.maxShots) {
+  } else if (s.shotsTaken[`player${myPlayer}`] >= getActivePucks(myPlayer).length) {
+    // Switch to the next player if current player is out of pucks
     s.currentPlayer = myPlayer === 1 ? 2 : 1;
   }
 
@@ -204,6 +216,7 @@ canvas.onmouseup = async e => {
     phase: s.phase
   });
 };
+
 
 /* ================= STATE SYNC ================= */
 let stateShots = { player1: 0, player2: 0 };
@@ -370,7 +383,7 @@ function draw() {
   }
 
   if (aiming && aimPos) {
-    const puck = getCurrentPuck();
+    const puck = canvas.on();
     if (puck) {
       ctx.beginPath();
       ctx.moveTo(puck.x,puck.y);
