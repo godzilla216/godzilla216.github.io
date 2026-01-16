@@ -270,38 +270,6 @@ async function releaseAim(pos) {
     phase: s.phase
   });
 }
-  
-  const puck = getCurrentPuck();
-  if (!puck) return; // No puck left for this player
-
-  const stateRef = ref(db, `rooms/${roomCode}/state`);
-  const snap = await get(stateRef);
-  const s = snap.val();
-
-  const end = getMouse(e);
-  puck.vx = (puck.x - end.x) * 0.1;
-  puck.vy = (puck.y - end.y) * 0.1;
-
-  s.shotsTaken[`player${myPlayer}`]++;
-
-  // Check if both players have finished their shots
-  if (
-    s.shotsTaken.player1 >= getActivePucks(1).length &&
-    s.shotsTaken.player2 >= getActivePucks(2).length
-  ) {
-    s.phase = "move";
-  } else if (s.shotsTaken[`player${myPlayer}`] >= getActivePucks(myPlayer).length) {
-    // Switch to the next player if current player is out of pucks
-    s.currentPlayer = myPlayer === 1 ? 2 : 1;
-  }
-
-  await update(stateRef, {
-    pucks,
-    shotsTaken: s.shotsTaken,
-    currentPlayer: s.currentPlayer,
-    phase: s.phase
-  });
-};
 
 
 /* ================= STATE SYNC ================= */
@@ -546,11 +514,6 @@ function getPointerPos(e) {
     x: e.clientX - rect.left,
     y: e.clientY - rect.top
   };
-}
-  
-function getMouse(e) {
-  const r = canvas.getBoundingClientRect();
-  return { x: e.clientX - r.left, y: e.clientY - r.top };
 }
 
 function getPointerPos(e) {
