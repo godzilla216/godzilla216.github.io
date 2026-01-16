@@ -49,6 +49,10 @@ canvas {
   Player 1 Wins: <span id="player1Wins">0</span> |
   Player 2 Wins: <span id="player2Wins">0</span>
 </div>
+
+<div id="turnIndicator" style="margin-top:6px; font-size:18px; font-weight:bold;">
+  Waiting for players...
+</div>
   
 <canvas id="game" width="800" height="500"></canvas>
 
@@ -337,14 +341,34 @@ function listenPlayers() {
 
 function listenState() {
   // Listen for game state
-  onValue(ref(db, `rooms/${roomCode}/state`), snap => {
-    if (!snap.exists()) return;
-    const s = snap.val();
-    pucks = s.pucks || [];
-    phase = s.phase;
-    currentPlayer = s.currentPlayer;
-    stateShots = s.shotsTaken;
-  });
+onValue(ref(db, `rooms/${roomCode}/state`), snap => {
+  if (!snap.exists()) return;
+  const s = snap.val();
+
+  pucks = s.pucks || [];
+  phase = s.phase;
+  currentPlayer = s.currentPlayer;
+  stateShots = s.shotsTaken;
+
+  const turnEl = document.getElementById("turnIndicator");
+
+  if (phase === "aim") {
+    if (currentPlayer === myPlayer) {
+      turnEl.textContent = "🎯 Your turn — set your target";
+      turnEl.style.color = "#0f0";
+    } else {
+      turnEl.textContent = `⏳ Player ${currentPlayer} is aiming`;
+      turnEl.style.color = "#fff";
+    }
+  } else if (phase === "move") {
+    turnEl.textContent = "💥 Pucks moving...";
+    turnEl.style.color = "#ff0";
+  } else if (phase === "over") {
+    turnEl.textContent = "🏁 Round over";
+    turnEl.style.color = "#f55";
+  }
+});
+
 
   // Listen for scores separately
   onValue(ref(db, `rooms/${roomCode}/scores`), snap => {
