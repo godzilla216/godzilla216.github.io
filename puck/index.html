@@ -516,29 +516,6 @@ function getPointerPos(e) {
   };
 }
 
-function getPointerPos(e) {
-  const rect = canvas.getBoundingClientRect();
-
-  if (e.touches && e.touches[0]) {
-    return {
-      x: e.touches[0].clientX - rect.left,
-      y: e.touches[0].clientY - rect.top
-    };
-  }
-
-  if (e.changedTouches && e.changedTouches[0]) {
-    return {
-      x: e.changedTouches[0].clientX - rect.left,
-      y: e.changedTouches[0].clientY - rect.top
-    };
-  }
-
-  return {
-    x: e.clientX - rect.left,
-    y: e.clientY - rect.top
-  };
-}
-  
 function initGame() {
   createPucks();
   set(ref(db, `rooms/${roomCode}/state/pucks`), pucks);
