@@ -39,6 +39,7 @@ canvas {
   <button id="createBtn">Create Room</button>
   <input id="codeInput" placeholder="Room code" />
   <button id="joinBtn">Join Room</button>
+  <button id="matchBtn">Quick Match</button>
   <div id="status">
     Room: <span id="roomLabel">-</span> |
     You: <span id="playerLabel">-</span>
@@ -103,6 +104,19 @@ let myPlayer = null;
 let isHost = false;
 let bothPlayersReady = false;
 
+function uid() {
+  return Math.random().toString(36).substring(2);
+}
+
+const myMatchId = uid();
+let inQueue = false;
+
+window.addEventListener("beforeunload", () => {
+  if (inQueue) {
+    set(ref(db, `matchmaking/queue/${myMatchId}`), null);
+  }
+});
+  
 function generateCode() {
   return Math.random().toString(36).substring(2, 7).toUpperCase();
 }
@@ -129,9 +143,12 @@ document.getElementById("createBtn").onclick = async () => {
   document.getElementById("roomLabel").textContent = code;
   document.getElementById("playerLabel").textContent = "Player 1";
 
+if (isHost) {
   initGame();
-  listenPlayers();
-  listenState();
+}
+
+listenPlayers();
+listenState();
 };
 
 document.getElementById("joinBtn").onclick = async () => {
@@ -153,6 +170,95 @@ document.getElementById("joinBtn").onclick = async () => {
   listenPlayers();
   listenState();
 };
+
+/* ==================== */
+
+document.getElementById("matchBtn").onclick = async () => {
+  if (inQueue) return;
+  inQueue = true;
+
+  document.getElementById("roomLabel").textContent = "—";
+  document.getElementById("playerLabel").textContent = "Matching";
+
+  const myRef = ref(db, `matchmaking/queue/${myMatchId}`);
+  await set(myRef, { joinedAt: Date.now() });
+
+  const queueRef = ref(db, "matchmaking/queue");
+
+  onValue(queueRef, async snap => {
+    if (!inQueue) return;
+
+    const queue = snap.val() || {};
+    const ids = Object.keys(queue);
+
+    // Need at least 2 people
+    if (ids.length < 2) return;
+
+    // Oldest player becomes host
+    ids.sort((a, b) => queue[a].joinedAt - queue[b].joinedAt);
+
+    if (ids[0] !== myMatchId) return; // not the host
+
+    const otherId = ids[1];
+    const code = generateCode();
+
+    await set(ref(db, `rooms/${code}`), {
+      players: { player1: true, player2: true },
+      state: {
+        phase: "aim",
+        currentPlayer: 1,
+        shotsTaken: { player1: 0, player2: 0 },
+        maxShots: 3,
+        pucks: []
+      },
+      scores: { player1: 0, player2: 0 }
+    });
+
+    await set(ref(db, `matchmaking/matches/${ids[0]}`), {
+      room: code,
+      player: 1
+    });
+
+    await set(ref(db, `matchmaking/matches/${ids[1]}`), {
+      room: code,
+      player: 2
+    });
+
+    await set(ref(db, `matchmaking/queue/${ids[0]}`), null);
+    await set(ref(db, `matchmaking/queue/${ids[1]}`), null);
+
+    inQueue = false;
+  });
+
+  waitForMatch();
+};
+  /*========================================================*/
+  function waitForMatch() {
+  onValue(ref(db, `matchmaking/matches/${myMatchId}`), snap => {
+    if (!snap.exists()) return;
+
+    const { room, player } = snap.val();
+    joinMatchedRoom(room, player);
+
+    set(ref(db, `matchmaking/queue/${myMatchId}`), null);
+    set(ref(db, `matchmaking/matches/${myMatchId}`), null);
+  });
+}
+
+function joinMatchedRoom(code, playerNum) {
+  roomCode = code;
+  myPlayer = playerNum;
+  isHost = playerNum === 1;
+
+  document.getElementById("roomLabel").textContent = code;
+  document.getElementById("playerLabel").textContent = `Player ${playerNum}`;
+
+  initGame();
+  listenPlayers();
+  listenState();
+
+  document.getElementById("status").textContent = "Matched!";
+}
 
 /* ================= GAME ================= */
 const canvas = document.getElementById("game");
