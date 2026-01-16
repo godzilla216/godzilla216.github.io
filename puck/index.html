@@ -363,6 +363,7 @@ let aimPos = null;
 let portal = null; 
 // portal = { x, y, exitX, exitY, radius }
 const PORTAL_RADIUS = 18;
+let portalAnim = 0; // animation timer
 const PORTAL_CHANCE = 0.6; // 40% chance per round
   
 function createPucks() {
@@ -770,22 +771,11 @@ function draw() {
   ctx.clearRect(0, 0, 800, 500);
   ctx.strokeRect(BOARD_MARGIN, BOARD_MARGIN, 760, 460);
   // 🟣 Draw portal
+
 if (portal) {
-  // entrance
-  ctx.beginPath();
-  ctx.arc(portal.x, portal.y, portal.radius, 0, Math.PI * 2);
-  ctx.strokeStyle = "purple";
-  ctx.lineWidth = 4;
-  ctx.stroke();
-
-  // exit
-  ctx.beginPath();
-  ctx.arc(portal.exitX, portal.exitY, portal.radius, 0, Math.PI * 2);
-  ctx.strokeStyle = "#ff66ff";
-  ctx.lineWidth = 2;
-  ctx.stroke();
+  drawPortal(portal.x, portal.y, portal.radius, "purple");
+  drawPortal(portal.exitX, portal.exitY, portal.radius, "#ff66ff");
 }
-
 
   // Draw pucks
   for (let p of pucks) {
@@ -841,7 +831,37 @@ function drawArrow(x1, y1, x2, y2) {
   ctx.fill();
 }
 
-  
+function drawPortal(x, y, r, color) {
+  const pulse = Math.sin(portalAnim * 2) * 3;
+  const glow = Math.abs(Math.sin(portalAnim)) * 10;
+
+  // Outer glow
+  ctx.beginPath();
+  ctx.arc(x, y, r + glow, 0, Math.PI * 2);
+  ctx.strokeStyle = color;
+  ctx.globalAlpha = 0.2;
+  ctx.lineWidth = 8;
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+
+  // Rotating swirl
+  for (let i = 0; i < 6; i++) {
+    const angle = portalAnim + (i * Math.PI / 3);
+    ctx.beginPath();
+    ctx.arc(x, y, r + pulse, angle, angle + Math.PI / 2);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 3;
+    ctx.stroke();
+  }
+
+  // Core ring
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.strokeStyle = "white";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+}
+
 
 function getMouse(e) {
   const r = canvas.getBoundingClientRect();
@@ -863,6 +883,7 @@ function initGame() {
 
 /* ================= LOOP ================= */
 function loop() {
+  portalAnim += 0.05;
   updateGame();
   draw();
   requestAnimationFrame(loop);
