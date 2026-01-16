@@ -359,6 +359,11 @@ let currentPlayer = 1;
 let aiming = false;
 let aimPos = null;
 
+// ===== PORTALS =====
+let portal = null; 
+// portal = { x, y, exitX, exitY, radius }
+const PORTAL_RADIUS = 18;
+const PORTAL_CHANCE = 0.6; // 40% chance per round
   
 function createPucks() {
   pucks = [];
@@ -516,13 +521,28 @@ async function resetRound() {
   phase = "aim";
   currentPlayer = 1;
 
+// 🟣 Spawn portal (host only, 40% chance)
+if (isHost && Math.random() < PORTAL_CHANCE) {
+  portal = {
+    x: Math.random() * (canvas.width - 200) + 100,
+    y: Math.random() * (canvas.height - 200) + 100,
+    exitX: Math.random() * (canvas.width - 200) + 100,
+    exitY: Math.random() * (canvas.height - 200) + 100,
+    radius: PORTAL_RADIUS
+  };
+} else {
+  portal = null;
+}
+
+  
   // Update Firebase state
-  await update(ref(db, `rooms/${roomCode}/state`), {
-    pucks,
-    shotsTaken: stateShots,
-    phase,
-    currentPlayer
-  });
+await update(ref(db, `rooms/${roomCode}/state`), {
+  pucks,
+  shotsTaken: stateShots,
+  phase,
+  currentPlayer,
+  portal
+});
 }
 
   
@@ -543,7 +563,9 @@ onValue(ref(db, `rooms/${roomCode}/state`), snap => {
   phase = s.phase;
   currentPlayer = s.currentPlayer;
   stateShots = s.shotsTaken;
+  portal = s.portal || null;
 
+  
   const turnEl = document.getElementById("turnIndicator");
 
   if (phase === "aim") {
@@ -588,6 +610,27 @@ function updateGame() {
     p.vx *= FRICTION;
     p.vy *= FRICTION;
 
+    // 🌀 Portal teleport (host only)
+if (portal) {
+  for (let p of pucks) {
+    if (!p.active) continue;
+
+    const dx = p.x - portal.x;
+    const dy = p.y - portal.y;
+    const dist = Math.hypot(dx, dy);
+
+    if (dist < portal.radius + PUCK_RADIUS) {
+      p.x = portal.exitX;
+      p.y = portal.exitY;
+
+      // prevent instant re-teleport
+      p.vx += (Math.random() - 0.5) * 2;
+      p.vy += (Math.random() - 0.5) * 2;
+    }
+  }
+}
+
+    
     if (
       p.x < 0 || p.x > canvas.width ||
       p.y < 0 || p.y > canvas.height
@@ -726,6 +769,23 @@ function checkWinLose() {
 function draw() {
   ctx.clearRect(0, 0, 800, 500);
   ctx.strokeRect(BOARD_MARGIN, BOARD_MARGIN, 760, 460);
+  // 🟣 Draw portal
+if (portal) {
+  // entrance
+  ctx.beginPath();
+  ctx.arc(portal.x, portal.y, portal.radius, 0, Math.PI * 2);
+  ctx.strokeStyle = "purple";
+  ctx.lineWidth = 4;
+  ctx.stroke();
+
+  // exit
+  ctx.beginPath();
+  ctx.arc(portal.exitX, portal.exitY, portal.radius, 0, Math.PI * 2);
+  ctx.strokeStyle = "#ff66ff";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+}
+
 
   // Draw pucks
   for (let p of pucks) {
