@@ -115,8 +115,9 @@ document.getElementById("createBtn").onclick = async () => {
       currentPlayer: 1,
       shotsTaken: { player1: 0, player2: 0 },
       maxShots: 3,
-      pucks: []
-    },
+      pucks: [],
+      aim: null
+    }
     scores: { player1: 0, player2: 0 } // add this
   });
 
@@ -231,12 +232,26 @@ function startAim(pos) {
 
   aiming = true;
   aimPos = pos;
+
+  update(ref(db, `rooms/${roomCode}/state/aim`), {
+    x: pos.x,
+    y: pos.y,
+    player: myPlayer
+  });
 }
 
 function moveAim(pos) {
   if (!aiming) return;
+
   aimPos = pos;
+
+  update(ref(db, `rooms/${roomCode}/state/aim`), {
+    x: pos.x,
+    y: pos.y,
+    player: myPlayer
+  });
 }
+
 
 async function releaseAim(pos) {
   if (!aiming) return;
@@ -245,12 +260,12 @@ async function releaseAim(pos) {
   const puck = getCurrentPuck();
   if (!puck) return;
 
+  puck.vx = (puck.x - pos.x) * 0.1;
+  puck.vy = (puck.y - pos.y) * 0.1;
+
   const stateRef = ref(db, `rooms/${roomCode}/state`);
   const snap = await get(stateRef);
   const s = snap.val();
-
-  puck.vx = (puck.x - pos.x) * 0.1;
-  puck.vy = (puck.y - pos.y) * 0.1;
 
   s.shotsTaken[`player${myPlayer}`]++;
 
@@ -267,9 +282,11 @@ async function releaseAim(pos) {
     pucks,
     shotsTaken: s.shotsTaken,
     currentPlayer: s.currentPlayer,
-    phase: s.phase
+    phase: s.phase,
+    aim: null
   });
 }
+
 
 
 /* ================= STATE SYNC ================= */
@@ -291,6 +308,10 @@ function listenState() {
     phase = s.phase;
     currentPlayer = s.currentPlayer;
     stateShots = s.shotsTaken;
+    let remoteAim = null;
+
+  onValue(ref(db, `rooms/${roomCode}/state/aim`), snap => {
+  remoteAim = snap.val();
   });
 
   // Listen for scores separately
@@ -478,13 +499,14 @@ function draw() {
     ctx.fill();
   }
 
-  if (aiming && aimPos) {
+  if (remoteAim && phase === "aim") {
     const puck = getCurrentPuck();
     if (puck) {
       ctx.beginPath();
-      ctx.moveTo(puck.x,puck.y);
-      ctx.lineTo(aimPos.x,aimPos.y);
-      ctx.strokeStyle = "white";
+      ctx.moveTo(puck.x, puck.y);
+      ctx.lineTo(remoteAim.x, remoteAim.y);
+      ctx.strokeStyle = "yellow";
+      ctx.lineWidth = 2;
       ctx.stroke();
     }
   }
