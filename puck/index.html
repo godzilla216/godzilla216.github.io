@@ -726,6 +726,7 @@ function draw() {
   ctx.clearRect(0,0,800,500);
   ctx.strokeRect(BOARD_MARGIN,BOARD_MARGIN,760,460);
 
+  // Draw pucks
   for (let p of pucks) {
     ctx.beginPath();
     ctx.arc(p.x,p.y,PUCK_RADIUS,0,Math.PI*2);
@@ -733,14 +734,35 @@ function draw() {
     ctx.fill();
   }
 
-  if (aiming && aimPos) {
+  // Draw aiming arrow
+  if (phase === "aim" && aiming && aimPos) {
     const puck = getCurrentPuck();
     if (puck) {
+      const startX = puck.x;
+      const startY = puck.y;
+      const endX = aimPos.x;
+      const endY = aimPos.y;
+
+      // Line
       ctx.beginPath();
-      ctx.moveTo(puck.x,puck.y);
-      ctx.lineTo(aimPos.x,aimPos.y);
+      ctx.moveTo(startX, startY);
+      ctx.lineTo(endX, endY);
       ctx.strokeStyle = "white";
+      ctx.lineWidth = 2;
       ctx.stroke();
+
+      // Arrowhead
+      const angle = Math.atan2(endY - startY, endX - startX);
+      const headLength = 10;
+      ctx.beginPath();
+      ctx.moveTo(endX, endY);
+      ctx.lineTo(endX - headLength * Math.cos(angle - Math.PI / 6),
+                 endY - headLength * Math.sin(angle - Math.PI / 6));
+      ctx.lineTo(endX - headLength * Math.cos(angle + Math.PI / 6),
+                 endY - headLength * Math.sin(angle + Math.PI / 6));
+      ctx.lineTo(endX, endY);
+      ctx.fillStyle = "white";
+      ctx.fill();
     }
   }
 }
