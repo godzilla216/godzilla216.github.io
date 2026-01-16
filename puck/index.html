@@ -28,6 +28,7 @@ canvas {
   font-weight: bold;
 }
 </style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 </head>
 
 <body>
@@ -69,18 +70,15 @@ canvas {
   
 <script type="module">
 /* ================= FIREBASE ================= */
-import { initializeApp } from
-  "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import {
   getDatabase,
   ref,
   set,
   get,
   update,
-  onValue,
-  runTransaction
-} from
-  "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+  onValue
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDxoIs6Nn5dMCpPj8JjNqbv-O3SVpiac0A",
@@ -115,8 +113,7 @@ document.getElementById("createBtn").onclick = async () => {
       currentPlayer: 1,
       shotsTaken: { player1: 0, player2: 0 },
       maxShots: 3,
-      pucks: [],
-      aim: null
+      pucks: []
     },
     scores: { player1: 0, player2: 0 } // add this
   });
@@ -192,37 +189,62 @@ function getCurrentPuck() {
 
 
 /* ================= INPUT ================= */
-// Mouse
-canvas.addEventListener("mousedown", e => {
-  startAim(getPointerPos(e));
-});
+canvas.onmousedown = e => {
+  if (!bothPlayersReady) return;
+  if (phase !== "aim") return; // prevent aiming if over
+  if (phase === "over") return;
+  if (currentPlayer !== myPlayer) return;
 
-canvas.addEventListener("mousemove", e => {
-  moveAim(getPointerPos(e));
-});
+  const puck = getCurrentPuck();
+  if (!puck) return;
 
-canvas.addEventListener("mouseup", e => {
-  releaseAim(getPointerPos(e));
-});
+  aiming = true;
+  aimPos = getMouse(e);
+};
 
-// Touch
+canvas.onmousemove = e => {
+  if (!aiming) return;
+  aimPos = getMouse(e);
+};
+
+canvas.onmouseup = async e => {
+  if (!aiming) return;
+  aiming = false;
+
+  const puck = getCurrentPuck();
+  if (!puck) return; // No puck left for this player
+
+  const stateRef = ref(db, `rooms/${roomCode}/state`);
+  const snap = await get(stateRef);
+  const s = snap.val();
+
+  const end = getMouse(e);
+  puck.vx = (puck.x - end.x) * 0.1;
+  puck.vy = (puck.y - end.y) * 0.1;
+
+  s.shotsTaken[`player${myPlayer}`]++;
+
+  // Check if both players have finished their shots
+  if (
+    s.shotsTaken.player1 >= getActivePucks(1).length &&
+    s.shotsTaken.player2 >= getActivePucks(2).length
+  ) {
+    s.phase = "move";
+  } else if (s.shotsTaken[`player${myPlayer}`] >= getActivePucks(myPlayer).length) {
+    // Switch to the next player if current player is out of pucks
+    s.currentPlayer = myPlayer === 1 ? 2 : 1;
+  }
+
+  await update(stateRef, {
+    pucks,
+    shotsTaken: s.shotsTaken,
+    currentPlayer: s.currentPlayer,
+    phase: s.phase
+  });
+};
+
+
 canvas.addEventListener("touchstart", e => {
-  e.preventDefault();
-  startAim(getPointerPos(e));
-}, { passive: false });
-
-canvas.addEventListener("touchmove", e => {
-  e.preventDefault();
-  moveAim(getPointerPos(e));
-}, { passive: false });
-
-canvas.addEventListener("touchend", e => {
-  e.preventDefault();
-  releaseAim(getPointerPos(e));
-}, { passive: false });
-
-  
-function startAim(pos) {
   if (!bothPlayersReady) return;
   if (phase !== "aim") return;
   if (currentPlayer !== myPlayer) return;
@@ -230,42 +252,32 @@ function startAim(pos) {
   const puck = getCurrentPuck();
   if (!puck) return;
 
+  e.preventDefault(); // stop scrolling
   aiming = true;
-  aimPos = pos;
+  aimPos = getTouchPos(e.touches[0]);
+}, { passive: false });
 
-  update(ref(db, `rooms/${roomCode}/state/aim`), {
-    x: pos.x,
-    y: pos.y,
-    player: myPlayer
-  });
-}
-
-function moveAim(pos) {
+canvas.addEventListener("touchmove", e => {
   if (!aiming) return;
+  e.preventDefault();
+  aimPos = getTouchPos(e.touches[0]);
+}, { passive: false });
 
-  aimPos = pos;
-
-  update(ref(db, `rooms/${roomCode}/state/aim`), {
-    x: pos.x,
-    y: pos.y,
-    player: myPlayer
-  });
-}
-
-
-async function releaseAim(pos) {
+canvas.addEventListener("touchend", async e => {
   if (!aiming) return;
   aiming = false;
 
   const puck = getCurrentPuck();
   if (!puck) return;
 
-  puck.vx = (puck.x - pos.x) * 0.1;
-  puck.vy = (puck.y - pos.y) * 0.1;
-
   const stateRef = ref(db, `rooms/${roomCode}/state`);
   const snap = await get(stateRef);
   const s = snap.val();
+
+  const end = aimPos;
+
+  puck.vx = (puck.x - end.x) * 0.1;
+  puck.vy = (puck.y - end.y) * 0.1;
 
   s.shotsTaken[`player${myPlayer}`]++;
 
@@ -282,16 +294,40 @@ async function releaseAim(pos) {
     pucks,
     shotsTaken: s.shotsTaken,
     currentPlayer: s.currentPlayer,
-    phase: s.phase,
-    aim: null
+    phase: s.phase
   });
-}
-
-
+}, { passive: false });
 
 /* ================= STATE SYNC ================= */
 let stateShots = { player1: 0, player2: 0 };
- 
+
+async function resetRound() {
+  if (!roomCode) return;
+
+  // Remove pucks that are inactive or off the board
+  pucks = pucks.filter(p => 
+    p.active &&
+    p.x >= 0 && p.x <= canvas.width &&
+    p.y >= 0 && p.y <= canvas.height
+  );
+
+  // Reset shots for the next round
+  stateShots = { player1: 0, player2: 0 };
+
+  // Set phase back to aim, start with Player 1
+  phase = "aim";
+  currentPlayer = 1;
+
+  // Update Firebase state
+  await update(ref(db, `rooms/${roomCode}/state`), {
+    pucks,
+    shotsTaken: stateShots,
+    phase,
+    currentPlayer
+  });
+}
+
+  
 function listenPlayers() {
   onValue(ref(db, `rooms/${roomCode}/players`), snap => {
     const p = snap.val();
@@ -308,10 +344,6 @@ function listenState() {
     phase = s.phase;
     currentPlayer = s.currentPlayer;
     stateShots = s.shotsTaken;
-    let remoteAim = null;
-
-  onValue(ref(db, `rooms/${roomCode}/state/aim`), snap => {
-  remoteAim = snap.val();
   });
 
   // Listen for scores separately
@@ -403,17 +435,12 @@ function updateGame() {
   // 🔹 Check for win/lose before resetting
   checkWinLose();
 
-if (!moving && phase === "move") {
-  phase = "aim";
+  // Only reset if nothing is moving AND game is not over
+  if (!moving && phase !== "over") {
+    resetRound();
+  }
 
-  update(ref(db, `rooms/${roomCode}/state`), {
-    pucks,
-    phase,
-    currentPlayer: 1,
-    shotsTaken: { player1: 0, player2: 0 }
-  });
-}
-
+  update(ref(db, `rooms/${roomCode}/state`), { pucks });
 }
 
 async function resetBoard() {
@@ -459,31 +486,21 @@ function checkWinLose() {
 
     phase = "over";
 
-    if (isHost) {
-  update(ref(db, `rooms/${roomCode}/state`), {
-    phase: "over"
-  });
-}
-
     // 🔹 Only the host updates Firebase scores
     if (isHost) {
       const scoreRef = ref(db, `rooms/${roomCode}/scores/player${winner}`);
-runTransaction(scoreRef, current => (current || 0) + 1);
-
+      get(scoreRef).then(snap => {
+        const newScore = (snap.val() || 0) + 1;
+        set(scoreRef, newScore);
+      });
     }
 
     // 🔹 Start next round after 3 seconds
-if (isHost) {
-  setTimeout(async () => {
-    await resetBoard();
-    roundEnded = false;
-  }, 3000);
-}
-
-setTimeout(() => {
-  overlay.style.display = "none";
-}, 3000);
-
+    setTimeout(async () => {
+      overlay.style.display = "none";
+      roundEnded = false;
+      await resetBoard();
+    }, 3000);
   }
 }
   
@@ -499,42 +516,28 @@ function draw() {
     ctx.fill();
   }
 
-  if (remoteAim && phase === "aim") {
+  if (aiming && aimPos) {
     const puck = getCurrentPuck();
     if (puck) {
       ctx.beginPath();
-      ctx.moveTo(puck.x, puck.y);
-      ctx.lineTo(remoteAim.x, remoteAim.y);
-      ctx.strokeStyle = "yellow";
-      ctx.lineWidth = 2;
+      ctx.moveTo(puck.x,puck.y);
+      ctx.lineTo(aimPos.x,aimPos.y);
+      ctx.strokeStyle = "white";
       ctx.stroke();
     }
   }
 }
 
-function getPointerPos(e) {
-  const rect = canvas.getBoundingClientRect();
+function getMouse(e) {
+  const r = canvas.getBoundingClientRect();
+  return { x: e.clientX - r.left, y: e.clientY - r.top };
+}
 
-  // Touch
-  if (e.touches && e.touches[0]) {
-    return {
-      x: e.touches[0].clientX - rect.left,
-      y: e.touches[0].clientY - rect.top
-    };
-  }
-
-  // Touch end
-  if (e.changedTouches && e.changedTouches[0]) {
-    return {
-      x: e.changedTouches[0].clientX - rect.left,
-      y: e.changedTouches[0].clientY - rect.top
-    };
-  }
-
-  // Mouse
+function getTouchPos(touch) {
+  const r = canvas.getBoundingClientRect();
   return {
-    x: e.clientX - rect.left,
-    y: e.clientY - rect.top
+    x: touch.clientX - r.left,
+    y: touch.clientY - r.top
   };
 }
 
@@ -548,6 +551,8 @@ function loop() {
   updateGame();
   draw();
   requestAnimationFrame(loop);
+  checkWinLose();
+
 }
 loop();
 
