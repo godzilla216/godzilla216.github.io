@@ -40,6 +40,7 @@ canvas {
   <input id="codeInput" placeholder="Room code" />
   <button id="joinBtn">Join Room</button>
   <button id="matchBtn">Quick Match</button>
+  <button id="spectateBtn">Spectate</button>
   <div id="status">
     Room: <span id="roomLabel">-</span> |
     You: <span id="playerLabel">-</span>
@@ -146,13 +147,35 @@ function updatePlayerStats(online = null, queue = null) {
 
 
 
-
-  
 let roomCode = null;
 let myPlayer = null;
 let isHost = false;
 let bothPlayersReady = false;
 
+// --- SPECTATE BUTTON ---
+document.getElementById("spectateBtn").onclick = async () => {
+  const code = prompt("Enter room code to spectate:")?.toUpperCase();
+  if (!code) return;
+
+  const snap = await get(ref(db, "rooms/" + code));
+  if (!snap.exists()) return alert("Room not found");
+
+  roomCode = code;
+  myPlayer = 0; // 0 = spectator
+  isHost = false; // spectators never host
+
+  document.getElementById("roomLabel").textContent = code;
+  document.getElementById("playerLabel").textContent = "Spectator";
+
+  bothPlayersReady = true; // allow state to be drawn
+  aiming = false;
+
+  listenState();
+
+  document.getElementById("status").textContent = "Spectating";
+};
+
+  
 function uid() {
   return Math.random().toString(36).substring(2);
 }
@@ -351,6 +374,7 @@ function getCurrentPuck() {
 canvas.onmousedown = e => {
   if (!bothPlayersReady) return;
   if (phase !== "aim") return; // prevent aiming if over
+  if (myPlayer === 0) return; 
   if (phase === "over") return;
   if (currentPlayer !== myPlayer) return;
 
@@ -406,6 +430,7 @@ canvas.onmouseup = async e => {
 canvas.addEventListener("touchstart", e => {
   if (!bothPlayersReady) return;
   if (phase !== "aim") return;
+  if (myPlayer === 0) return; 
   if (currentPlayer !== myPlayer) return;
 
   const puck = getCurrentPuck();
