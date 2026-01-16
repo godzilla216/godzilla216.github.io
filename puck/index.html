@@ -41,6 +41,8 @@ canvas {
   <button id="joinBtn">Join Room</button>
   <button id="matchBtn">Quick Match</button>
   <button id="spectateBtn">Spectate</button>
+  <div id="message" style="margin-top:6px; color:#f55; font-weight:bold;"></div>
+
   <div id="status">
     Room: <span id="roomLabel">-</span> |
     You: <span id="playerLabel">-</span>
@@ -152,13 +154,23 @@ let myPlayer = null;
 let isHost = false;
 let bothPlayersReady = false;
 
-// --- SPECTATE BUTTON ---
+const messageEl = document.getElementById("message");
+
 document.getElementById("spectateBtn").onclick = async () => {
   const code = document.getElementById("codeInput").value.toUpperCase();
-  if (!code) return; // nothing entered
+  if (!code) {
+    messageEl.textContent = "Please enter a room code.";
+    return;
+  }
 
   const snap = await get(ref(db, "rooms/" + code));
-  if (!snap.exists()) return console.log("Room not found"); // no alerts
+  if (!snap.exists()) {
+    messageEl.textContent = "Room not found.";
+    return;
+  }
+
+  // Clear message on success
+  messageEl.textContent = "";
 
   roomCode = code;
   myPlayer = 0; // 0 = spectator
@@ -174,6 +186,7 @@ document.getElementById("spectateBtn").onclick = async () => {
 
   document.getElementById("status").textContent = "Spectating";
 };
+
 
   
 function uid() {
