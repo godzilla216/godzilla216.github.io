@@ -154,11 +154,11 @@ let bothPlayersReady = false;
 
 // --- SPECTATE BUTTON ---
 document.getElementById("spectateBtn").onclick = async () => {
-  const code = prompt("Enter room code to spectate:")?.toUpperCase();
-  if (!code) return;
+  const code = document.getElementById("codeInput").value.toUpperCase();
+  if (!code) return; // nothing entered
 
   const snap = await get(ref(db, "rooms/" + code));
-  if (!snap.exists()) return alert("Room not found");
+  if (!snap.exists()) return console.log("Room not found"); // no alerts
 
   roomCode = code;
   myPlayer = 0; // 0 = spectator
