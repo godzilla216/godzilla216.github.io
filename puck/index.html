@@ -44,6 +44,9 @@ canvas {
     Room: <span id="roomLabel">-</span> |
     You: <span id="playerLabel">-</span>
   </div>
+<div id="playerStats" style="margin-top:6px; font-size:16px; color:#0ff;">
+  Online: 0 | Searching: 0
+</div>
 </div>
 
 <div id="scoreboard" style="margin-bottom: 10px; font-size: 20px;">
@@ -99,6 +102,52 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 /* ================= LOBBY ================= */
+
+
+
+  
+const playerStatsEl = document.getElementById("playerStats");
+
+// --- Track online players ---
+const myId = uid();
+const onlineRef = ref(db, `presence/${myId}`);
+
+// Mark this client as online
+set(onlineRef, { connectedAt: Date.now() });
+
+// Remove on disconnect
+import { onDisconnect } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+onDisconnect(onlineRef).remove();
+
+// --- Realtime listener for online players ---
+const presenceRef = ref(db, "presence");
+onValue(presenceRef, snap => {
+  const onlineUsers = snap.val() || {};
+  updatePlayerStats(Object.keys(onlineUsers).length);
+});
+
+// --- Realtime listener for queue ---
+const queueRef = ref(db, "matchmaking/queue");
+onValue(queueRef, snap => {
+  const queueUsers = snap.val() || {};
+  updatePlayerStats(null, Object.keys(queueUsers).length);
+});
+
+// --- Helper to update combined text ---
+let lastOnline = 0;
+let lastQueue = 0;
+
+function updatePlayerStats(online = null, queue = null) {
+  if (online !== null) lastOnline = online;
+  if (queue !== null) lastQueue = queue;
+
+  playerStatsEl.textContent = `Online: ${lastOnline} | Searching: ${lastQueue}`;
+}
+
+
+
+
+  
 let roomCode = null;
 let myPlayer = null;
 let isHost = false;
