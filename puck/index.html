@@ -374,14 +374,32 @@ let gravityWell = null;
 // gravityWell = { x, y, radius, strength }
 const GRAVITY_WELL_CHANCE = 0.5; // 50%
 const GRAVITY_RADIUS = 180;
-const GRAVITY_STRENGTH = 122;
+const GRAVITY_STRENGTH = 26;
 
   
 function createPucks() {
   pucks = [];
   for (let i = 0; i < 3; i++) {
-    pucks.push({ x: 150, y: 150 + i*60, vx: 0, vy: 0, player: 1, active: true });
-    pucks.push({ x: 650, y: 150 + i*60, vx: 0, vy: 0, player: 2, active: true });
+   pucks.push({
+  x: 150,
+  y: 150 + i * 60,
+  vx: 0,
+  vy: 0,
+  player: 1,
+  active: true,
+  hasSlingshotted: false
+});
+
+    pucks.push({
+  x: 150,
+  y: 650 + i * 60,
+  vx: 0,
+  vy: 0,
+  player: 2,
+  active: true,
+  hasSlingshotted: false
+});
+
   }
 }
 
@@ -518,7 +536,10 @@ let stateShots = { player1: 0, player2: 0 };
 
 async function resetRound() {
   if (!roomCode) return;
-
+ 
+  for (let p of pucks) {
+  p.hasSlingshotted = false;
+}
   // Remove pucks that are inactive or off the board
   pucks = pucks.filter(p => 
     p.active &&
@@ -635,37 +656,42 @@ function updateGame(dt) {
 // 🌀 Gravity well force
 // 🌀 SLINGSHOT GRAVITY WELL
 // 🌀 SLINGSHOT GRAVITY WELL (WITH ESCAPE)
-if (gravityWell) {
-  const dx = p.x - gravityWell.x;
-  const dy = p.y - gravityWell.y;
+// 🌀 ONE-TIME SLINGSHOT GRAVITY WELL
+if (gravityWell && !p.hasSlingshotted) {
+  const dx = gravityWell.x - p.x;
+  const dy = gravityWell.y - p.y;
   const dist = Math.hypot(dx, dy);
 
-  if (dist > 12 && dist < gravityWell.radius) {
+  if (dist < gravityWell.radius) {
     const nx = dx / dist;
     const ny = dy / dist;
 
-    // Pull INWARD (strong, smooth)
+    // Pull inward
     const pull =
       (1 - dist / gravityWell.radius) *
       gravityWell.strength *
       dt;
 
-    p.vx -= nx * pull;
-    p.vy -= ny * pull;
-
-    // 🚀 ESCAPE IMPULSE near center
-    if (dist < 60) {
-      const escape = (1 - dist / 60) * 14;
-      p.vx += nx * escape;
-      p.vy += ny * escape;
-    }
+    p.vx += nx * pull;
+    p.vy += ny * pull;
 
     // Tangential curve
-    const curve = (1 - dist / gravityWell.radius) * 0.8;
+    const curve = (1 - dist / gravityWell.radius) * 1.2;
     p.vx += -ny * curve;
     p.vy += nx * curve;
+
+    // 🔓 RELEASE CONDITION (THIS IS THE KEY)
+    if (dist < 45) {
+      p.hasSlingshotted = true;
+
+      // One-time outward kick
+      const boost = 14;
+      p.vx -= nx * boost;
+      p.vy -= ny * boost;
+    }
   }
 }
+
 
 
 
@@ -679,7 +705,7 @@ p.vx *= friction;
 p.vy *= friction;
 
 // 🔒 Cap max speed (prevents infinite motion / explosions)
-const maxSpeed = 18;
+const maxSpeed = 26;
 const speed = Math.hypot(p.vx, p.vy);
 if (speed > maxSpeed) {
   p.vx = (p.vx / speed) * maxSpeed;
