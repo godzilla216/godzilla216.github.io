@@ -634,31 +634,39 @@ function updateGame(dt) {
 // 🌀 Gravity well force (host only)
 // 🌀 Gravity well force
 // 🌀 SLINGSHOT GRAVITY WELL
+// 🌀 SLINGSHOT GRAVITY WELL (WITH ESCAPE)
 if (gravityWell) {
-  const dx = gravityWell.x - p.x;
-  const dy = gravityWell.y - p.y;
+  const dx = p.x - gravityWell.x;
+  const dy = p.y - gravityWell.y;
   const dist = Math.hypot(dx, dy);
 
-  if (dist > 15 && dist < gravityWell.radius) {
+  if (dist > 12 && dist < gravityWell.radius) {
     const nx = dx / dist;
     const ny = dy / dist;
 
-    // Strong pull curve (NOT inverse-square)
+    // Pull INWARD (strong, smooth)
     const pull =
       (1 - dist / gravityWell.radius) *
       gravityWell.strength *
       dt;
 
-    // Inward acceleration
-    p.vx += nx * pull;
-    p.vy += ny * pull;
+    p.vx -= nx * pull;
+    p.vy -= ny * pull;
 
-    // 🚀 Tangential boost near center (THIS creates slingshots)
-    const tangentBoost = (1 - dist / gravityWell.radius) * 0.6;
-    p.vx += -ny * tangentBoost;
-    p.vy += nx * tangentBoost;
+    // 🚀 ESCAPE IMPULSE near center
+    if (dist < 60) {
+      const escape = (1 - dist / 60) * 14;
+      p.vx += nx * escape;
+      p.vy += ny * escape;
+    }
+
+    // Tangential curve
+    const curve = (1 - dist / gravityWell.radius) * 0.8;
+    p.vx += -ny * curve;
+    p.vy += nx * curve;
   }
 }
+
 
 
 
