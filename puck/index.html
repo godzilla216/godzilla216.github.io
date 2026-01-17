@@ -354,7 +354,7 @@ const ctx = canvas.getContext("2d");
 
 const BOARD_MARGIN = 20;
 const PUCK_RADIUS = 12;
-const FRICTION = 0.98;
+const FRICTION = 0.965;
 
 let pucks = [];
 let phase = "aim";
@@ -632,17 +632,21 @@ function updateGame(dt) {
     if (!p.active) continue;
 
 // 🌀 Gravity well force (host only)
-if (gravityWell) {
+// 🌀 Gravity well force
+if (  gravityWell &&  (Math.abs(p.vx) > 0.02 || Math.abs(p.vy) > 0.02)) {
   const dx = gravityWell.x - p.x;
   const dy = gravityWell.y - p.y;
   const dist = Math.hypot(dx, dy);
 
-  if (dist > 5 && dist < gravityWell.radius) {
-    const force = gravityWell.strength / (dist * dist);
+  if (dist > 10 && dist < gravityWell.radius) {
+    const softDist = Math.max(dist, 40);
+    const force = gravityWell.strength / (softDist * softDist);
+
     p.vx += (dx / dist) * force * dt;
     p.vy += (dy / dist) * force * dt;
   }
 }
+
 
     
 p.x += p.vx * dt * 60;
@@ -651,6 +655,14 @@ p.y += p.vy * dt * 60;
 const friction = Math.pow(FRICTION, dt * 60);
 p.vx *= friction;
 p.vy *= friction;
+
+// 🔒 Cap max speed (prevents infinite motion / explosions)
+const maxSpeed = 18;
+const speed = Math.hypot(p.vx, p.vy);
+if (speed > maxSpeed) {
+  p.vx = (p.vx / speed) * maxSpeed;
+  p.vy = (p.vy / speed) * maxSpeed;
+}
 
 
     // 🌀 Portal teleport (host only)
