@@ -56,28 +56,6 @@ canvas {
   Player 1 Wins: <span id="player1Wins">0</span> |
   Player 2 Wins: <span id="player2Wins">0</span>
 </div>
-<div id="bettingPanel" style="
-  display:none;
-  margin: 10px auto;
-  padding: 10px;
-  max-width: 400px;
-  border: 2px solid #555;
-  border-radius: 10px;
-  background:#111;">
-  
-  <div style="font-size:18px; margin-bottom:6px;">
-    🎲 Spectator Betting
-  </div>
-
-  <div style="margin-bottom:6px;">
-    Your Points: <span id="betPoints">100</span>
-  </div>
-
-  <button id="betP1">Bet 10 on Player 1 🔴</button>
-  <button id="betP2">Bet 10 on Player 2 🔵</button>
-
-  <div id="betMsg" style="margin-top:6px; color:#0f0;"></div>
-</div>
 
 <div id="turnIndicator" style="margin-top:6px; font-size:18px; font-weight:bold;">
   Waiting for players...
@@ -175,18 +153,11 @@ let roomCode = null;
 let myPlayer = null;
 let isHost = false;
 let bothPlayersReady = false;
-let myPoints = 100;
-let myBet = null; // { player: 1|2, amount: 10 }
-let betsLocked = false;
 
-  
 const messageEl = document.getElementById("message");
 
 document.getElementById("spectateBtn").onclick = async () => {
   const code = document.getElementById("codeInput").value.toUpperCase();
-  document.getElementById("bettingPanel").style.display = "block";
-  document.getElementById("betPoints").textContent = myPoints;
-
   if (!code) {
     messageEl.textContent = "Please enter a room code.";
     return;
@@ -205,45 +176,6 @@ document.getElementById("spectateBtn").onclick = async () => {
   myPlayer = 0; // 0 = spectator
   isHost = false; // spectators never host
 
-// ================= BETTING BUTTONS =================
-document.getElementById("betP1").onclick = () => placeBet(1);
-document.getElementById("betP2").onclick = () => placeBet(2);
-
-async function placeBet(player) {
-  if (betsLocked) return;
-  if (myPoints < 10) return;
-
-  myBet = { player, amount: 10 };
-  myPoints -= 10;
-
-  document.getElementById("betPoints").textContent = myPoints;
-  document.getElementById("betMsg").textContent =
-    `Bet placed on Player ${player}`;
-
-  // Save bet to Firebase
-  await set(
-    ref(db, `rooms/${roomCode}/bets/${myId}`),
-    myBet
-  );
-}
-
-
-// ================= SPECTATOR BET PAYOUT =================
-onValue(ref(db, `rooms/${roomCode}/payouts/${myId}`), snap => {
-  if (!snap.exists()) return;
-
-  const winnings = snap.val();
-  myPoints += winnings;
-
-  document.getElementById("betPoints").textContent = myPoints;
-  document.getElementById("betMsg").textContent =
-    `🎉 You won ${winnings} points!`;
-
-  // Clear payout so it doesn't trigger again
-  set(ref(db, `rooms/${roomCode}/payouts/${myId}`), null);
-});
-
-  
   document.getElementById("roomLabel").textContent = code;
   document.getElementById("playerLabel").textContent = "Spectator";
 
@@ -255,26 +187,6 @@ onValue(ref(db, `rooms/${roomCode}/payouts/${myId}`), snap => {
   document.getElementById("status").textContent = "Spectating";
 };
 
-document.getElementById("betP1").onclick = () => placeBet(1);
-document.getElementById("betP2").onclick = () => placeBet(2);
-
-async function placeBet(player) {
-  if (betsLocked) return;
-  if (myPoints < 10) return;
-
-  myBet = { player, amount: 10 };
-  myPoints -= 10;
-
-  document.getElementById("betPoints").textContent = myPoints;
-  document.getElementById("betMsg").textContent =
-    `Bet placed on Player ${player}`;
-
-  // Save bet to Firebase
-  await set(
-    ref(db, `rooms/${roomCode}/bets/${myId}`),
-    myBet
-  );
-}
 
   
 function uid() {
@@ -658,15 +570,10 @@ onValue(ref(db, `rooms/${roomCode}/state`), snap => {
   const turnEl = document.getElementById("turnIndicator");
 
   if (phase === "aim") {
-    betsLocked = true;
     if (currentPlayer === myPlayer) {
       turnEl.textContent = "🎯 Your turn — set your target";
       turnEl.style.color = "#0f0";
     } else {
-      betsLocked = false;
-  myBet = null;
-  document.getElementById("betMsg").textContent = "";
-
       turnEl.textContent = `⏳ Player ${currentPlayer} is aiming`;
       turnEl.style.color = "#fff";
     }
@@ -842,28 +749,14 @@ function checkWinLose() {
     phase = "over";
 
     // 🔹 Only the host updates Firebase scores
-if (winner && isHost) {
-  const betsRef = ref(db, `rooms/${roomCode}/bets`);
-  get(betsRef).then(snap => {
-    const bets = snap.val() || {};
-
-    for (const uid in bets) {
-      if (bets[uid].player === winner) {
-        // Winner gets double
-        set(
-          ref(db, `rooms/${roomCode}/payouts/${uid}`),
-          bets[uid].amount * 2
-        );
-      }
+    if (isHost) {
+      const scoreRef = ref(db, `rooms/${roomCode}/scores/player${winner}`);
+      get(scoreRef).then(snap => {
+        const newScore = (snap.val() || 0) + 1;
+        set(scoreRef, newScore);
+      });
     }
 
-    // Clear bets
-    set(betsRef, null);
-  });
-}
-
-
-    
     // 🔹 Start next round after 3 seconds
     setTimeout(async () => {
       overlay.style.display = "none";
