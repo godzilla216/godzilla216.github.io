@@ -368,6 +368,14 @@ let portal = null;
 const PORTAL_RADIUS = 18;
 let portalAnim = 0; // animation timer
 const PORTAL_CHANCE = 0.6; // 40% chance per round
+
+// ===== GRAVITY WELL =====
+let gravityWell = null;
+// gravityWell = { x, y, radius, strength }
+const GRAVITY_WELL_CHANCE = 0.5; // 50%
+const GRAVITY_RADIUS = 180;
+const GRAVITY_STRENGTH = 1200;
+
   
 function createPucks() {
   pucks = [];
@@ -538,6 +546,18 @@ if (isHost && Math.random() < PORTAL_CHANCE) {
   portal = null;
 }
 
+// 🌀 Spawn gravity well (host only, 50% chance, center)
+if (isHost && Math.random() < GRAVITY_WELL_CHANCE) {
+  gravityWell = {
+    x: canvas.width / 2,
+    y: canvas.height / 2,
+    radius: GRAVITY_RADIUS,
+    strength: GRAVITY_STRENGTH
+  };
+} else {
+  gravityWell = null;
+}
+
   
   // Update Firebase state
 await update(ref(db, `rooms/${roomCode}/state`), {
@@ -545,7 +565,8 @@ await update(ref(db, `rooms/${roomCode}/state`), {
   shotsTaken: stateShots,
   phase,
   currentPlayer,
-  portal
+  portal,
+  gravityWell
 });
 }
 
@@ -568,6 +589,8 @@ onValue(ref(db, `rooms/${roomCode}/state`), snap => {
   currentPlayer = s.currentPlayer;
   stateShots = s.shotsTaken;
   portal = s.portal || null;
+  gravityWell = s.gravityWell || null;
+
 
   
   const turnEl = document.getElementById("turnIndicator");
@@ -608,6 +631,20 @@ function updateGame(dt) {
   for (let p of pucks) {
     if (!p.active) continue;
 
+// 🌀 Gravity well force (host only)
+if (gravityWell) {
+  const dx = gravityWell.x - p.x;
+  const dy = gravityWell.y - p.y;
+  const dist = Math.hypot(dx, dy);
+
+  if (dist > 5 && dist < gravityWell.radius) {
+    const force = gravityWell.strength / (dist * dist);
+    p.vx += (dx / dist) * force * dt;
+    p.vy += (dy / dist) * force * dt;
+  }
+}
+
+    
 p.x += p.vx * dt * 60;
 p.y += p.vy * dt * 60;
 
@@ -775,6 +812,24 @@ function checkWinLose() {
 function draw() {
   ctx.clearRect(0, 0, 800, 500);
   ctx.strokeRect(BOARD_MARGIN, BOARD_MARGIN, 760, 460);
+
+  // 🌀 Draw gravity well
+if (gravityWell) {
+  const pulse = Math.sin(portalAnim * 2) * 6;
+
+  ctx.beginPath();
+  ctx.arc(gravityWell.x, gravityWell.y, 30 + pulse, 0, Math.PI * 2);
+  ctx.fillStyle = "rgba(0,0,0,0.6)";
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.arc(gravityWell.x, gravityWell.y, gravityWell.radius, 0, Math.PI * 2);
+  ctx.strokeStyle = "rgba(255,255,255,0.15)";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+}
+
+  
   // 🟣 Draw portal
 
 if (portal) {
