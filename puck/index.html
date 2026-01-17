@@ -139,6 +139,9 @@ onValue(queueRef, snap => {
 // --- Helper to update combined text ---
 let lastOnline = 0;
 let lastQueue = 0;
+let lastTime = performance.now();
+const FIXED_TIMESTEP = 1 / 60; // 60Hz physics
+let accumulator = 0;
 
 function updatePlayerStats(online = null, queue = null) {
   if (online !== null) lastOnline = online;
@@ -596,7 +599,7 @@ onValue(ref(db, `rooms/${roomCode}/state`), snap => {
 }
 
 /* ================= HOST PHYSICS ================= */
-function updateGame() {
+function updateGame(dt) {
   if (!isHost) return;
   if (phase !== "move") return;
 
@@ -605,11 +608,13 @@ function updateGame() {
   for (let p of pucks) {
     if (!p.active) continue;
 
-    p.x += p.vx;
-    p.y += p.vy;
+p.x += p.vx * dt * 60;
+p.y += p.vy * dt * 60;
 
-    p.vx *= FRICTION;
-    p.vy *= FRICTION;
+const friction = Math.pow(FRICTION, dt * 60);
+p.vx *= friction;
+p.vy *= friction;
+
 
     // 🌀 Portal teleport (host only)
 if (portal) {
@@ -882,15 +887,24 @@ function initGame() {
 }
 
 /* ================= LOOP ================= */
-function loop() {
-  portalAnim += 0.05;
-  updateGame();
+function loop(now) {
+  const deltaTime = (now - lastTime) / 1000;
+  lastTime = now;
+  accumulator += deltaTime;
+
+  portalAnim += deltaTime * 3;
+
+  while (accumulator >= FIXED_TIMESTEP) {
+    updateGame(FIXED_TIMESTEP);
+    accumulator -= FIXED_TIMESTEP;
+  }
+
   draw();
   requestAnimationFrame(loop);
-  checkWinLose();
-
 }
-loop();
+
+requestAnimationFrame(loop);
+
 
 </script>
 </body>
