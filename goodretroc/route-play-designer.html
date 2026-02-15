@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Retro Bowl Route + Play Designer</title>
+  <style>
+    :root {
+      --bg: #0f1720;
+      --panel: #162330;
+      --line: #2d4257;
+      --text: #e8f1f8;
+      --muted: #9fb3c4;
+      --accent: #49b4ff;
+      --warn: #ffb84d;
+    }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(180deg, #0d131b 0%, #0f1720 100%);
+      color: var(--text);
+    }
+    .wrap {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 0 14px 30px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 12px;
+    }
+    h1, h2 {
+      margin: 0 0 10px;
+      font-weight: 700;
+    }
+    h1 { font-size: 20px; }
+    h2 { font-size: 16px; }
+    .sub { color: var(--muted); font-size: 13px; margin-bottom: 10px; }
+    label { font-size: 13px; color: var(--muted); display: block; margin-bottom: 4px; }
+    input, select, button, textarea {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #101c28;
+      color: var(--text);
+      padding: 8px;
+      font-size: 13px;
+    }
+    textarea { min-height: 130px; font-family: Consolas, Menlo, monospace; }
+    button {
+      cursor: pointer;
+      background: #143049;
+      border-color: #27527b;
+    }
+    button:hover { background: #184061; }
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .row3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .tight { margin-bottom: 6px; }
+    canvas {
+      width: 100%;
+      height: 300px;
+      background: #0c1721;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      display: block;
+    }
+    .list {
+      max-height: 180px;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 6px;
+      background: #0f1b27;
+      font-size: 13px;
+    }
+    .item {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 6px;
+      align-items: center;
+      padding: 4px;
+      border-bottom: 1px solid #223647;
+    }
+    .item:last-child { border-bottom: 0; }
+    .small { font-size: 12px; color: var(--muted); }
+    .full { grid-column: 1 / -1; }
+    .warn { color: var(--warn); font-size: 12px; margin-top: 6px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card full">
+      <h1>Retro Bowl Route + Play Designer</h1>
+      <div class="sub">Draw routes, build plays, and export code snippets for <code>html5game/RetroBowl.js</code>.</div>
+    </div>
+
+    <div class="card">
+      <h2>Route Editor</h2>
+      <div class="row">
+        <div>
+          <label>Route Name (use <code>route_custom_*</code>)</label>
+          <input id="routeName" value="route_custom_zig" />
+        </div>
+        <div>
+          <label>Point Speed</label>
+          <input id="pointSpeed" type="number" value="100" />
+        </div>
+      </div>
+      <canvas id="routeCanvas" width="560" height="300"></canvas>
+      <div class="small tight">Click canvas to add a point (starts at 0,0). Right-click to remove last point.</div>
+      <div class="row3">
+        <button id="btnAddStart">Reset to (0,0)</button>
+        <button id="btnUndo">Undo Point</button>
+        <button id="btnClear">Clear</button>
+      </div>
+      <div class="row3">
+        <button id="btnSaveRoute">Save Route</button>
+        <button id="btnLoadRoute">Load Selected</button>
+        <button id="btnDeleteRoute">Delete Selected</button>
+      </div>
+      <label>Saved Routes</label>
+      <select id="routeSelect" size="6"></select>
+      <div class="warn">Keep route names unique and prefixed with <code>route_custom_</code>.</div>
+    </div>
+
+    <div class="card">
+      <h2>Play Builder</h2>
+      <div class="row">
+        <div>
+          <label>Play Label (shown in playbook slot)</label>
+          <input id="playLabel" value="CUSTOM SHOT" />
+        </div>
+        <div>
+          <label>Playbook Slot</label>
+          <select id="playSlot">
+            <option value="0">Slot 0</option>
+            <option value="1">Slot 1</option>
+            <option value="2">Slot 2</option>
+            <option value="3">Slot 3</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>Position 4 (WR)</label>
+          <select id="p4"></select>
+        </div>
+        <div>
+          <label>Position 3 (TE)</label>
+          <select id="p3"></select>
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>Position 2 (RB)</label>
+          <select id="p2"></select>
+        </div>
+        <div>
+          <label>Position 1 (QB, optional)</label>
+          <select id="p1"></select>
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>Position 5 (OL group)</label>
+          <select id="p5"></select>
+          <div class="small">In-game this is 5 offensive linemen, not WR2.</div>
+        </div>
+        <div>
+          <label>Position 6 (TE2)</label>
+          <select id="p6"></select>
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label><input id="olBlock" type="checkbox" checked style="width:auto; margin-right:6px;" />Force 5 OL to block route_te_block</label>
+        </div>
+        <div>
+          <label><input id="olCustom" type="checkbox" style="width:auto; margin-right:6px;" />Edit OL routes individually</label>
+        </div>
+      </div>
+      <div class="row3">
+        <div>
+          <label>LT Route</label>
+          <select id="olLT"></select>
+        </div>
+        <div>
+          <label>LG Route</label>
+          <select id="olLG"></select>
+        </div>
+        <div>
+          <label>C Route</label>
+          <select id="olC"></select>
+        </div>
+      </div>
+      <div class="row3">
+        <div>
+          <label>RG Route</label>
+          <select id="olRG"></select>
+        </div>
+        <div>
+          <label>RT Route</label>
+          <select id="olRT"></select>
+        </div>
+        <div></div>
+      </div>
+      <label>Formation (Pre-snap offsets)</label>
+      <div class="row3">
+        <div>
+          <label>WR X / Y</label>
+          <div class="row">
+            <input id="f4x" type="number" value="0" />
+            <input id="f4y" type="number" value="-60" />
+          </div>
+        </div>
+        <div>
+          <label>TE X / Y</label>
+          <div class="row">
+            <input id="f3x" type="number" value="0" />
+            <input id="f3y" type="number" value="-20" />
+          </div>
+        </div>
+        <div>
+          <label>RB X / Y</label>
+          <div class="row">
+            <input id="f2x" type="number" value="0" />
+            <input id="f2y" type="number" value="30" />
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>QB X / Y</label>
+          <div class="row">
+            <input id="f1x" type="number" value="-36" />
+            <input id="f1y" type="number" value="-20" />
+          </div>
+        </div>
+        <div>
+          <label>WR2 X / Y</label>
+          <div class="row">
+            <input id="f5x" type="number" value="0" />
+            <input id="f5y" type="number" value="60" />
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>TE2 X / Y</label>
+          <div class="row">
+            <input id="f6x" type="number" value="0" />
+            <input id="f6y" type="number" value="10" />
+          </div>
+        </div>
+        <div>
+          <label>Formation Preset</label>
+          <select id="formationPreset">
+            <option value="">(custom)</option>
+            <option value="spread">Spread</option>
+            <option value="tight">Tight</option>
+            <option value="gun">Shotgun</option>
+            <option value="i">I-Back</option>
+          </select>
+          <button id="btnApplyPreset" style="margin-top: 8px;">Apply Preset</button>
+        </div>
+      </div>
+      <label>Play Preview</label>
+      <canvas id="playCanvas" width="560" height="280"></canvas>
+      <div class="small tight">Preview uses built-in route templates plus your custom routes.</div>
+      <div class="row3">
+        <button id="btnAddPlay">Add/Update Play</button>
+        <button id="btnLoadPlay">Load Selected</button>
+        <button id="btnDeletePlay">Delete Selected</button>
+      </div>
+      <label>Saved Plays</label>
+      <select id="playSelect" size="8"></select>
+    </div>
+
+    <div class="card full">
+      <h2>Generated Code</h2>
+      <div class="small">1) Add paths to <code>Paths: [ ... ]</code> block near line ~12716.</div>
+      <textarea id="outPaths" readonly></textarea>
+      <div class="small">2) Add label overrides after the playbook label randomization near line ~65975.</div>
+      <textarea id="outLabels" readonly></textarea>
+      <div class="small">3) Add custom play route assignment near line ~62333 (before duplicate-check block).</div>
+      <textarea id="outPlays" readonly></textarea>
+      <div class="small">4) Add formation override near line ~62333 (same area as custom play mapping).</div>
+      <textarea id="outFormation" readonly></textarea>
+      <div class="small">5) Add fallback route resolve in the route-name switch default near line ~62526.</div>
+      <textarea id="outFallback" readonly></textarea>
+      <div class="row3">
+        <button id="btnGenerate">Refresh Output</button>
+        <button id="btnCopyAll">Copy All</button>
+        <button id="btnExportJson">Export JSON</button>
+      </div>
+      <div class="small">6) Fast install: export JSON, then run this command from repo root.</div>
+      <textarea id="outInstall" readonly></textarea>
+    </div>
+  </div>
+
+  <script>
+    const builtinRoutes = [
+      "route_flat","route_slant","route_slant2","route_curl","route_comeback","route_out1","route_out2","route_out3",
+      "route_dig1","route_dig2","route_dig3","route_post","route_corner","route_streak","route_fb_1","route_fb_2",
+      "route_fb_3","route_fb_4","route_fb_flat","route_fb_flat2","route_te_block","route_qb","route_hitch",""
+    ];
+    const builtinRoutePoints = {
+      route_flat: [{ x: 0, y: 0 }, { x: 32, y: -64 }, { x: 64, y: -64 }],
+      route_slant: [{ x: 0, y: 0 }, { x: 96, y: 0 }, { x: 160, y: 96 }],
+      route_slant2: [{ x: 0, y: 0 }, { x: 128, y: 0 }, { x: 192, y: 96 }],
+      route_curl: [{ x: 0, y: 0 }, { x: 224, y: 0 }, { x: 160, y: 32 }],
+      route_comeback: [{ x: 0, y: 0 }, { x: 256, y: 0 }, { x: 192, y: -32 }],
+      route_out1: [{ x: 0, y: 0 }, { x: 96, y: 0 }, { x: 96, y: -32 }],
+      route_out2: [{ x: 0, y: 0 }, { x: 160, y: 0 }, { x: 160, y: -32 }],
+      route_out3: [{ x: 0, y: 0 }, { x: 224, y: 0 }, { x: 224, y: -32 }],
+      route_dig1: [{ x: 0, y: 0 }, { x: 128, y: 0 }, { x: 128, y: 32 }],
+      route_dig2: [{ x: 0, y: 0 }, { x: 192, y: 0 }, { x: 192, y: 32 }],
+      route_dig3: [{ x: 0, y: 0 }, { x: 208, y: 0 }, { x: 208, y: 32 }],
+      route_post: [{ x: 0, y: 0 }, { x: 192, y: 0 }, { x: 256, y: 32 }],
+      route_corner: [{ x: 0, y: 0 }, { x: 192, y: 0 }, { x: 256, y: -32 }],
+      route_streak: [{ x: 0, y: 0 }, { x: 224, y: 0 }, { x: 256, y: 0 }],
+      route_fb_1: [{ x: 0, y: 0 }, { x: 32, y: -32 }, { x: 128, y: -32 }],
+      route_fb_2: [{ x: 0, y: 0 }, { x: 128, y: 0 }],
+      route_fb_3: [{ x: 0, y: 0 }, { x: 32, y: 32 }, { x: 128, y: 32 }],
+      route_fb_4: [{ x: 0, y: 0 }, { x: 64, y: -32 }, { x: 96, y: -32 }],
+      route_fb_flat: [{ x: 0, y: 0 }, { x: 32, y: -48 }, { x: 64, y: -48 }],
+      route_fb_flat2: [{ x: 0, y: 0 }, { x: 64, y: -48 }, { x: 96, y: -48 }],
+      route_te_block: [{ x: 0, y: 0 }, { x: 32, y: 0 }],
+      route_qb: [{ x: 0, y: 0 }, { x: -64, y: 0 }],
+      route_hitch: [{ x: 0, y: 0 }, { x: 128, y: 0 }]
+    };
+    const state = { routes: [], plays: [], currentPoints: [{ x: 0, y: 0, speed: 100 }] };
+    const COOKIE_KEY = "rbc_route_play_designer";
+    const formationDefaults = {
+      spread: { p4: { x: 0, y: -84 }, p3: { x: 0, y: -24 }, p2: { x: -10, y: 40 }, p1: { x: -44, y: -20 }, p5: { x: 0, y: 84 }, p6: { x: 0, y: 12 } },
+      tight: { p4: { x: 0, y: -52 }, p3: { x: 0, y: -12 }, p2: { x: -8, y: 20 }, p1: { x: -30, y: -16 }, p5: { x: 0, y: 52 }, p6: { x: 0, y: 8 } },
+      gun: { p4: { x: 0, y: -64 }, p3: { x: 0, y: -18 }, p2: { x: -20, y: 24 }, p1: { x: -56, y: -20 }, p5: { x: 0, y: 64 }, p6: { x: 0, y: 10 } },
+      i: { p4: { x: 0, y: -56 }, p3: { x: 0, y: -16 }, p2: { x: -34, y: -16 }, p1: { x: -18, y: -16 }, p5: { x: 0, y: 56 }, p6: { x: 0, y: 12 } }
+    };
+    const els = {};
+    ["routeName","pointSpeed","routeSelect","routeCanvas","playCanvas","playLabel","playSlot","p1","p2","p3","p4","p5","p6","olBlock","olCustom","olLT","olLG","olC","olRG","olRT","f1x","f1y","f2x","f2y","f3x","f3y","f4x","f4y","f5x","f5y","f6x","f6y","formationPreset","playSelect","outPaths","outLabels","outPlays","outFormation","outFallback","outInstall"]
+      .forEach((id) => { els[id] = document.getElementById(id); });
+
+    function refreshRouteDropdowns() {
+      const routeNames = [...builtinRoutes.filter(Boolean), ...state.routes.map((r) => r.name), ""];
+      const uniq = [...new Set(routeNames)];
+      ["p1","p2","p3","p4","p5","p6","olLT","olLG","olC","olRG","olRT"].forEach((id) => {
+        const cur = els[id].value;
+        els[id].innerHTML = uniq.map((r) => `<option value="${r}">${r || "(none)"}</option>`).join("");
+        els[id].value = uniq.includes(cur) ? cur : "";
+      });
+      if (!els.p5.value) els.p5.value = "route_te_block";
+      if (!els.olLT.value) els.olLT.value = "route_te_block";
+      if (!els.olLG.value) els.olLG.value = "route_te_block";
+      if (!els.olC.value) els.olC.value = "route_te_block";
+      if (!els.olRG.value) els.olRG.value = "route_te_block";
+      if (!els.olRT.value) els.olRT.value = "route_te_block";
+    }
+
+    function renderLists() {
+      els.routeSelect.innerHTML = state.routes.map((r, i) => `<option value="${i}">${r.name} (${r.points.length} pts)</option>`).join("");
+      els.playSelect.innerHTML = state.plays.map((p, i) => `<option value="${i}">${p.label} [slot ${p.slot}]</option>`).join("");
+      refreshRouteDropdowns();
+      generateOutput();
+      drawPlayPreview();
+    }
+
+    function saveCookieState() {
+      const payload = encodeURIComponent(JSON.stringify({ routes: state.routes, plays: state.plays }));
+      document.cookie = `${COOKIE_KEY}=${payload}; path=/; max-age=31536000; SameSite=Lax`;
+    }
+
+    function loadCookieState() {
+      const parts = document.cookie.split(";").map((s) => s.trim());
+      const key = `${COOKIE_KEY}=`;
+      const found = parts.find((p) => p.startsWith(key));
+      if (!found) return;
+      try {
+        const decoded = decodeURIComponent(found.slice(key.length));
+        const obj = JSON.parse(decoded);
+        if (obj && Array.isArray(obj.routes)) state.routes = obj.routes;
+        if (obj && Array.isArray(obj.plays)) state.plays = obj.plays;
+      } catch (_) {
+        // Ignore bad cookie data and continue with defaults.
+      }
+    }
+
+    function toCanvas(pt) {
+      return { x: pt.x + 80, y: 150 - pt.y };
+    }
+    function fromCanvas(x, y) {
+      const gx = Math.round((x - 80) / 8) * 8;
+      const gy = Math.round((150 - y) / 8) * 8;
+      return { x: gx, y: gy };
+    }
+
+    function drawCanvas() {
+      const c = els.routeCanvas;
+      const ctx = c.getContext("2d");
+      ctx.clearRect(0, 0, c.width, c.height);
+      ctx.strokeStyle = "#1f3447";
+      for (let x = 0; x < c.width; x += 16) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, c.height); ctx.stroke(); }
+      for (let y = 0; y < c.height; y += 16) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(c.width, y); ctx.stroke(); }
+      ctx.strokeStyle = "#49708f";
+      ctx.beginPath(); ctx.moveTo(80, 0); ctx.lineTo(80, c.height); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, 150); ctx.lineTo(c.width, 150); ctx.stroke();
+
+      const pts = state.currentPoints;
+      if (!pts.length) return;
+      ctx.strokeStyle = "#49b4ff";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      const p0 = toCanvas(pts[0]);
+      ctx.moveTo(p0.x, p0.y);
+      for (let i = 1; i < pts.length; i++) {
+        const p = toCanvas(pts[i]);
+        ctx.lineTo(p.x, p.y);
+      }
+      ctx.stroke();
+      pts.forEach((pt, i) => {
+        const p = toCanvas(pt);
+        ctx.fillStyle = i === 0 ? "#ffb84d" : "#e8f1f8";
+        ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI * 2); ctx.fill();
+      });
+    }
+
+    function getFormationFromInputs() {
+      return {
+        p4: { x: Number(els.f4x.value || 0), y: Number(els.f4y.value || 0) },
+        p3: { x: Number(els.f3x.value || 0), y: Number(els.f3y.value || 0) },
+        p2: { x: Number(els.f2x.value || 0), y: Number(els.f2y.value || 0) },
+        p1: { x: Number(els.f1x.value || 0), y: Number(els.f1y.value || 0) },
+        p5: { x: Number(els.f5x.value || 0), y: Number(els.f5y.value || 0) },
+        p6: { x: Number(els.f6x.value || 0), y: Number(els.f6y.value || 0) }
+      };
+    }
+
+    function setFormationInputs(form) {
+      const f = form || { p4: { x: 0, y: -60 }, p3: { x: 0, y: -20 }, p2: { x: 0, y: 30 }, p1: { x: -36, y: -20 }, p5: { x: 0, y: 60 }, p6: { x: 0, y: 10 } };
+      els.f4x.value = String(f.p4.x); els.f4y.value = String(f.p4.y);
+      els.f3x.value = String(f.p3.x); els.f3y.value = String(f.p3.y);
+      els.f2x.value = String(f.p2.x); els.f2y.value = String(f.p2.y);
+      els.f1x.value = String(f.p1.x); els.f1y.value = String(f.p1.y);
+      els.f5x.value = String(f.p5.x); els.f5y.value = String(f.p5.y);
+      els.f6x.value = String(f.p6.x); els.f6y.value = String(f.p6.y);
+    }
+
+    function getRoutePointsByName(name) {
+      if (!name) return [];
+      const custom = state.routes.find((r) => r.name === name);
+      if (custom) return custom.points.map((p) => ({ x: p.x, y: p.y }));
+      return (builtinRoutePoints[name] || []).map((p) => ({ x: p.x, y: p.y }));
+    }
+
+    function drawPlayRoute(ctx, start, routeName, color, toCanvas) {
+      const points = getRoutePointsByName(routeName);
+      const s = toCanvas(start);
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, 5, 0, Math.PI * 2);
+      ctx.fill();
+      if (!points.length) return;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      const first = { x: start.x + points[0].x, y: start.y + points[0].y };
+      const p0 = toCanvas(first);
+      ctx.moveTo(p0.x, p0.y);
+      for (let i = 1; i < points.length; i++) {
+        const wp = { x: start.x + points[i].x, y: start.y + points[i].y };
+        const cp = toCanvas(wp);
+        ctx.lineTo(cp.x, cp.y);
+      }
+      ctx.stroke();
+    }
+
+    function drawPlayPreview() {
+      const c = els.playCanvas;
+      const ctx = c.getContext("2d");
+      ctx.clearRect(0, 0, c.width, c.height);
+      ctx.fillStyle = "#0c1721";
+      ctx.fillRect(0, 0, c.width, c.height);
+
+      const form = getFormationFromInputs();
+      const players = {
+        p4: { x: form.p4.x, y: form.p4.y, color: "#49b4ff", label: "WR" },
+        p3: { x: form.p3.x, y: form.p3.y, color: "#9df56b", label: "TE" },
+        p2: { x: form.p2.x, y: form.p2.y, color: "#ffb84d", label: "RB" },
+        p1: { x: form.p1.x, y: form.p1.y, color: "#ff7f9d", label: "QB" },
+        p5: { x: form.p5.x, y: form.p5.y, color: "#58d1ff", label: "OL" },
+        p6: { x: form.p6.x, y: form.p6.y, color: "#a8ffb0", label: "TE2" }
+      };
+      const linePlayers = [
+        { x: 0, y: -30, label: "LT", key: "olLT" }, { x: 0, y: -15, label: "LG", key: "olLG" }, { x: 0, y: 0, label: "C", key: "olC" },
+        { x: 0, y: 15, label: "RG", key: "olRG" }, { x: 0, y: 30, label: "RT", key: "olRT" }
+      ];
+
+      // Use a fixed world view so one player's movement doesn't visually shift all players.
+      const minX = -96;
+      const maxX = 360;
+      const minY = -180;
+      const maxY = 180;
+      const spanX = maxX - minX;
+      const spanY = maxY - minY;
+      const sx = (c.width - 40) / spanX;
+      const sy = (c.height - 30) / spanY;
+      const scale = Math.min(sx, sy);
+      const toCanvas = (wp) => ({
+        x: 20 + (wp.x - minX) * scale,
+        y: 15 + (wp.y - minY) * scale
+      });
+
+      ctx.strokeStyle = "#1f3447";
+      for (let i = 0; i < 8; i++) {
+        const gx = 20 + (i * (c.width - 40)) / 7;
+        ctx.beginPath(); ctx.moveTo(gx, 10); ctx.lineTo(gx, c.height - 10); ctx.stroke();
+      }
+
+      const losA = toCanvas({ x: 0, y: minY });
+      const losB = toCanvas({ x: 0, y: maxY });
+      ctx.strokeStyle = "#345069";
+      ctx.beginPath();
+      ctx.moveTo(losA.x, losA.y);
+      ctx.lineTo(losB.x, losB.y);
+      ctx.stroke();
+      ctx.fillStyle = "#9fb3c4";
+      ctx.font = "12px Segoe UI";
+      ctx.fillText("LOS", losA.x + 4, 14);
+
+      linePlayers.forEach((lp) => {
+        const p = toCanvas(lp);
+        const olRoute = els.olBlock.checked ? "route_te_block" : (els.olCustom.checked ? els[lp.key].value : els.p5.value);
+        ctx.fillStyle = "#768a9b";
+        ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI * 2); ctx.fill();
+        drawPlayRoute(ctx, { x: lp.x, y: lp.y }, olRoute, "#768a9b", toCanvas);
+        ctx.fillStyle = "#c8d4de";
+        ctx.fillText(lp.label, p.x + 6, p.y - 4);
+      });
+
+      Object.keys(players).forEach((k) => {
+        const pl = players[k];
+        drawPlayRoute(ctx, { x: pl.x, y: pl.y }, els[k].value, pl.color, toCanvas);
+        const s = toCanvas(pl);
+        ctx.fillStyle = "#d8e5ef";
+        ctx.fillText(pl.label, s.x + 7, s.y - 6);
+      });
+    }
+
+    function routeToCode(route) {
+      const points = route.points.map((p) => `        { x: ${p.x}, y: ${p.y}, speed: ${p.speed} }`).join(",\n");
+      return `    {\n      pName: "${route.name}",\n      kind: 0,\n      closed: false,\n      precision: 1,\n      points: [\n${points}\n      ],\n    },`;
+    }
+
+    function generateOutput() {
+      els.outPaths.value = state.routes.length ? state.routes.map(routeToCode).join("\n\n") : "// No custom routes yet";
+
+      const slots = ["RUN", "SHORT", "PASS", "DEEP"];
+      state.plays.forEach((p) => { slots[Number(p.slot)] = p.label; });
+      els.outLabels.value =
+`// Paste after the existing _inst.gmlplaybook_labels assignments (~65955-65973)
+_inst.gmlplaybook_labels[__yy_gml_array_check_index_set(0)] = "${slots[0]}";
+_inst.gmlplaybook_labels[__yy_gml_array_check_index_set(1)] = "${slots[1]}";
+_inst.gmlplaybook_labels[__yy_gml_array_check_index_set(2)] = "${slots[2]}";
+_inst.gmlplaybook_labels[__yy_gml_array_check_index_set(3)] = "${slots[3]}";`;
+
+      const playCases = state.plays.map((p) => {
+        const lines = [];
+        if (p.p4) lines.push(`      if (yyGetBool(yyfequal(_inst.gmlposition, 4))) _inst.gmlmy_route_name = "${p.p4}";`);
+        if (p.p3) lines.push(`      if (yyGetBool(yyfequal(_inst.gmlposition, 3))) _inst.gmlmy_route_name = "${p.p3}";`);
+        if (p.p2) lines.push(`      if (yyGetBool(yyfequal(_inst.gmlposition, 2))) _inst.gmlmy_route_name = "${p.p2}";`);
+        if (p.p1) lines.push(`      if (yyGetBool(yyfequal(_inst.gmlposition, 1))) _inst.gmlmy_route_name = "${p.p1}";`);
+        if (p.olBlock !== false) {
+          lines.push(`      if (yyGetBool(yyfequal(_inst.gmlposition, 5))) {`);
+          lines.push(`        _inst.gmlte_blocking = true;`);
+          lines.push(`        _inst.gmlmy_route_name = "";`);
+          lines.push(`        if (yyGetBool(path_exists(_inst.gmlmy_route))) { path_delete(_inst.gmlmy_route); }`);
+          lines.push(`        _inst.gmlmy_route = path_duplicate(YYASSET_REF(0x05000015));`);
+          lines.push(`      }`);
+        } else if (p.olCustom) {
+          lines.push(`      if (yyGetBool(yyfequal(_inst.gmlposition, 5))) {`);
+          lines.push(`        var gmly_ol = yyInst(_inst, _other, YYASSET_REF(0x00000069)).gmly_scrim;`);
+          let olChain = false;
+          if (p.olLT) { lines.push(`        if (yyGetBool(yyflessequal(_inst.y, yyfminus(__yy_gml_errCheck(gmly_ol), 22)))) _inst.gmlmy_route_name = "${p.olLT}";`); olChain = true; }
+          if (p.olLG) { lines.push(`        ${olChain ? "else " : ""}if (yyGetBool(yyflessequal(_inst.y, yyfminus(__yy_gml_errCheck(gmly_ol), 7)))) _inst.gmlmy_route_name = "${p.olLG}";`); olChain = true; }
+          if (p.olC) { lines.push(`        ${olChain ? "else " : ""}if (yyGetBool(yyflessequal(_inst.y, yyfplus(__yy_gml_errCheck(gmly_ol), 7)))) _inst.gmlmy_route_name = "${p.olC}";`); olChain = true; }
+          if (p.olRG) { lines.push(`        ${olChain ? "else " : ""}if (yyGetBool(yyflessequal(_inst.y, yyfplus(__yy_gml_errCheck(gmly_ol), 22)))) _inst.gmlmy_route_name = "${p.olRG}";`); olChain = true; }
+          if (p.olRT) { lines.push(`        ${olChain ? "else " : ""}_inst.gmlmy_route_name = "${p.olRT}";`); olChain = true; }
+          if (!olChain) lines.push(`        _inst.gmlmy_route_name = "route_te_block";`);
+          lines.push(`      }`);
+        } else if (p.p5) {
+          lines.push(`      if (yyGetBool(yyfequal(_inst.gmlposition, 5))) _inst.gmlmy_route_name = "${p.p5}";`);
+        }
+        if (p.p6) lines.push(`      if (yyGetBool(yyfequal(_inst.gmlposition, 6))) _inst.gmlmy_route_name = "${p.p6}";`);
+        return `if (yyGetBool(yyfequal(gmlpb_label, "${p.label}"))) {\n${lines.join("\n")}\n}`;
+      }).join("\nelse ");
+      els.outPlays.value =
+`// Paste near ~62333, before the duplicate-check block that starts around 62334
+// This overrides route names when your custom play label is selected.
+if (!yyGetBool(yyInst(_inst, _other, YYASSET_REF(0x00000062)).gmlgamepractice) && yyGetBool(yyInst(_inst, _other, YYASSET_REF(0x00000069)).gmlplaybook_chosen)) {
+  var gmlpb_label = yyInst(_inst, _other, YYASSET_REF(0x00000069)).gmlplaybook_labels[__yy_gml_array_check_index(yyInst(_inst, _other, YYASSET_REF(0x00000069)).gmlplaybook_selected, yyInst(_inst, _other, YYASSET_REF(0x00000069)).gmlplaybook_labels)];
+  ${playCases || "// No plays yet"}
+}`;
+
+      const formationCases = state.plays.map((p) => {
+        const f = p.formation || { p4: { x: 0, y: -60 }, p3: { x: 0, y: -20 }, p2: { x: 0, y: 30 }, p1: { x: -36, y: -20 }, p5: { x: 0, y: 60 }, p6: { x: 0, y: 10 } };
+        const lines = [];
+        lines.push(`if (yyGetBool(yyfequal(gmlpb_label, "${p.label}"))) {`);
+        lines.push(`  if (yyGetBool(yyfequal(_inst.gmlposition, 4))) { _inst.x = yyfplus(yyInst(_inst, _other, YYASSET_REF(0x00000069)).gmlx_scrim, __yy_gml_errCheck(yyftime(${f.p4.x}, __yy_gml_errCheck(_inst.gmlfacing)))); _inst.y = yyfplus(yyInst(_inst, _other, YYASSET_REF(0x00000069)).gmly_scrim, ${f.p4.y}); }`);
+        lines.push(`  if (yyGetBool(yyfequal(_inst.gmlposition, 3))) { _inst.x = yyfplus(yyInst(_inst, _other, YYASSET_REF(0x00000069)).gmlx_scrim, __yy_gml_errCheck(yyftime(${f.p3.x}, __yy_gml_errCheck(_inst.gmlfacing)))); _inst.y = yyfplus(yyInst(_inst, _other, YYASSET_REF(0x00000069)).gmly_scrim, ${f.p3.y}); }`);
+        lines.push(`  if (yyGetBool(yyfequal(_inst.gmlposition, 2))) { _inst.x = yyfplus(yyInst(_inst, _other, YYASSET_REF(0x00000069)).gmlx_scrim, __yy_gml_errCheck(yyftime(${f.p2.x}, __yy_gml_errCheck(_inst.gmlfacing)))); _inst.y = yyfplus(yyInst(_inst, _other, YYASSET_REF(0x00000069)).gmly_scrim, ${f.p2.y}); }`);
+        lines.push(`  if (yyGetBool(yyfequal(_inst.gmlposition, 1))) { _inst.x = yyfplus(yyInst(_inst, _other, YYASSET_REF(0x00000069)).gmlx_scrim, __yy_gml_errCheck(yyftime(${f.p1.x}, __yy_gml_errCheck(_inst.gmlfacing)))); _inst.y = yyfplus(yyInst(_inst, _other, YYASSET_REF(0x00000069)).gmly_scrim, ${f.p1.y}); }`);
+        if (p.olBlock === false && !p.olCustom) {
+          lines.push(`  if (yyGetBool(yyfequal(_inst.gmlposition, 5))) { _inst.x = yyfplus(yyInst(_inst, _other, YYASSET_REF(0x00000069)).gmlx_scrim, __yy_gml_errCheck(yyftime(${f.p5.x}, __yy_gml_errCheck(_inst.gmlfacing)))); _inst.y = yyfplus(yyInst(_inst, _other, YYASSET_REF(0x00000069)).gmly_scrim, ${f.p5.y}); }`);
+        }
+        lines.push(`  if (yyGetBool(yyfequal(_inst.gmlposition, 6))) { _inst.x = yyfplus(yyInst(_inst, _other, YYASSET_REF(0x00000069)).gmlx_scrim, __yy_gml_errCheck(yyftime(${f.p6.x}, __yy_gml_errCheck(_inst.gmlfacing)))); _inst.y = yyfplus(yyInst(_inst, _other, YYASSET_REF(0x00000069)).gmly_scrim, ${f.p6.y}); }`);
+        lines.push("}");
+        return lines.join("\n");
+      }).join("\nelse ");
+      els.outFormation.value =
+`// Paste near ~62333, after the route-name custom-play mapping block.
+// This applies your custom pre-snap formation per play label.
+if (!yyGetBool(yyInst(_inst, _other, YYASSET_REF(0x00000062)).gmlgamepractice) && yyGetBool(yyInst(_inst, _other, YYASSET_REF(0x00000069)).gmlplaybook_chosen)) {
+  var gmlpb_label = yyInst(_inst, _other, YYASSET_REF(0x00000069)).gmlplaybook_labels[__yy_gml_array_check_index(yyInst(_inst, _other, YYASSET_REF(0x00000069)).gmlplaybook_selected, yyInst(_inst, _other, YYASSET_REF(0x00000069)).gmlplaybook_labels)];
+  ${formationCases || "// No plays yet"}
+}`;
+
+      els.outFallback.value =
+`// Paste inside route-name switch default block around ~62526
+// This lets custom route names resolve dynamically (e.g., route_custom_*).
+if (yyGetBool(string_pos("route_custom_", _inst.gmlmy_route_name) == 1)) {
+  var gmlcustom_path = asset_get_index(_inst.gmlmy_route_name);
+  if (yyGetBool(gmlcustom_path >= 0)) {
+    _inst.gmlmy_route = path_duplicate(gmlcustom_path);
+  }
+}`;
+
+      els.outInstall.value =
+`# 1) Click "Export JSON" in this page and save as retro-custom-routes-plays.json in repo root
+# 2) Run from repo root:
+powershell -ExecutionPolicy Bypass -File tools/apply_custom_plays.ps1 -RetroBowlPath html5game/RetroBowl.js -JsonPath retro-custom-routes-plays.json`;
+    }
+
+    els.routeCanvas.addEventListener("click", (ev) => {
+      const rect = els.routeCanvas.getBoundingClientRect();
+      const p = fromCanvas(ev.clientX - rect.left, ev.clientY - rect.top);
+      state.currentPoints.push({ x: p.x, y: p.y, speed: Number(els.pointSpeed.value || 100) });
+      drawCanvas();
+    });
+    els.routeCanvas.addEventListener("contextmenu", (ev) => {
+      ev.preventDefault();
+      if (state.currentPoints.length > 1) state.currentPoints.pop();
+      drawCanvas();
+    });
+
+    document.getElementById("btnAddStart").onclick = () => {
+      state.currentPoints = [{ x: 0, y: 0, speed: Number(els.pointSpeed.value || 100) }];
+      drawCanvas();
+    };
+    document.getElementById("btnUndo").onclick = () => {
+      if (state.currentPoints.length > 1) state.currentPoints.pop();
+      drawCanvas();
+    };
+    document.getElementById("btnClear").onclick = () => {
+      state.currentPoints = [];
+      drawCanvas();
+    };
+    document.getElementById("btnSaveRoute").onclick = () => {
+      const name = els.routeName.value.trim();
+      if (!name) return;
+      const copy = state.currentPoints.map((p) => ({ ...p }));
+      const idx = state.routes.findIndex((r) => r.name === name);
+      const rec = { name, points: copy.length ? copy : [{ x: 0, y: 0, speed: 100 }] };
+      if (idx >= 0) state.routes[idx] = rec; else state.routes.push(rec);
+      saveCookieState();
+      renderLists();
+    };
+    document.getElementById("btnLoadRoute").onclick = () => {
+      const idx = Number(els.routeSelect.value);
+      if (Number.isNaN(idx) || !state.routes[idx]) return;
+      const r = state.routes[idx];
+      els.routeName.value = r.name;
+      state.currentPoints = r.points.map((p) => ({ ...p }));
+      drawCanvas();
+    };
+    document.getElementById("btnDeleteRoute").onclick = () => {
+      const idx = Number(els.routeSelect.value);
+      if (Number.isNaN(idx) || !state.routes[idx]) return;
+      state.routes.splice(idx, 1);
+      saveCookieState();
+      renderLists();
+    };
+
+    document.getElementById("btnAddPlay").onclick = () => {
+      const play = {
+        label: els.playLabel.value.trim(),
+        slot: Number(els.playSlot.value),
+        p4: els.p4.value,
+        p3: els.p3.value,
+        p2: els.p2.value,
+        p1: els.p1.value,
+        p5: els.p5.value,
+        p6: els.p6.value,
+        olBlock: !!els.olBlock.checked,
+        olCustom: !!els.olCustom.checked,
+        olLT: els.olLT.value,
+        olLG: els.olLG.value,
+        olC: els.olC.value,
+        olRG: els.olRG.value,
+        olRT: els.olRT.value,
+        formation: getFormationFromInputs()
+      };
+      if (!play.label) return;
+      const idx = state.plays.findIndex((p) => p.label === play.label);
+      if (idx >= 0) state.plays[idx] = play; else state.plays.push(play);
+      saveCookieState();
+      renderLists();
+    };
+    document.getElementById("btnLoadPlay").onclick = () => {
+      const idx = Number(els.playSelect.value);
+      if (Number.isNaN(idx) || !state.plays[idx]) return;
+      const p = state.plays[idx];
+      els.playLabel.value = p.label;
+      els.playSlot.value = String(p.slot);
+      els.p4.value = p.p4 || "";
+      els.p3.value = p.p3 || "";
+      els.p2.value = p.p2 || "";
+      els.p1.value = p.p1 || "";
+      els.p5.value = p.p5 || "";
+      els.p6.value = p.p6 || "";
+      els.olBlock.checked = p.olBlock !== false;
+      els.olCustom.checked = !!p.olCustom;
+      els.olLT.value = p.olLT || "route_te_block";
+      els.olLG.value = p.olLG || "route_te_block";
+      els.olC.value = p.olC || "route_te_block";
+      els.olRG.value = p.olRG || "route_te_block";
+      els.olRT.value = p.olRT || "route_te_block";
+      setFormationInputs(p.formation);
+      drawPlayPreview();
+    };
+    document.getElementById("btnDeletePlay").onclick = () => {
+      const idx = Number(els.playSelect.value);
+      if (Number.isNaN(idx) || !state.plays[idx]) return;
+      state.plays.splice(idx, 1);
+      saveCookieState();
+      renderLists();
+    };
+
+    document.getElementById("btnGenerate").onclick = generateOutput;
+    document.getElementById("btnApplyPreset").onclick = () => {
+      const p = formationDefaults[els.formationPreset.value];
+      if (!p) return;
+      setFormationInputs(p);
+      drawPlayPreview();
+      generateOutput();
+    };
+    ["p1","p2","p3","p4","p5","p6","olBlock","olCustom","olLT","olLG","olC","olRG","olRT","f1x","f1y","f2x","f2y","f3x","f3y","f4x","f4y","f5x","f5y","f6x","f6y","playLabel","playSlot"].forEach((id) => {
+      els[id].addEventListener("change", () => { drawPlayPreview(); generateOutput(); });
+      els[id].addEventListener("input", () => { drawPlayPreview(); generateOutput(); });
+    });
+    document.getElementById("btnCopyAll").onclick = async () => {
+      const combined = [
+        "// ---- PATHS ----\n" + els.outPaths.value,
+        "// ---- LABELS ----\n" + els.outLabels.value,
+        "// ---- PLAYS ----\n" + els.outPlays.value,
+        "// ---- FORMATION ----\n" + els.outFormation.value,
+        "// ---- FALLBACK ----\n" + els.outFallback.value
+      ].join("\n\n");
+      await navigator.clipboard.writeText(combined);
+    };
+    document.getElementById("btnExportJson").onclick = () => {
+      const blob = new Blob([JSON.stringify({ routes: state.routes, plays: state.plays }, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "retro-custom-routes-plays.json";
+      a.click();
+      URL.revokeObjectURL(a.href);
+    };
+
+    refreshRouteDropdowns();
+    loadCookieState();
+    drawCanvas();
+    setFormationInputs();
+    drawPlayPreview();
+    renderLists();
+  </script>
+</body>
+</html>

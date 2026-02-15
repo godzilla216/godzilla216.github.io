@@ -1,0 +1,180 @@
+{
+  "routes": [
+    {
+      "name": "Whip",
+      "points": [
+        {
+          "x": 0,
+          "y": 0,
+          "speed": 100
+        },
+        {
+          "x": 40,
+          "y": 0,
+          "speed": 100
+        },
+        {
+          "x": 56,
+          "y": 56,
+          "speed": 100
+        },
+        {
+          "x": 56,
+          "y": -72,
+          "speed": 100
+        }
+      ]
+    },
+    {
+      "name": "Texas",
+      "points": [
+        {
+          "x": 0,
+          "y": 0,
+          "speed": 100
+        },
+        {
+          "x": 184,
+          "y": 120,
+          "speed": 100
+        },
+        {
+          "x": 336,
+          "y": -16,
+          "speed": 100
+        }
+      ]
+    }
+  ],
+  "plays": [
+    {
+      "label": "Deep Dish",
+      "slot": 0,
+      "p4": "route_out1",
+      "p3": "route_flat",
+      "p2": "route_fb_3",
+      "p1": "route_qb",
+      "p5": "Whip",
+      "p6": "route_corner",
+      "olBlock": true,
+      "olCustom": false,
+      "olLT": "route_te_block",
+      "olLG": "route_te_block",
+      "olC": "route_te_block",
+      "olRG": "route_te_block",
+      "olRT": "route_te_block",
+      "formation": {
+        "p4": {
+          "x": -3,
+          "y": -78
+        },
+        "p3": {
+          "x": -2,
+          "y": -58
+        },
+        "p2": {
+          "x": -35,
+          "y": 3
+        },
+        "p1": {
+          "x": -36,
+          "y": -20
+        },
+        "p5": {
+          "x": -2,
+          "y": 60
+        },
+        "p6": {
+          "x": -3,
+          "y": 16
+        }
+      }
+    },
+    {
+      "label": "Duo Drags",
+      "slot": 1,
+      "p4": "route_slant2",
+      "p3": "route_flat",
+      "p2": "Texas",
+      "p1": "route_qb",
+      "p5": "Whip",
+      "p6": "route_te_block",
+      "olBlock": true,
+      "olCustom": true,
+      "olLT": "route_te_block",
+      "olLG": "route_te_block",
+      "olC": "route_te_block",
+      "olRG": "route_te_block",
+      "olRT": "route_te_block",
+      "formation": {
+        "p4": {
+          "x": -3,
+          "y": -78
+        },
+        "p3": {
+          "x": -2,
+          "y": -58
+        },
+        "p2": {
+          "x": -35,
+          "y": 3
+        },
+        "p1": {
+          "x": -84,
+          "y": -20
+        },
+        "p5": {
+          "x": -2,
+          "y": 60
+        },
+        "p6": {
+          "x": -24,
+          "y": 45
+        }
+      }
+    },
+    {
+      "label": "Fake Punt",
+      "slot": 2,
+      "p4": "route_streak",
+      "p3": "route_streak",
+      "p2": "Texas",
+      "p1": "route_qb",
+      "p5": "route_streak",
+      "p6": "route_te_block",
+      "olBlock": true,
+      "olCustom": false,
+      "olLT": "route_te_block",
+      "olLG": "route_te_block",
+      "olC": "route_te_block",
+      "olRG": "route_te_block",
+      "olRT": "route_te_block",
+      "formation": {
+        "p4": {
+          "x": -3,
+          "y": -108
+        },
+        "p3": {
+          "x": 0,
+          "y": -67
+        },
+        "p2": {
+          "x": -35,
+          "y": 3
+        },
+        "p1": {
+          "x": -83,
+          "y": -20
+        },
+        "p5": {
+          "x": 0,
+          "y": 110
+        },
+        "p6": {
+          "x": 0,
+          "y": 56
+        }
+      }
+    }
+  ]
+}
