@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Gamepad / Phone Vibration Test</title>
+    <style>
+      :root {
+        --bg: #0f1720;
+        --panel: #162330;
+        --line: #2d4257;
+        --text: #e8f1f8;
+        --muted: #9fb3c4;
+        --accent: #49b4ff;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(180deg, #0d131b 0%, #0f1720 100%);
+        color: var(--text);
+      }
+
+      .wrap {
+        max-width: 900px;
+        margin: 20px auto;
+        padding: 0 14px 24px;
+      }
+
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 12px;
+      }
+
+      h1 {
+        margin: 0 0 6px;
+        font-size: 18px;
+        font-weight: 700;
+      }
+
+      .sub {
+        margin: 0 0 12px;
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      label {
+        display: block;
+        font-size: 13px;
+        color: var(--muted);
+        margin: 10px 0 6px;
+      }
+
+      input,
+      select,
+      button {
+        width: 100%;
+        box-sizing: border-box;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #101c28;
+        color: var(--text);
+        padding: 10px;
+        font-size: 13px;
+      }
+
+      input[type="range"] {
+        padding: 0;
+        height: 28px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      .row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 12px;
+      }
+
+      button {
+        cursor: pointer;
+        background: #143049;
+        border-color: #27527b;
+      }
+
+      button:hover {
+        background: #184061;
+      }
+
+      button.secondary {
+        background: #1a2230;
+        border-color: #2b3a50;
+      }
+
+      button.secondary:hover {
+        background: #222d3f;
+      }
+
+      .status {
+        white-space: pre-wrap;
+        font-family: Consolas, Menlo, monospace;
+        font-size: 13px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 10px;
+        background: #0f1b27;
+        min-height: 120px;
+      }
+
+      .small {
+        margin-top: 10px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .toggle {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 8px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .toggle input {
+        width: auto;
+        margin: 0;
+      }
+
+      code {
+        font-family: Consolas, Menlo, monospace;
+      }
+
+      @media (max-width: 720px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="card" style="margin-bottom: 12px">
+        <h1>Gamepad / Phone Vibration Test</h1>
+        <p class="sub">
+          Connect a controller, then press <b>Start</b>. Gamepad rumble works best in
+          Chrome / Edge. Phone vibration requires <code>navigator.vibrate</code>.
+        </p>
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <div class="toggle">
+            <input id="fullPowerMode" type="checkbox" />
+            <span><b>Full power mode</b> (constant max vibration)</span>
+          </div>
+
+          <label for="aggression">Aggression: <span id="aggressionValue">0</span></label>
+          <input id="aggression" type="range" min="0" max="6" step="1" value="0" />
+
+          <label for="triggerSelect">Trigger select</label>
+          <select id="triggerSelect">
+            <option value="7">RT (button 7)</option>
+            <option value="6">LT (button 6)</option>
+            <option value="0">A (button 0)</option>
+            <option value="1">B (button 1)</option>
+            <option value="2">X (button 2)</option>
+            <option value="3">Y (button 3)</option>
+          </select>
+
+          <div class="row">
+            <button id="btnStart">Start</button>
+            <button id="btnStop" class="secondary">Stop</button>
+          </div>
+
+          <div class="small">Tip: if triggers don’t respond, check the gamepad mapping in DevTools.</div>
+        </div>
+
+        <div class="card">
+          <div id="status" class="status">Idle.</div>
+          <div id="details" class="small"></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let running = false;
+      let rafLoop = 0;
+      let phase = false;
+      let phoneInterval = null;
+      let lastPhoneVibrateAt = 0;
+
+      function $(id) {
+        return document.getElementById(id);
+      }
+
+      function clamp01(x) {
+        if (!Number.isFinite(x)) return 0;
+        return Math.min(1, Math.max(0, x));
+      }
+
+      function isIphone() {
+        return /iPhone|iPad|iPod/i.test(navigator.userAgent);
+      }
+
+      function getFirstGamepad() {
+        if (!navigator.getGamepads) return null;
+        const gamepads = navigator.getGamepads();
+        for (const gp of gamepads) {
+          if (gp) return gp;
+        }
+        return null;
+      }
+
+      function getActuator(gp) {
+        if (!gp) return null;
+        if (gp.vibrationActuator) return gp.vibrationActuator;
+        if (gp.hapticActuators && gp.hapticActuators.length > 0) return gp.hapticActuators[0];
+        return null;
+      }
+
+      function vibratePhoneBoost() {
+        if (!navigator.vibrate) return;
+        if (phoneInterval) clearInterval(phoneInterval);
+        phoneInterval = setInterval(() => {
+          navigator.vibrate(40);
+        }, 45);
+      }
+
+      function stopPhoneBoost() {
+        if (phoneInterval) {
+          clearInterval(phoneInterval);
+          phoneInterval = null;
+        }
+        if (navigator.vibrate) navigator.vibrate(0);
+      }
+
+      function setStatus(text) {
+        $("status").innerText = text;
+      }
+
+      function setDetails(text) {
+        $("details").innerText = text || "";
+      }
+
+      function tryHaptics(actuator, strong, weak, durationMs) {
+        try {
+          if (actuator && typeof actuator.playEffect === "function") {
+            actuator.playEffect("dual-rumble", {
+              duration: durationMs,
+              strongMagnitude: clamp01(strong),
+              weakMagnitude: clamp01(weak),
+            });
+            return true;
+          }
+          if (actuator && typeof actuator.pulse === "function") {
+            actuator.pulse(clamp01(Math.max(strong, weak)), durationMs);
+            return true;
+          }
+        } catch (e) {}
+        return false;
+      }
+
+      function start() {
+        if (running) return;
+        running = true;
+        phase = false;
+        setStatus("Starting...");
+        loop();
+      }
+
+      function stop() {
+        running = false;
+        if (rafLoop) cancelAnimationFrame(rafLoop);
+        rafLoop = 0;
+        stopPhoneBoost();
+        setStatus("Stopped.");
+        setDetails("");
+      }
+
+      function loop() {
+        if (!running) return;
+
+        const gp = getFirstGamepad();
+        const actuator = getActuator(gp);
+
+        const fullPower = $("fullPowerMode").checked;
+        const aggression = Number($("aggression").value);
+        const triggerIndex = Number($("triggerSelect").value);
+
+        $("aggressionValue").innerText = String(aggression);
+
+        let power = 1;
+        if (!fullPower) {
+          const triggerValue = gp?.buttons?.[triggerIndex]?.value ?? 0;
+          power = Math.pow(clamp01(Number(triggerValue)), 2 + aggression * 0.5);
+          power = clamp01(power);
+        }
+
+        if (gp) {
+          setDetails(`Gamepad: ${gp.id}\nMapping: ${gp.mapping || "unknown"}`);
+        } else {
+          setDetails("Gamepad: none detected");
+        }
+
+        if (actuator) {
+          stopPhoneBoost();
+          if (fullPower) {
+            tryHaptics(actuator, 1, 1, 40);
+            setStatus("FULL POWER MODE ACTIVE");
+          } else {
+            const strong = phase ? power : 0;
+            const weak = phase ? 0 : power;
+            phase = !phase;
+            tryHaptics(actuator, strong, weak, 20);
+            setStatus(`Trigger Mode\nPower: ${power.toFixed(2)}`);
+          }
+        } else if (navigator.vibrate) {
+          if (fullPower && isIphone()) {
+            vibratePhoneBoost();
+            setStatus("iPhone OVERDRIVE (rapid vibrate spam)");
+          } else {
+            stopPhoneBoost();
+            const now = performance.now();
+            if (now - lastPhoneVibrateAt > 80) {
+              const duration = fullPower ? 120 : Math.round(20 + power * 80);
+              navigator.vibrate(duration);
+              lastPhoneVibrateAt = now;
+            }
+            setStatus(fullPower ? "FULL PHONE VIBRATION" : `Phone Mode\nPower: ${power.toFixed(2)}`);
+          }
+        } else {
+          stopPhoneBoost();
+          setStatus("No vibration actuator found (and navigator.vibrate is unavailable).");
+        }
+
+        rafLoop = requestAnimationFrame(loop);
+      }
+
+      $("btnStart").addEventListener("click", start);
+      $("btnStop").addEventListener("click", stop);
+
+      window.addEventListener("gamepadconnected", (e) => {
+        const gp = e.gamepad;
+        setStatus(`Gamepad connected: ${gp.id}\nPress Start to test rumble.`);
+        setDetails(`Index: ${gp.index}\nMapping: ${gp.mapping || "unknown"}`);
+      });
+
+      window.addEventListener("gamepaddisconnected", () => {
+        if (!running) {
+          setStatus("Gamepad disconnected.");
+          setDetails("");
+        }
+      });
+    </script>
+  </body>
+</html>
