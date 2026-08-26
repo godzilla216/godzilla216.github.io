@@ -6,6 +6,7 @@ let hintCount = 0;
 let url;
 let drafted;
 let playerName;
+let currentPrompt;
 
 function showHint() {
     hintCount++;
@@ -49,41 +50,35 @@ function hint() {
             if (hintCount === 1) {
                 console.log(data);
                 console.log(hintCount);
-                playerText.innerHTML = "Your player is " + data.age + " years old";
+                currentPrompt = "Your player is " + data.age + " years old";
+                playerText.innerHTML = currentPrompt;
             }
-
             if (hintCount === 2) {
                 console.log(data);
                 console.log(hintCount);
                 if (data.draft == null) {
-                    playerText.innerHTML = "Your player is " + data.age + " years old" + "<br>" + "Your player was undrafted";
+                    currentPrompt = currentPrompt + " years old" + "<br>" + "Your player was undrafted";
+                    playerText.innerHTML = currentPrompt;
                     drafted = false;
                 }
-
                 else {
-                    playerText.innerHTML = "Your player is " + data.age + " years old" + "<br>" + "Your player was drafted in " + data.draft.displayText;
+                    currentPrompt = currentPrompt + "<br>" + "Your player was drafted in " + data.draft.displayText; 
+                    playerText.innerHTML = currentPrompt;
                     drafted = true;
                 }
-
             }
             if (hintCount === 3) {
-                if (drafted === true) {
-                    playerText.innerHTML = "Your player is " + data.age + " years old" + "<br>" + "Your player was drafted in " + data.draft.displayText + "<br>" + "your player is a " + data.position.name;
-                }
-                else {
-                    playerText.innerHTML = "Your player is " + data.age + " years old" + "<br>" + "Your player was undrafted" + "<br>" + "your player is a " + data.position.name;
-                }
-                
+                    currentPrompt = currentPrompt + "<br>" + "your player is a " + data.position.name;
+                    playerText.innerHTML = currentPrompt
             }
-            if(hintCount === 4) {
-                if (drafted === true) {
-                    playerText.innerHTML = "Your player is " + data.age + " years old" + "<br>" + "Your player was drafted in " + data.draft.displayText + "<br>" + "your player is a " + data.position.name + "<br>" + "your player was born in " + data.birthPlace.city + ", " + data.birthPlace.country;
-                }
-                else {
-                    playerText.innerHTML = "Your player is " + data.age + " years old" + "<br>" + "Your player was undrafted" + "<br>" + "your player is a " + data.position.name + "<br>" + "your player was born in " + data.birthPlace.city + ", " + data.birthPlace.country;
-                }  
+            if (hintCount === 4) {
+                    currentPrompt = currentPrompt + "<br>" + "your player was born in " + data.birthPlace.city + ", " + data.birthPlace.country;
+                    playerText.innerHTML = currentPrompt;
             }
-
+            if (hintCount === 5) {
+                    currentPrompt = currentPrompt + "<br>" + "your player wears number " + data.jersey;
+                    playerText.innerHTML = currentPrompt
+            }
         })
         .catch(error => {
             console.error('Fetch failed:', error);
@@ -93,7 +88,7 @@ function hint() {
 function guessPlayer() {
     console.log(playerName)
     console.log(guess.value)
-    if (guess.value.toUpperCase() == playerName){
+    if (guess.value.toUpperCase() == playerName) {
         window.alert('Correct!')
     }
     else {
