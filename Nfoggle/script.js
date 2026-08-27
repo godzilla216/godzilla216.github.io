@@ -7,6 +7,8 @@ let url;
 let drafted;
 let playerName;
 let currentPrompt;
+let teamUrl;
+let teamName;
 
 function showHint() {
     hintCount++;
@@ -45,39 +47,65 @@ function hint() {
             }
             return response.json();
         })
-        .then(data => {
+        .then(async data => {
             playerName = data.fullName.toUpperCase()
             if (hintCount === 1) {
                 console.log(data);
-                console.log(hintCount);
-                currentPrompt = "Your player is " + data.age + " years old";
-                playerText.innerHTML = currentPrompt;
+                console.log(hintCount)
+                if (data.experience.years === 0) {
+                    ;
+                    currentPrompt = "Your player is " + data.age + " years old" + " and is a rookie";
+                    playerText.innerHTML = currentPrompt;
+                }
+                else {
+                    currentPrompt = "Your player is " + data.age + " years old" + " and has played in the league for " + data.experience.years + " years";
+                    playerText.innerHTML = currentPrompt;
+                }
             }
             if (hintCount === 2) {
                 console.log(data);
                 console.log(hintCount);
+                //have to keep as == for some reason or it breaks
                 if (data.draft == null) {
-                    currentPrompt = currentPrompt + " years old" + "<br>" + "Your player was undrafted";
+                    currentPrompt = currentPrompt + "<br>" + "Your player was undrafted";
                     playerText.innerHTML = currentPrompt;
                     drafted = false;
                 }
                 else {
-                    currentPrompt = currentPrompt + "<br>" + "Your player was drafted in " + data.draft.displayText; 
+                    currentPrompt = currentPrompt + "<br>" + "Your player was drafted in " + data.draft.displayText;
                     playerText.innerHTML = currentPrompt;
                     drafted = true;
                 }
             }
             if (hintCount === 3) {
-                    currentPrompt = currentPrompt + "<br>" + "your player is a " + data.position.name;
-                    playerText.innerHTML = currentPrompt
+                currentPrompt = currentPrompt + "<br>" + "Your player is a " + data.position.name;
+                playerText.innerHTML = currentPrompt
             }
             if (hintCount === 4) {
-                    currentPrompt = currentPrompt + "<br>" + "your player was born in " + data.birthPlace.city + ", " + data.birthPlace.country;
-                    playerText.innerHTML = currentPrompt;
+                currentPrompt = currentPrompt + "<br>" + "Your player was born in " + data.birthPlace.city + ", " + data.birthPlace.country;
+                playerText.innerHTML = currentPrompt;
             }
             if (hintCount === 5) {
-                    currentPrompt = currentPrompt + "<br>" + "your player wears number " + data.jersey;
-                    playerText.innerHTML = currentPrompt
+                currentPrompt = currentPrompt + "<br>" + "Your player wears number " + data.jersey;
+                playerText.innerHTML = currentPrompt
+            }
+            if (hintCount === 6) {
+                currentPrompt = currentPrompt + "<br>" + "Your player is " + inToFt(data.height) + " tall" + " and weighs " + data.weight + " pounds";
+                playerText.innerHTML = currentPrompt
+            }
+            if (hintCount === 7) {
+                if (data.status.type === "free-agent") {
+                    currentPrompt = currentPrompt + "<br>" + "Your player is a free agent";
+                    playerText.innerHTML = currentPrompt;
+                }
+                else {
+                    teamUrl = data.team.$ref;
+                    getTeamInfo(teamUrl)
+                    teamName = await getTeamInfo(teamUrl);
+                    currentPrompt = currentPrompt + "<br>" + "Your player plays for the " + teamName;
+
+                    playerText.innerHTML = currentPrompt;
+                }
             }
         })
         .catch(error => {
@@ -93,5 +121,31 @@ function guessPlayer() {
     }
     else {
         window.alert('Incorrect')
+    }
+}
+
+function inToFt(inches) {
+    let feet = Math.floor(inches / 12);
+    let remainingInches = inches % 12;
+    return `${feet}'${remainingInches}"`;
+}
+
+async function getTeamInfo(teamUrl) {
+    try {
+        const response = await fetch(teamUrl);
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+
+        console.log(data);
+        console.log(data.displayName);
+
+        return data.displayName;
+    }
+    catch (error) {
+        console.error('Fetch failed:', error);
     }
 }
