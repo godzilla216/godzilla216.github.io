@@ -1,7 +1,8 @@
 const playerText = document.getElementById("playerText");
 const hintCountText = document.getElementById("hintCount");
-const hintButton = document.getElementById("showHint");
+const hintButton = document.getElementById("hint");
 const guess = document.getElementById("guess")
+const teamImage = document.getElementById("team");
 let hintCount = 0;
 let url;
 let drafted;
@@ -97,12 +98,103 @@ function hint() {
                 if (data.status.type === "free-agent") {
                     currentPrompt = currentPrompt + "<br>" + "Your player is a free agent";
                     playerText.innerHTML = currentPrompt;
+                    teamImage.src = "nflLogos/freeAgent.png";
                 }
                 else {
                     teamUrl = data.team.$ref;
                     getTeamInfo(teamUrl)
                     teamName = await getTeamInfo(teamUrl);
                     currentPrompt = currentPrompt + "<br>" + "Your player plays for the " + teamName;
+                    if (teamName === "Los Angeles Chargers") {
+                        teamImage.src = "nflLogos/chargers.png";
+                    }
+                    if (teamName === "Atlanta Falcons") {
+                        teamImage.src = "nflLogos/falcons.png";
+                    }
+                    if (teamName === "Arizona Cardinals") {
+                        teamImage.src = "nflLogos/cardinals.png";
+                    }
+                    if (teamName === "Baltimore Ravens") {
+                        teamImage.src = "nflLogos/ravens.png";
+                    }
+                    if (teamName === "Buffalo Bills") {
+                        teamImage.src = "nflLogos/bills.png";
+                    }
+                    if (teamName === "Carolina Panthers") {
+                        teamImage.src = "nflLogos/panthers.png";
+                    }
+                    if (teamName === "Chicago Bears") {
+                        teamImage.src = "nflLogos/bears.png";
+                    }
+                    if (teamName === "Cincinnati Bengals") {
+                        teamImage.src = "nflLogos/bengals.png";
+                    }
+                    if (teamName === "Cleveland Browns") {
+                        teamImage.src = "nflLogos/browns.png";
+                    } 
+                    if (teamName === "Dallas Cowboys") {
+                        teamImage.src = "nflLogos/cowboys.png";
+                    }
+                    if (teamName === "Denver Broncos") {
+                        teamImage.src = "nflLogos/broncos.png";
+                    }
+                    if (teamName === "Detroit Lions") {
+                        teamImage.src = "nflLogos/lions.png";
+                    }
+                    if (teamName === "Green Bay Packers") {
+                        teamImage.src = "nflLogos/packers.png";
+                    }
+                    if (teamName === "Houston Texans") {
+                        teamImage.src = "nflLogos/texans.png";
+                    } 
+                    if (teamName === "Indianapolis Colts") {
+                        teamImage.src = "nflLogos/colts.png";
+                    } 
+                    if (teamName === "Jacksonville Jaguars") {
+                        teamImage.src = "nflLogos/jaguars.png";
+                    }
+                    if (teamName === "Kansas City Chiefs") {
+                        teamImage.src = "nflLogos/chiefs.png";
+                    }
+                    if (teamName === "Las Vegas Raiders") {
+                        teamImage.src = "nflLogos/raiders.png";
+                    }
+                    if (teamName === "Los Angeles Rams") {
+                        teamImage.src = "nflLogos/rams.png";
+                    }
+                    if (teamName === "Miami Dolphins") {
+                        teamImage.src = "nflLogos/dolphins.png";
+                    }
+                    if (teamName === "Minnesota Vikings") {
+                        teamImage.src = "nflLogos/vikings.png";
+                    }
+                    if (teamName === "New England Patriots") {
+                        teamImage.src = "nflLogos/patriots.png";
+                    }   
+                    if (teamName === "New Orleans Saints") {
+                        teamImage.src = "nflLogos/saints.png";
+                    }
+                    if (teamName === "New York Giants") {
+                        teamImage.src = "nflLogos/giants.png";
+                    }
+                    if (teamName === "New York Jets") {
+                        teamImage.src = "nflLogos/jets.png";
+                    }
+                    if (teamName === "Philadelphia Eagles") {
+                        teamImage.src = "nflLogos/eagles.png";
+                    }
+                    if (teamName === "Pittsburgh Steelers") {
+                        teamImage.src = "nflLogos/steelers.png";
+                    }
+                    if (teamName === "San Francisco 49ers") {
+                        teamImage.src = "nflLogos/49ers.png";
+                    }
+                    if (teamName === "Tampa Bay Buccaneers") {
+                        teamImage.src = "nflLogos/buccaneers.png";
+                    }
+                    if (teamName === "Washington Commanders") {
+                        teamImage.src = "nflLogos/commanders.png";
+                    }
 
                     playerText.innerHTML = currentPrompt;
                 }
