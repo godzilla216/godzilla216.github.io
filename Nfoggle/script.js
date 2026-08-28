@@ -1,6 +1,6 @@
 const playerText = document.getElementById("playerText");
 const hintCountText = document.getElementById("hintCount");
-const hintButton = document.getElementById("hint");
+const hintButton = document.getElementById("showHint");
 const guess = document.getElementById("guess")
 let hintCount = 0;
 let url;
