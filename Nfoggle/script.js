@@ -3,6 +3,7 @@ const hintCountText = document.getElementById("hintCount");
 const hintButton = document.getElementById("hint");
 const guess = document.getElementById("guess")
 const teamImage = document.getElementById("team");
+const headshot = document.getElementById("headshot")
 let hintCount = 0;
 let url;
 let drafted;
@@ -16,6 +17,9 @@ function showHint() {
     hint();
     hintButton.innerHTML = "Hint";
     hintCountText.innerHTML = "You have used " + hintCount + " hints";
+    if (hintCount > 9) {
+        hintButton.disabled = true
+    }
 }
 
 async function loadData() {
@@ -83,7 +87,7 @@ function hint() {
                 playerText.innerHTML = currentPrompt
             }
             if (hintCount === 4) {
-                currentPrompt = currentPrompt + "<br>" + "Your player was born in " + data.birthPlace.city + ", " + "" + data.birthPlace.country;
+                currentPrompt = currentPrompt + "<br>" + "Your player was born in " + data.birthPlace.city + ", " + data.birthPlace.country;
                 playerText.innerHTML = currentPrompt;
             }
             if (hintCount === 5) {
@@ -131,7 +135,7 @@ function hint() {
                     }
                     if (teamName === "Cleveland Browns") {
                         teamImage.src = "nflLogos/browns.png";
-                    } 
+                    }
                     if (teamName === "Dallas Cowboys") {
                         teamImage.src = "nflLogos/cowboys.png";
                     }
@@ -146,10 +150,10 @@ function hint() {
                     }
                     if (teamName === "Houston Texans") {
                         teamImage.src = "nflLogos/texans.png";
-                    } 
+                    }
                     if (teamName === "Indianapolis Colts") {
                         teamImage.src = "nflLogos/colts.png";
-                    } 
+                    }
                     if (teamName === "Jacksonville Jaguars") {
                         teamImage.src = "nflLogos/jaguars.png";
                     }
@@ -170,7 +174,7 @@ function hint() {
                     }
                     if (teamName === "New England Patriots") {
                         teamImage.src = "nflLogos/patriots.png";
-                    }   
+                    }
                     if (teamName === "New Orleans Saints") {
                         teamImage.src = "nflLogos/saints.png";
                     }
@@ -198,6 +202,11 @@ function hint() {
 
                     playerText.innerHTML = currentPrompt;
                 }
+            }
+            if (hintCount === 8) {
+                console.log(data.headshot.href)
+                playerText.innerHTML = currentPrompt + "<br>" + "This is your players headshot"
+                headshot.src = data.headshot.href
             }
         })
         .catch(error => {
