@@ -1,0 +1,308 @@
+{
+    "count": 100,
+    "pageIndex": 1,
+    "pageSize": 100,
+    "pageCount": 1,
+    "items": [
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/3912547?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/3919512?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4034790?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4040715?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4360310?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4242283?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4362847?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4241478?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4569465?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4602699?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4426358?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4723086?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4568652?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/3052743?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4683487?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4876017?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4241470?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/3051324?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4259566?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4035631?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/3915189?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/3915282?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4035495?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/3046779?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4360499?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4361370?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/3672833?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4361741?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/3043078?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4682618?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/13977?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4578085?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4426502?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/3915239?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4379399?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/3045282?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4040537?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/3929630?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4431611?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4426348?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4429160?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4035483?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4685759?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4040982?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4360259?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4040605?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/3129308?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4608138?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4036378?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/3691739?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/3044859?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/2577773?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4334215?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/3040151?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4426354?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4047646?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4258173?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4427250?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/2971622?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4426405?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/15797?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/2976560?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/2577417?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4035662?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4242335?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4686772?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4686273?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4241389?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4038941?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4241385?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4431452?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/3117251?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/13241?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4240589?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4361307?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/3916655?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4432665?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4575431?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4374302?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4426434?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/3138826?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4035369?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4429795?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4575517?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4372099?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4685724?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4430807?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4361423?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4373825?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4430878?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4262921?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/12483?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/3915518?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4372012?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4426515?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/3139477?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/4362628?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/3916387?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/3918298?lang=en&region=us"
+        },
+        {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/3122132?lang=en&region=us"
+        }
+    ]
+}
