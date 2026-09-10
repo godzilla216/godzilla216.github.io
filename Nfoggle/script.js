@@ -3,9 +3,9 @@ const hintCountText = document.getElementById("hintCount");
 const hintButton = document.getElementById("hint");
 const guess = document.getElementById("guess")
 const scoreText = document.getElementById("score")
-const teamImage = document.getElementById("nflTeam");
-const collegeTeamImage = document.getElementById("collegeTeam");
-const headshot = document.getElementById("headshot")
+let teamImage = document.getElementById("nflTeam");
+let collegeTeamImage = document.getElementById("collegeTeam");
+let headshot = document.getElementById("headshot")
 let hintCount = 0;
 let url;
 let drafted;
@@ -13,7 +13,7 @@ let playerName;
 let currentPrompt;
 let teamUrl;
 let teamName;
-let score;
+let score = 0;
 
 document.addEventListener("keydown", function (event) {
     if (event.key === "Enter" && document.activeElement !== hintButton) {
@@ -229,7 +229,7 @@ function hint() {
                 playerText.innerHTML = currentPrompt;
                 headshot.src = data.headshot.href
             }
-            if (hintCount === 10) {
+            if (hintCount === 9) {
                 currentPrompt = currentPrompt + "<br>" + "Your player is " + inToFt(data.height) + " tall" + " and weighs " + data.weight + " pounds";
                 playerText.innerHTML = currentPrompt
             }
@@ -243,9 +243,19 @@ function guessPlayer() {
     console.log(playerName)
     console.log(guess.value)
     if (guess.value.toUpperCase() == playerName) {
-        score = 1000 - (hintCount * 75);
+        score = score + 1000 - (hintCount * 75);
         window.alert('Correct! your score is ' + score);
         scoreText.innerHTML = 'Your score is ' + score;
+        currentPrompt = "Click start to begin!";
+        playerText.innerHTML = currentPrompt    
+        hintCount = 0;  
+        hintCountText.innerHTML = "You have used " + hintCount + " hints";  
+        teamImage.src = "nflLogos/questionMark.png";
+        collegeTeamImage.src = "nflLogos/questionMark.png";
+        headshot.src = "emptyHeadshot.png";
+        hintButton.disabled = false
+        hintButton.innerHTML = "Start Game!";
+        loadData();
     }
     else {
         window.alert('Incorrect')
