@@ -121,7 +121,7 @@ function hint() {
             if (hintCount === 7) {
                 if (data.status.type === "free-agent") {
                     currentPrompt = currentPrompt + "<br>" + "Your player is a free agent";                
-                    teamImage.src = "nflLogos/freeAgent.png";
+                    teamImage.src = "freeAgent.png";
                     playerText.innerHTML = currentPrompt;
                 }
                 else {
@@ -161,8 +161,8 @@ function guessPlayer() {
         playerText.innerHTML = currentPrompt    
         hintCount = 0;  
         hintCountText.innerHTML = "You have used " + hintCount + " hints";  
-        teamImage.src = "nflLogos/questionMark.png";
-        collegeTeamImage.src = "nflLogos/questionMark.png";
+        teamImage.src = "questionMark.png";
+        collegeTeamImage.src = "questionMark.png";
         headshot.src = "emptyHeadshot.png";
         hintButton.disabled = false
         hintButton.innerHTML = "Start Game!";
