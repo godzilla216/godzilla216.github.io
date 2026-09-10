@@ -13,6 +13,12 @@ let currentPrompt;
 let teamUrl;
 let teamName;
 
+document.addEventListener("keydown", function(event) {
+    if (event.key === "Enter") {
+        guessPlayer();
+    }
+});
+
 function showHint() {
     hintCount++;
     hint();
@@ -102,8 +108,8 @@ function hint() {
                         console.log(collegeData.$ref);
                         currentPrompt = currentPrompt + "<br>" + "Your player went to " + collegeData.name;
                         playerText.innerHTML = currentPrompt;
-                        collegeTeamImage.src = collegeData.logos.href;
-                        console.log(collegeData.logos.href);
+                        collegeTeamImage.src = collegeData.logos[0].href;
+                        console.log(collegeData.logos);
                     })
                     .catch(error => {
                         console.error('Fetch failed:', error);

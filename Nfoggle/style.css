@@ -2,14 +2,14 @@
     position: absolute;
     outline: 2px black solid;
     height: 200px;
-    left: 450px;
+    left: 650px;
 }
 
 #collegeTeam {
     position: absolute;
     outline: 2px black solid;
     height: 200px;
-    left: 650px;
+    left: 450px;
 }
 
 #headshot {
