@@ -12,9 +12,10 @@ let playerName;
 let currentPrompt;
 let teamUrl;
 let teamName;
+let score;
 
-document.addEventListener("keydown", function(event) {
-    if (event.key === "Enter") {
+document.addEventListener("keydown", function (event) {
+    if (event.key === "Enter" && document.activeElement !== hintButton) {
         guessPlayer();
     }
 });
@@ -24,7 +25,7 @@ function showHint() {
     hint();
     hintButton.innerHTML = "Hint";
     hintCountText.innerHTML = "You have used " + hintCount + " hints";
-    if (hintCount > 9) {
+    if (hintCount > 10) {
         hintButton.disabled = true
     }
 }
@@ -220,15 +221,16 @@ function hint() {
 
                     playerText.innerHTML = currentPrompt;
                 }
-            if (hintCount === 10) {
-                currentPrompt = currentPrompt + "<br>" + "Your player is " + inToFt(data.height) + " tall" + " and weighs " + data.weight + " pounds";
-                playerText.innerHTML = currentPrompt
-            }
             }
             if (hintCount === 8) {
                 console.log(data.headshot.href)
-                playerText.innerHTML = currentPrompt + "<br>" + "This is your players headshot"
+                currentPrompt = currentPrompt + "<br>" + "This is your players headshot"
+                playerText.innerHTML = currentPrompt;
                 headshot.src = data.headshot.href
+            }
+            if (hintCount === 10) {
+                currentPrompt = currentPrompt + "<br>" + "Your player is " + inToFt(data.height) + " tall" + " and weighs " + data.weight + " pounds";
+                playerText.innerHTML = currentPrompt
             }
         })
         .catch(error => {
@@ -241,6 +243,7 @@ function guessPlayer() {
     console.log(guess.value)
     if (guess.value.toUpperCase() == playerName) {
         window.alert('Correct!')
+        score = 1000 - (hintCount * 75);
     }
     else {
         window.alert('Incorrect')
