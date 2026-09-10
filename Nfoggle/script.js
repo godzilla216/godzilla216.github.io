@@ -2,6 +2,7 @@ const playerText = document.getElementById("playerText");
 const hintCountText = document.getElementById("hintCount");
 const hintButton = document.getElementById("hint");
 const guess = document.getElementById("guess")
+const scoreText = document.getElementById("score")
 const teamImage = document.getElementById("nflTeam");
 const collegeTeamImage = document.getElementById("collegeTeam");
 const headshot = document.getElementById("headshot")
@@ -242,8 +243,9 @@ function guessPlayer() {
     console.log(playerName)
     console.log(guess.value)
     if (guess.value.toUpperCase() == playerName) {
-        window.alert('Correct!')
         score = 1000 - (hintCount * 75);
+        window.alert('Correct! your score is ' + score);
+        scoreText.innerHTML = 'Your score is ' + score;
     }
     else {
         window.alert('Incorrect')
