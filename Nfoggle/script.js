@@ -120,106 +120,17 @@ function hint() {
             }
             if (hintCount === 7) {
                 if (data.status.type === "free-agent") {
-                    currentPrompt = currentPrompt + "<br>" + "Your player is a free agent";
-                    playerText.innerHTML = currentPrompt;
+                    currentPrompt = currentPrompt + "<br>" + "Your player is a free agent";                
                     teamImage.src = "nflLogos/freeAgent.png";
+                    playerText.innerHTML = currentPrompt;
                 }
                 else {
                     teamUrl = data.team.$ref;
-                    getTeamInfo(teamUrl)
-                    teamName = await getTeamInfo(teamUrl);
+                    teamName = await getTeamInfo(teamUrl, "name");
+                    teamLogoUrl = await getTeamInfo(teamUrl, "logo");
                     currentPrompt = currentPrompt + "<br>" + "Your player plays for the " + teamName;
-                    if (teamName === "Los Angeles Chargers") {
-                        teamImage.src = "nflLogos/chargers.png";
-                    }
-                    if (teamName === "Atlanta Falcons") {
-                        teamImage.src = "nflLogos/falcons.png";
-                    }
-                    if (teamName === "Arizona Cardinals") {
-                        teamImage.src = "nflLogos/cardinals.png";
-                    }
-                    if (teamName === "Baltimore Ravens") {
-                        teamImage.src = "nflLogos/ravens.png";
-                    }
-                    if (teamName === "Buffalo Bills") {
-                        teamImage.src = "nflLogos/bills.png";
-                    }
-                    if (teamName === "Carolina Panthers") {
-                        teamImage.src = "nflLogos/panthers.png";
-                    }
-                    if (teamName === "Chicago Bears") {
-                        teamImage.src = "nflLogos/bears.png";
-                    }
-                    if (teamName === "Cincinnati Bengals") {
-                        teamImage.src = "nflLogos/bengals.png";
-                    }
-                    if (teamName === "Cleveland Browns") {
-                        teamImage.src = "nflLogos/browns.png";
-                    }
-                    if (teamName === "Dallas Cowboys") {
-                        teamImage.src = "nflLogos/cowboys.png";
-                    }
-                    if (teamName === "Denver Broncos") {
-                        teamImage.src = "nflLogos/broncos.png";
-                    }
-                    if (teamName === "Detroit Lions") {
-                        teamImage.src = "nflLogos/lions.png";
-                    }
-                    if (teamName === "Green Bay Packers") {
-                        teamImage.src = "nflLogos/packers.png";
-                    }
-                    if (teamName === "Houston Texans") {
-                        teamImage.src = "nflLogos/texans.png";
-                    }
-                    if (teamName === "Indianapolis Colts") {
-                        teamImage.src = "nflLogos/colts.png";
-                    }
-                    if (teamName === "Jacksonville Jaguars") {
-                        teamImage.src = "nflLogos/jaguars.png";
-                    }
-                    if (teamName === "Kansas City Chiefs") {
-                        teamImage.src = "nflLogos/chiefs.png";
-                    }
-                    if (teamName === "Las Vegas Raiders") {
-                        teamImage.src = "nflLogos/raiders.png";
-                    }
-                    if (teamName === "Los Angeles Rams") {
-                        teamImage.src = "nflLogos/rams.png";
-                    }
-                    if (teamName === "Miami Dolphins") {
-                        teamImage.src = "nflLogos/dolphins.png";
-                    }
-                    if (teamName === "Minnesota Vikings") {
-                        teamImage.src = "nflLogos/vikings.png";
-                    }
-                    if (teamName === "New England Patriots") {
-                        teamImage.src = "nflLogos/patriots.png";
-                    }
-                    if (teamName === "New Orleans Saints") {
-                        teamImage.src = "nflLogos/saints.png";
-                    }
-                    if (teamName === "New York Giants") {
-                        teamImage.src = "nflLogos/giants.png";
-                    }
-                    if (teamName === "New York Jets") {
-                        teamImage.src = "nflLogos/jets.png";
-                    }
-                    if (teamName === "Philadelphia Eagles") {
-                        teamImage.src = "nflLogos/eagles.png";
-                    }
-                    if (teamName === "Pittsburgh Steelers") {
-                        teamImage.src = "nflLogos/steelers.png";
-                    }
-                    if (teamName === "San Francisco 49ers") {
-                        teamImage.src = "nflLogos/49ers.png";
-                    }
-                    if (teamName === "Tampa Bay Buccaneers") {
-                        teamImage.src = "nflLogos/buccaneers.png";
-                    }
-                    if (teamName === "Washington Commanders") {
-                        teamImage.src = "nflLogos/commanders.png";
-                    }
-
+                    teamImage.src = teamLogoUrl;
+                    console.log(teamLogoUrl);
                     playerText.innerHTML = currentPrompt;
                 }
             }
@@ -268,7 +179,7 @@ function inToFt(inches) {
     return `${feet}'${remainingInches}"`;
 }
 
-async function getTeamInfo(teamUrl) {
+async function getTeamInfo(teamUrl, type) {
     try {
         const response = await fetch(teamUrl);
 
@@ -281,7 +192,11 @@ async function getTeamInfo(teamUrl) {
         console.log(data);
         console.log(data.displayName);
 
-        return data.displayName;
+        if (type === "name") {
+            return data.displayName;
+        } else if (type === "logo") {
+            return data.logos[0].href;
+        }
     }
     catch (error) {
         console.error('Fetch failed:', error);
