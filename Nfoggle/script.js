@@ -2,7 +2,8 @@ const playerText = document.getElementById("playerText");
 const hintCountText = document.getElementById("hintCount");
 const hintButton = document.getElementById("hint");
 const guess = document.getElementById("guess")
-const teamImage = document.getElementById("team");
+const teamImage = document.getElementById("nflTeam");
+const collegeTeamImage = document.getElementById("collegeTeam");
 const headshot = document.getElementById("headshot")
 let hintCount = 0;
 let url;
@@ -30,7 +31,7 @@ async function loadData() {
             throw new Error(`HTTP error: ${response.status}`);
         }
 
-        let playerIndex = Math.floor(Math.random() * 1001);
+        let playerIndex = Math.floor(Math.random() * 100);
         const data = await response.json();
         let player = data.items[playerIndex];
         console.log(player);
@@ -87,7 +88,7 @@ function hint() {
                 playerText.innerHTML = currentPrompt
             }
             if (hintCount === 4) {
-                currentPrompt = currentPrompt + "<br>" + "Your player was born in " + data.birthPlace.city + ", " + data.birthPlace.country;
+                currentPrompt = currentPrompt + "<br>" + "Your player was born in " + data.birthPlace.city + ", " + data.birthPlace.state + ", " + data.birthPlace.country;
                 playerText.innerHTML = currentPrompt;
             }
             if (hintCount === 5) {
@@ -95,8 +96,19 @@ function hint() {
                 playerText.innerHTML = currentPrompt
             }
             if (hintCount === 6) {
-                currentPrompt = currentPrompt + "<br>" + "Your player is " + inToFt(data.height) + " tall" + " and weighs " + data.weight + " pounds";
-                playerText.innerHTML = currentPrompt
+                fetch(data.college.$ref)
+                    .then(response => response.json())
+                    .then(collegeData => {
+                        console.log(collegeData.$ref);
+                        currentPrompt = currentPrompt + "<br>" + "Your player went to " + collegeData.name;
+                        playerText.innerHTML = currentPrompt;
+                        collegeTeamImage.src = collegeData.logos.href;
+                        console.log(collegeData.logos.href);
+                    })
+                    .catch(error => {
+                        console.error('Fetch failed:', error);
+                    });
+                playerText.innerHTML = currentPrompt;
             }
             if (hintCount === 7) {
                 if (data.status.type === "free-agent") {
@@ -202,6 +214,10 @@ function hint() {
 
                     playerText.innerHTML = currentPrompt;
                 }
+            if (hintCount === 10) {
+                currentPrompt = currentPrompt + "<br>" + "Your player is " + inToFt(data.height) + " tall" + " and weighs " + data.weight + " pounds";
+                playerText.innerHTML = currentPrompt
+            }
             }
             if (hintCount === 8) {
                 console.log(data.headshot.href)

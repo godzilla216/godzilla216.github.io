@@ -1,13 +1,20 @@
-#team {
+#nflTeam {
     position: absolute;
     outline: 2px black solid;
     height: 200px;
     left: 450px;
 }
 
-#headshot {
+#collegeTeam {
     position: absolute;
     outline: 2px black solid;
     height: 200px;
     left: 650px;
+}
+
+#headshot {
+    position: absolute;
+    outline: 2px black solid;
+    height: 200px;
+    left: 850px;
 }
