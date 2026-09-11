@@ -13,6 +13,7 @@ let playerName;
 let currentPrompt;
 let teamUrl;
 let teamName;
+let teamLogoUrl;
 let score = 0;
 
 document.addEventListener("keydown", function (event) {
@@ -44,7 +45,7 @@ async function loadData() {
         let player = data.items[playerIndex];
         console.log(player);
 
-        url = player.$ref;
+        url = httpsUrl(player.$ref);
 
     } catch (error) {
         console.error("Failed to load JSON:", error);
@@ -104,13 +105,13 @@ function hint() {
                 playerText.innerHTML = currentPrompt
             }
             if (hintCount === 6) {
-                fetch(data.college.$ref)
+                fetch(httpsUrl(data.college.$ref))
                     .then(response => response.json())
                     .then(collegeData => {
                         console.log(collegeData.$ref);
                         currentPrompt = currentPrompt + "<br>" + "Your player went to " + collegeData.name;
                         playerText.innerHTML = currentPrompt;
-                        collegeTeamImage.src = collegeData.logos[0].href;
+                        collegeTeamImage.src = httpsUrl(collegeData.logos[0].href);
                         console.log(collegeData.logos);
                     })
                     .catch(error => {
@@ -138,7 +139,7 @@ function hint() {
                 console.log(data.headshot.href)
                 currentPrompt = currentPrompt + "<br>" + "This is your players headshot"
                 playerText.innerHTML = currentPrompt;
-                headshot.src = data.headshot.href
+                headshot.src = httpsUrl(data.headshot.href);
             }
             if (hintCount === 9) {
                 currentPrompt = currentPrompt + "<br>" + "Your player is " + inToFt(data.height) + " tall" + " and weighs " + data.weight + " pounds";
@@ -181,7 +182,7 @@ function inToFt(inches) {
 
 async function getTeamInfo(teamUrl, type) {
     try {
-        const response = await fetch(teamUrl);
+        const response = await fetch(httpsUrl(teamUrl));
 
         if (!response.ok) {
             throw new Error('Network response was not ok');
@@ -195,10 +196,15 @@ async function getTeamInfo(teamUrl, type) {
         if (type === "name") {
             return data.displayName;
         } else if (type === "logo") {
-            return data.logos[0].href;
+            return httpsUrl(data.logos[0].href);
         }
     }
     catch (error) {
         console.error('Fetch failed:', error);
     }
+}
+
+//prevent mixed content
+function httpsUrl(url) {
+    return url?.replace(/^http:/, "https:");
 }
