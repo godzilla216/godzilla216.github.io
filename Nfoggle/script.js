@@ -15,6 +15,7 @@ let teamUrl;
 let teamName;
 let teamLogoUrl;
 let score = 0;
+let names = [];
 
 document.addEventListener("keydown", function (event) {
     if (event.key === "Enter" && document.activeElement !== hintButton) {
@@ -39,9 +40,8 @@ async function loadData() {
         if (!response.ok) {
             throw new Error(`HTTP error: ${response.status}`);
         }
-
-        let playerIndex = Math.floor(Math.random() * 100);
         const data = await response.json();
+        let playerIndex = Math.floor(Math.random() * data.items.length);
         let player = data.items[playerIndex];
         console.log(player);
 
@@ -50,6 +50,17 @@ async function loadData() {
     } catch (error) {
         console.error("Failed to load JSON:", error);
     }
+    
+
+    fetch("./names.json")
+        .then(response => response.json())
+        .then(data => {
+            names = data;
+            console.log(names);
+        })
+        .catch(error => {
+            console.error("Failed to load names:", error);
+        });
 }
 
 loadData();
@@ -121,7 +132,7 @@ function hint() {
             }
             if (hintCount === 7) {
                 if (data.status.type === "free-agent") {
-                    currentPrompt = currentPrompt + "<br>" + "Your player is a free agent";                
+                    currentPrompt = currentPrompt + "<br>" + "Your player is a free agent";
                     teamImage.src = "freeAgent.png";
                     playerText.innerHTML = currentPrompt;
                 }
@@ -159,9 +170,9 @@ function guessPlayer() {
         window.alert('Correct! your score is ' + score);
         scoreText.innerHTML = 'Your score is ' + score;
         currentPrompt = "Click start to begin!";
-        playerText.innerHTML = currentPrompt    
-        hintCount = 0;  
-        hintCountText.innerHTML = "You have used " + hintCount + " hints";  
+        playerText.innerHTML = currentPrompt
+        hintCount = 0;
+        hintCountText.innerHTML = "You have used " + hintCount + " hints";
         teamImage.src = "questionMark.png";
         collegeTeamImage.src = "questionMark.png";
         headshot.src = "emptyHeadshot.png";
