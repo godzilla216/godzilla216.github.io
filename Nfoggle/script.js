@@ -3,6 +3,7 @@ const hintCountText = document.getElementById("hintCount");
 const hintButton = document.getElementById("hint");
 const guess = document.getElementById("guess")
 const scoreText = document.getElementById("score")
+const nameSelector = document.getElementById("nameSelector");
 let teamImage = document.getElementById("nflTeam");
 let collegeTeamImage = document.getElementById("collegeTeam");
 let headshot = document.getElementById("headshot")
@@ -44,8 +45,9 @@ async function loadData() {
         let playerIndex = Math.floor(Math.random() * data.items.length);
         let player = data.items[playerIndex];
         console.log(player);
-
         url = httpsUrl(player.$ref);
+
+
 
     } catch (error) {
         console.error("Failed to load JSON:", error);
@@ -57,6 +59,10 @@ async function loadData() {
         .then(data => {
             names = data;
             console.log(names);
+            names.forEach(name => {
+                const nameOptions = new Option(name, name);
+                nameSelector.add(nameOptions);
+            });
         })
         .catch(error => {
             console.error("Failed to load names:", error);
