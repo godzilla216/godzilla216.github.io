@@ -24,6 +24,12 @@ document.addEventListener("keydown", function (event) {
     }
 });
 
+document.addEventListener("click", function (event) {
+    if (event.target === nameSelector) {
+        guess.value = nameSelector.value;
+    }
+});
+
 function showHint() {
     hintCount++;
     hint();
