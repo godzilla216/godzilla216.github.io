@@ -2,21 +2,21 @@
     position: absolute;
     outline: 2px black solid;
     height: 200px;
-    left: 650px;
+    left: 700px;
 }
 
 #collegeTeam {
     position: absolute;
     outline: 2px black solid;
     height: 200px;
-    left: 450px;
+    left: 500px;
 }
 
 #headshot {
     position: absolute;
     outline: 2px black solid;
     height: 200px;
-    left: 850px;
+    left: 900px;
 }
 
 * { box-sizing: border-box; }
