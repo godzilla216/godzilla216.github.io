@@ -19,9 +19,12 @@
     left: 850px;
 }
 
+* { box-sizing: border-box; }
+
 body {
     background-image: url("/background.jpg");
     background-size: cover;
     background-repeat: no-repeat;
     background-attachment: fixed;
+    font: 20px Arial;
 }

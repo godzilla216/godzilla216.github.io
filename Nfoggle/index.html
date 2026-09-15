@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <meta charset="UTF-8">
@@ -7,6 +8,7 @@
     <title>Nfoggle</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <script src="script.js" defer></script>
     <img id="headshot" src="emptyHeadshot.png">
@@ -16,7 +18,13 @@
     <p id="hintCount">You have used 0 hints</p>
     <p id="score">Your score is 0</p>
     <button id="hint" onclick="showHint()">Start Game!</button>
-    <input id="guess" type="text">
+    <input id="guess" type="text" name="guess" placeholder="Guess the player">
     <input id="submit" type="submit" onclick="guessPlayer()">
+    <select id="difficulty" name="difficulty">
+        <option value="easy">Easy</option>
+        <option value="medium">Medium</option>
+        <option value="hard">Hard</option>
+    </select>
 </body>
+
 </html>
