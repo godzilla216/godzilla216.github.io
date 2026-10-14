@@ -3,7 +3,8 @@ const hintCountText = document.getElementById("hintCount");
 const hintButton = document.getElementById("hint");
 const guess = document.getElementById("guess")
 const scoreText = document.getElementById("score")
-const nameSelector = document.getElementById("nameSelector");
+// suggestions container for custom autocomplete
+const suggestionsBox = document.getElementById("suggestions");
 let teamImage = document.getElementById("nflTeam");
 let collegeTeamImage = document.getElementById("collegeTeam");
 let headshot = document.getElementById("headshot")
@@ -16,7 +17,52 @@ let teamUrl;
 let teamName;
 let teamLogoUrl;
 let score = 0;
-let names = [];
+let names = []; 
+
+// Image reveal helper: add 'reveal' class and remove after animation
+function animateReveal(el) {
+    if (!el) return;
+    // remove any fadeout class
+    el.classList.remove('fadeout');
+    // force reflow to restart animation
+    void el.offsetWidth;
+    el.classList.add('reveal');
+    function cleanup() {
+        el.classList.remove('reveal');
+        el.removeEventListener('animationend', cleanup);
+    }
+    el.addEventListener('animationend', cleanup);
+}
+
+// Parallax background movement
+(function setupParallax() {
+    const layers = document.querySelectorAll('.bg-3d .bg-layer');
+    if (!layers || layers.length === 0) return;
+    let mouseX = 0, mouseY = 0;
+    let rx = 0, ry = 0;
+    function onMove(e) {
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        mouseX = (e.clientX - w/2) / (w/2);
+        mouseY = (e.clientY - h/2) / (h/2);
+    }
+    window.addEventListener('mousemove', onMove);
+    function frame() {
+        // subtle smoothing
+        rx += (mouseX - rx) * 0.08;
+        ry += (mouseY - ry) * 0.08;
+        // apply transforms with different intensities
+        layers.forEach((layer, i) => {
+            const depth = (i + 1) / layers.length; // 0..1
+            const tx = rx * 18 * depth;
+            const ty = ry * 12 * depth;
+            layer.style.transform = `translate3d(${tx}px, ${ty}px, ${-120 + i*60}px) scale(${1 + 0.02*(1-depth)})`;
+        });
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+})();
+
 
 document.addEventListener("keydown", function (event) {
     if (event.key === "Enter" && document.activeElement !== hintButton) {
@@ -24,11 +70,7 @@ document.addEventListener("keydown", function (event) {
     }
 });
 
-document.addEventListener("click", function (event) {
-    if (event.target === nameSelector) {
-        guess.value = nameSelector.value;
-    }
-});
+// Removed the old click handler that copied select -> input; using datalist lets the input receive selected value automatically.
 
 function showHint() {
     hintCount++;
@@ -43,7 +85,6 @@ function showHint() {
 async function loadData() {
     try {
         const response = await fetch("./athletes.json");
-
         if (!response.ok) {
             throw new Error(`HTTP error: ${response.status}`);
         }
@@ -52,23 +93,16 @@ async function loadData() {
         let player = data.items[playerIndex];
         console.log(player);
         url = httpsUrl(player.$ref);
-
-
-
     } catch (error) {
         console.error("Failed to load JSON:", error);
     }
-    
 
     fetch("./names.json")
         .then(response => response.json())
         .then(data => {
             names = data;
             console.log(names);
-            names.forEach(name => {
-                const nameOptions = new Option(name, name);
-                nameSelector.add(nameOptions);
-            });
+            // names array will be used by the custom autocomplete below
         })
         .catch(error => {
             console.error("Failed to load names:", error);
@@ -76,6 +110,60 @@ async function loadData() {
 }
 
 loadData();
+
+// Autocomplete behavior: show filtered suggestions under the guess input
+guess.addEventListener('input', updateSuggestions);
+guess.addEventListener('keydown', handleSuggestionKeys);
+guess.addEventListener('blur', () => setTimeout(hideSuggestions, 150));
+
+defaultMaxSuggestions = 8;
+
+function updateSuggestions() {
+    const q = guess.value.trim().toLowerCase();
+    if (!q) { hideSuggestions(); return; }
+    const matches = names.filter(n => n.toLowerCase().includes(q)).slice(0, defaultMaxSuggestions);
+    renderSuggestions(matches);
+}
+
+function renderSuggestions(list) {
+    suggestionsBox.innerHTML = '';
+    if (!list || list.length === 0) { hideSuggestions(); return; }
+    suggestionsBox.style.display = 'block';
+    list.forEach(item => {
+        const li = document.createElement('li');
+        li.className = 'suggestion-item';
+        li.setAttribute('role','option');
+        li.textContent = item;
+        li.addEventListener('mousedown', function (e) { // mousedown to select before blur
+            e.preventDefault();
+            guess.value = item;
+            hideSuggestions();
+        });
+        suggestionsBox.appendChild(li);
+    });
+}
+
+function hideSuggestions() {
+    suggestionsBox.innerHTML = '';
+    suggestionsBox.style.display = 'none';
+}
+
+function handleSuggestionKeys(e) {
+    if (e.key === 'Enter') {
+        // If there are suggestions, pick the first and let the Enter press submit the guess
+        const first = suggestionsBox.querySelector('.suggestion-item');
+        if (first) {
+            guess.value = first.textContent;
+            hideSuggestions();
+            // allow existing keydown handler to call guessPlayer()
+        }
+    }
+    // Basic arrow support: move focus into list items
+    else if (e.key === 'ArrowDown') {
+        const first = suggestionsBox.querySelector('.suggestion-item');
+        if (first) { first.focus(); }
+    }
+}
 
 function hint() {
     fetch(url)
@@ -134,7 +222,9 @@ function hint() {
                         console.log(collegeData.$ref);
                         currentPrompt = currentPrompt + "<br>" + "Your player went to " + collegeData.name;
                         playerText.innerHTML = currentPrompt;
+                        // set image then animate reveal
                         collegeTeamImage.src = httpsUrl(collegeData.logos[0].href);
+                        animateReveal(collegeTeamImage);
                         console.log(collegeData.logos);
                     })
                     .catch(error => {
@@ -146,7 +236,8 @@ function hint() {
                 if (data.status.type === "free-agent") {
                     currentPrompt = currentPrompt + "<br>" + "Your player is a free agent";
                     teamImage.src = "freeAgent.png";
-                    playerText.innerHTML = currentPrompt;
+                animateReveal(teamImage);
+                playerText.innerHTML = currentPrompt;
                 }
                 else {
                     teamUrl = data.team.$ref;
@@ -154,6 +245,7 @@ function hint() {
                     teamLogoUrl = await getTeamInfo(teamUrl, "logo");
                     currentPrompt = currentPrompt + "<br>" + "Your player plays for the " + teamName;
                     teamImage.src = teamLogoUrl;
+                    animateReveal(teamImage);
                     console.log(teamLogoUrl);
                     playerText.innerHTML = currentPrompt;
                 }
@@ -163,6 +255,7 @@ function hint() {
                 currentPrompt = currentPrompt + "<br>" + "This is your players headshot"
                 playerText.innerHTML = currentPrompt;
                 headshot.src = httpsUrl(data.headshot.href);
+                animateReveal(headshot);
             }
             if (hintCount === 9) {
                 currentPrompt = currentPrompt + "<br>" + "Your player is " + inToFt(data.height) + " tall" + " and weighs " + data.weight + " pounds";
@@ -185,9 +278,15 @@ function guessPlayer() {
         playerText.innerHTML = currentPrompt
         hintCount = 0;
         hintCountText.innerHTML = "You have used " + hintCount + " hints";
-        teamImage.src = "questionMark.png";
-        collegeTeamImage.src = "questionMark.png";
-        headshot.src = "emptyHeadshot.png";
+        // fade out current images before resetting to placeholders
+        teamImage.classList.add('fadeout');
+        collegeTeamImage.classList.add('fadeout');
+        headshot.classList.add('fadeout');
+        setTimeout(() => {
+            teamImage.src = "questionMark.png";
+            collegeTeamImage.src = "questionMark.png";
+            headshot.src = "emptyHeadshot.png";
+        }, 220);
         hintButton.disabled = false
         hintButton.innerHTML = "Start Game!";
         loadData();
@@ -210,12 +309,9 @@ async function getTeamInfo(teamUrl, type) {
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
-
         const data = await response.json();
-
         console.log(data);
         console.log(data.displayName);
-
         if (type === "name") {
             return data.displayName;
         } else if (type === "logo") {

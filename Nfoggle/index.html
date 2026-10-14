@@ -11,18 +11,65 @@
 
 <body>
     <script src="script.js" defer></script>
-    <img id="headshot" src="emptyHeadshot.png">
-    <img id="collegeTeam" src="questionMark.png" alt="Image">
-    <img id="nflTeam" src="questionMark.png" alt="Image">
-    <p id="playerText">Click start to begin!</p>
-    <p id="hintCount">You have used 0 hints</p>
-    <p id="score">Your score is 0</p>
-    <button id="hint" onclick="showHint()">Start Game!</button>
-    <input id="guess" type="text" name="guess" placeholder="Guess the player">
-    <input id="submit" type="submit" onclick="guessPlayer()">
-    <select id="nameSelector" name="Player Name">
-        <option value="easy">select a player</option>
-    </select>
+
+    <!-- 3D layered background for parallax depth -->
+    <div class="bg-3d" aria-hidden="true">
+        <div class="bg-layer layer-back"></div>
+        <div class="bg-layer layer-mid"></div>
+        <div class="bg-layer layer-front"></div>
+    </div>
+
+    <header class="site-header">
+        <div class="stripe stripe-blue"></div>
+        <div class="brand">Nfoggle</div>
+        <div class="stripe stripe-red"></div>
+    </header>
+
+    <main class="container">
+        <section class="game-card">
+            <div class="team-row">
+                <div class="team-col">
+                    <img id="collegeTeam" class="team-logo" src="questionMark.png" alt="College Logo">
+                    <div class="team-label">College</div>
+                </div>
+
+                <div class="headshot-col">
+                    <img id="headshot" class="headshot" src="emptyHeadshot.png" alt="Player Headshot">
+                </div>
+
+                <div class="team-col">
+                    <img id="nflTeam" class="team-logo" src="questionMark.png" alt="NFL Logo">
+                    <div class="team-label">NFL Team</div>
+                </div>
+            </div>
+
+            <div class="player-info">
+                <p id="playerText">Click start to begin!</p>
+            </div>
+
+            <div class="controls">
+                <div class="left-controls">
+                    <button id="hint" onclick="showHint()">Start Game!</button>
+                    <span id="hintCount" class="muted">You have used 0 hints</span>
+                </div>
+
+                <div class="right-controls">
+                    <div class="main-guess guess-row">
+                        <input id="guess" type="text" name="guess" placeholder="Guess the player" autocomplete="off" aria-label="Guess the player">
+                        <input id="submit" type="submit" value="Guess" onclick="guessPlayer()">
+                    </div>
+
+                    <!-- Suggestions container will be populated by JavaScript -->
+                    <ul id="suggestions" class="suggestions" role="listbox" aria-label="Player suggestions"></ul>
+
+                    <div id="score" class="score">Your score is 0</div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="disclaimer">This is a fan-made game inspired by the NFL aesthetic.</footer>
+    </main>
+
 </body>
 
 </html>
