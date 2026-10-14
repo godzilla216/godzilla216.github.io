@@ -1,0 +1,33 @@
+uid	name	tla	div_0_name	div_1_name	tier	divisions	active	real_life_tier_name	real_life_name	prestige	completion
+2	Atlantic Coast	ACC	Atlantic	Coastal	1	2	0	FBS	Atlantic Coast	3	champ
+3	American	AAC	American	Not Used	1	1	1	FBS	American	2	champ
+4	Big 12	B12	Big 12	Not Used	1	1	1	FBS	Big 12	3	champ
+5	Big Ten	B1G	West	East	1	2	1	FBS	Big 10	3	champ
+6	Conference USA	CUSA	East	West	1	1	1	FBS	Conference USA	2	champ
+7	Independents	IND	Independents	Not Used	1	1	1	FBS	Independents	0	no_completion
+8	Mid-American	MAC	East	West	1	2	1	FBS	Mid-American	2	champ
+9	Mountain West	MWC	Mountain	West	1	2	0	FBS	Mountain West (2022)	2	champ
+10	Pac-12	P12	Pac-12	Not Used	1	1	1	FBS	Pacific 12	3	champ
+11	Southeastern	SEC	East	West	1	2	1	FBS	Southeastern	3	champ
+12	Sun Belt	SBC	East	West	1	2	1	FBS	Sun Belt	2	champ
+20	ASUN	ASUN	ASUN	Not Used	2	1	0	FCS	ASUN	1	end_season
+21	Big Sky	BSKY	Big Sky	Not Used	2	1	1	FCS	Big Sky	1	end_season
+22	Big South	BSOU	Big South	Not Used	2	1	0	FCS	Big South	1	end_season
+23	CAA Football	CAA	CAA Football	Not Used	2	1	0	FCS	Colonial	1	end_season
+24	Ivy League	IVY	Ivy League	Not Used	2	1	1	FCS	Ivy	1	end_season
+25	MEAC	MEAC	MEAC	Not Used	2	1	1	FCS	MEAC	1	end_season
+26	Missouri Valley	MVFC	Missouri Valley	Not Used	2	1	1	FCS	Missouri Valley	1	end_season
+27	Northeast	NEC	Northeast	Not Used	2	1	1	FCS	Northeast	1	end_season
+28	Ohio Valley	OVC	Ohio Valley	Not Used	2	1	0	FCS	Ohio Valley	1	end_season
+29	Patriot League	PAT	Patriot League	Not Used	2	1	1	FCS	Patriot	1	end_season
+30	Pioneer League	PFL	Pioneer League	Not Used	2	1	1	FCS	Pioneer	1	end_season
+31	Southern	SOC	Southern	Not Used	2	1	1	FCS	Southern	1	end_season
+32	Southland	SLC	Southland	Not Used	2	1	1	FCS	Southland	1	end_season
+33	SWAC	SWAC	East	West	2	2	1	FCS	Southwestern	1	champ
+34	WAC	WAC	WAC	Not Used	2	1	0	FCS	Western Athletic	1	end_season
+13	Mountain West	MWC	Mountain West	Not Used	1	1	1	FBS	Mountain West (2023)	2	champ
+14	Atlantic Coast	ACC	Atlantic Coast	C	1	1	1	FBS	Atlantic Coast	3	champ
+35	CAA Football	CAA	CAA Football	Not Used	2	1	1	FCS	Coastal (formerly Colonial)	1	end_season
+36	Big South-OVC	BSOV	Big South-OVC	Not Used	2	1	1	FCS	Big South-OVC	1	end_season
+37	United Athletic	UAC	United Athletic	Not Used	2	1	1	FCS	United Athletic	1	end_season
+38	Independents	IND	Independents	Not Used	2	1	1	FCS	Independents	0	no_completion
