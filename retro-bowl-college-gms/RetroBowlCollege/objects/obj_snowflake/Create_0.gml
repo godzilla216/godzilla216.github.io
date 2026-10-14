@@ -1,0 +1,12 @@
+speed = random_range(1, 2);
+direction = -90;
+dstep = 0;
+ground = irandom(g_pBuiltIn.room_height);
+scl = random_range(1, 2);
+alf = random_range(0.5, 0.9);
+y2 = y - 25;
+y3 = y + 50;
+x2 = x - 250;
+x3 = x + 250;
+x4 = x - 500;
+x5 = x + 500;

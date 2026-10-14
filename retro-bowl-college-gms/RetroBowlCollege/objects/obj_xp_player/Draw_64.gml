@@ -1,0 +1,18 @@
+draw_self();
+draw_set_font(global.fnt_small_flex);
+draw_set_halign(1);
+var tx = x;
+var ty = y;
+var sw = 2 + string_hd_width(title) / 2;
+var sh = 1 + string_hd_height(title) / 2;
+tx += sprite_width / 2;
+draw_rectangle_color(tx - sw - 2, ty - sh - 1, tx + sw, ty + sh, global.c_background, global.c_background, global.c_background, global.c_background, 0);
+draw_hd_text(tx, ty, string_upper(title));
+draw_set_halign(2);
+tx = x + sprite_width - 8;
+ty = y + sprite_height / 2;
+var bw = sprite_width - 16;
+var prc = (bw - 4) / 100 * percent;
+prc = clamp(prc, 1, bw);
+draw_rectangle_color(x + 8, y + 8, x + 8 + bw, y + 24, global.c_backfill, global.c_backfill, global.c_backfill, global.c_backfill, 0);
+draw_rectangle_color(x + 10, y + 10, x + 10 + prc, y + 22, global.c_primary, global.c_primary, global.c_primary, global.c_primary, 0);

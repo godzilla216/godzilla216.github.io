@@ -38310,6 +38310,7 @@ function gml_GlobalScript_btn_response_punt_yes(_inst, _other) {
   _inst.gmlbtn_response_punt_yes = __yy_method(_inst, gml_Script_btn_response_punt_yes);
 }
 function gml_Script_btn_response_punt_yes(_inst, _other) {
+  if (RetroPunt.start(GetWithArray(105)[0])) return;
   {
     gml_Script_s_action_result(_inst, _other, 5);
     gml_Script_s_msg_clear(_inst, _other);
@@ -43798,7 +43799,6 @@ function gml_GlobalScript_s_create_new_save(_inst, _other) {
   _inst.gmls_load_co_mode_files = __yy_method(_inst, gml_Script_s_load_co_mode_files);
 }
 function gml_Script_s_create_new_save(_inst, _other) {
-  RetroOpponentRosters.clear(GetWithArray(98)[0]);
   {
     gml_Script_slog(_inst, _other, "s_create_new_save");
     {
@@ -44015,7 +44015,6 @@ function gml_Script_s_loadgame(_inst, _other, argument0) {
         {
           gml_Script_slog(__yy__v798, _inst, yyfplus("loading save data: ", __yy_gml_errCheck(argument0)));
           ini_open(argument0);
-          RetroOpponentRosters.load(__yy__v798);
           if (yyGetBool(gml_Script_s_is_co_mode(__yy__v798, _inst))) {
             {
               __yy__v798.gmldata_version = ini_read_real("savegame", "data_version", 1);
@@ -44855,7 +44854,6 @@ function gml_Script_s_savegame(_inst, _other) {
           }
           gml_Script_slog(__yy__v801, _inst, yyfplus(yyfplus(yyfplus("My team ID(", __yy_gml_errCheck(string(__yy__v801.gmlmyteam_id))), ") My team="), __yy_gml_errCheck(gmlteam_name)));
           ini_open(gml_Script_s_get_savename(__yy__v801, _inst));
-          RetroOpponentRosters.save(__yy__v801);
           if (yyGetBool(gml_Script_s_is_co_mode(__yy__v801, _inst))) {
             {
               ini_write_real("savegame", "data_version", __yy__v801.gmldata_version);
@@ -54442,7 +54440,6 @@ function gml_Script_s_start_new_season(_inst, _other, argument0) {
           __yy__v1002.gmlfirst_week_playoffs = 19;
           gml_Script_s_college_shorter_season(__yy__v1002, _inst);
           __yy__v1002.gmlyear = yyfplus(__yy__v1002.gmlyear, 1);
-          RetroOpponentRosters.advance(__yy__v1002);
           __yy__v1002.gmlgamestarts = 0;
           __yy__v1002.gmldone_season_review = false;
           __yy__v1002.gmlqb_new_offer = -1;
@@ -59001,6 +58998,7 @@ function gml_GlobalScript_s_check_ball_collision(_inst, _other) {
   _inst.gmls_check_ball_collision = __yy_method(_inst, gml_Script_s_check_ball_collision);
 }
 function gml_Script_s_check_ball_collision(_inst, _other) {
+  if (RetroPunt.ownsBall()) return;
   {
     if (yyfgreater(_inst.gmlballdist, 20)) {
       return false;
@@ -65201,7 +65199,7 @@ function gml_GlobalScript_s_set_up_play(_inst, _other) {
   _inst.gmls_btn_fieldgoal_reposition = __yy_method(_inst, gml_Script_s_btn_fieldgoal_reposition);
 }
 function gml_Script_s_set_up_play(_inst, _other, argument0) {
-  RetroOpponentRosters.prepare(_inst);
+  if (RetroPunt.active(GetWithArray(105)[0])) return;
   if (RetroDefense.special(_inst)) return;
   {
     show_debug_message(yyfplus("s_set_up_play: difficulty = ", __yy_gml_errCheck(string(yyfplus(5, __yy_gml_errCheck(yyInst(_inst, _other, YYASSET_REF(0x00000069)).gmldifficulty))))));
@@ -65445,6 +65443,11 @@ function gml_Script_s_set_up_play(_inst, _other, argument0) {
       }
     }
     RetroDefense.afterSetup(_inst);
+    if (_inst.gmldown === 4 && !argument0 && RetroPunt.eligible(_inst)) {
+      gml_Script_s_msg_clear(_inst, _other);
+      // Exported script IDs are global lexical constants, not window properties.
+      RetroPunt.offer(_inst, kgml_Script_btn_response_kick_no, kgml_Script_btn_response_fg_yes, kgml_Script_btn_response_punt_yes);
+    }
   }
 }
 function gml_Script_s_btn_audible_reposition(_inst, _other) {
@@ -67984,6 +67987,7 @@ function gml_GlobalScript_s_destroy_match_objects(_inst, _other) {
   _inst.gmls_destroy_match_objects = __yy_method(_inst, gml_Script_s_destroy_match_objects);
 }
 function gml_Script_s_destroy_match_objects(_inst, _other) {
+  RetroPunt.reset(GetWithArray(105)[0]);
   RetroDefense.reset(GetWithArray(105)[0]);
   {
     gml_Script_slog(_inst, _other, "s_destroy_match_objects");
@@ -69378,6 +69382,8 @@ function gml_GlobalScript_s_punt(_inst, _other) {
   _inst.gmls_punt = __yy_method(_inst, gml_Script_s_punt);
 }
 function gml_Script_s_punt(_inst, _other) {
+  // Sim Game, QB mode and practice retain their native simulation path.
+  if (RetroPunt.start(GetWithArray(105)[0])) return;
   {
     gml_Script_slog(_inst, _other, "s_punt");
     _inst.gmlscrimmage = yyfplus(_inst.gmlscrimmage, irandom_range(40, 60));
@@ -71581,6 +71587,7 @@ function gml_GlobalScript_s_obj_controller_helpers(_inst, _other) {
   _inst.gmls_obj_controller_step = __yy_method(_inst, gml_Script_s_obj_controller_step);
 }
 function gml_Script_s_obj_controller_step(_inst, _other) {
+  if (RetroPunt.step(_inst)) return;
   RetroDefense.step(_inst);
   {
     (g_yyPrePostObject__ = global.gmlreplay_tick), (global.gmlreplay_tick = g_yyPrePostObject__ instanceof Long ? global.gmlreplay_tick.add(1) : ++global.gmlreplay_tick), g_yyPrePostObject__;
@@ -100230,7 +100237,6 @@ function gml_Object_obj_controller_Create_0(_inst, _other) {
     _inst.gmlcomm_col_a = merge_color(_inst.gmlcomm_col_a, 16777215, 0.2);
   }
   gml_Script_slog_roster(_inst, _other, "Create obj_contr. A", 0);
-  RetroOpponentRosters.prepare(_inst);
   _inst.gmlteam_roster[__yy_gml_array_check_index_set(0)] = gml_Script_s_sort_players(_inst, _other, _inst.gmlteam_roster[__yy_gml_array_check_index(0, _inst.gmlteam_roster)], 3);
   gml_Script_s_tag_backups_internal(_inst, _other, _inst.gmlteam_roster[__yy_gml_array_check_index(0, _inst.gmlteam_roster)]);
   _inst.gmlteam_roster[__yy_gml_array_check_index_set(0)] = gml_Script_s_sort_players(_inst, _other, _inst.gmlteam_roster[__yy_gml_array_check_index(0, _inst.gmlteam_roster)], 4);
@@ -100291,6 +100297,7 @@ function gml_Object_obj_controller_Create_0(_inst, _other) {
   gml_Script_s_pause_btn_init(_inst, _other);
 }
 function gml_Object_obj_controller_Alarm_0(_inst, _other) {
+  if (RetroPunt.resolve(_inst)) return;
   gml_Script_slog(_inst, _other, yyfplus("obj_controller_Alarm0: ", __yy_gml_errCheck(gml_Script_s_get_string_ball_state(_inst, _other))));
   var gmlball = global.gmlmaster_ball;
   var ___sw1976___ = yyInst(_inst, _other, YYASSET_REF(0x00000062)).gmlgamepractice;
@@ -100550,6 +100557,11 @@ function gml_Object_obj_controller_Step_0(_inst, _other) {
   gml_Script_s_safe_run(_inst, _other, kgml_Script_s_obj_controller_step);
 }
 function gml_Object_obj_controller_Draw_64(_inst, _other) {
+  if (RetroPunt.active(_inst)) {
+    gml_Script_s_draw_scoreboard(_inst, _other);
+    RetroPunt.draw(_inst);
+    return;
+  }
   RetroDefense.draw(_inst);
   if (yyGetBool(global.gmldebug)) {
     {
@@ -100652,11 +100664,13 @@ function gml_Object_obj_controller_Draw_64(_inst, _other) {
 function gml_Object_obj_controller_Draw_72(_inst, _other) {
   if (!yyGetBool(global.gmlbrowser)) {
     gml_Script_s_obj_controller_draw_begin(_inst, _other);
+    RetroPunt.drawField(_inst);
   }
 }
 function gml_Object_obj_controller_Draw_0(_inst, _other) {
   if (yyGetBool(global.gmlbrowser)) {
     gml_Script_s_obj_controller_draw_begin(_inst, _other);
+    RetroPunt.drawField(_inst);
   }
 }
 function gml_Object_obj_controller_KeyPress_13(_inst, _other) {
@@ -100865,6 +100879,7 @@ function gml_Object_obj_player_Destroy_0(_inst, _other) {
   }
 }
 function gml_Object_obj_player_Step_0(_inst, _other) {
+  if (RetroPunt.playerStep(_inst)) return;
   if (yyGetBool(_inst.gmldead)) {
     return;
   }
@@ -100914,6 +100929,7 @@ function gml_Object_obj_player_Step_0(_inst, _other) {
   gml_Script_s_check_dive(_inst, _other);
 }
 function gml_Object_obj_player_Step_2(_inst, _other) {
+  if (RetroPunt.playerEnd(_inst)) return;
   RetroDefense.bounds(_inst);
   var gmlball = global.gmlmaster_ball;
   var gmlcont = YYASSET_REF(0x00000069);
@@ -101644,6 +101660,7 @@ function gml_Object_obj_player_Step_2(_inst, _other) {
   }
 }
 function gml_Object_obj_player_Other_7(_inst, _other) {
+  if (RetroPunt.playerEnd(_inst)) return;
   var ___sw2010___ = _inst.gmlanim;
   var ___swc2011___ = -1;
   if (yyCompareVal(___sw2010___, 0, g_GMLMathEpsilon, false) == 0 || yyCompareVal(___sw2010___, 1, g_GMLMathEpsilon, false) == 0 || yyCompareVal(___sw2010___, 2, g_GMLMathEpsilon, false) == 0) {
@@ -102159,6 +102176,7 @@ function gml_Object_obj_ball_Alarm_1(_inst, _other) {
   _inst.gmlstate = 1;
 }
 function gml_Object_obj_ball_Step_0(_inst, _other) {
+  if (RetroPunt.updateBall(_inst)) return;
   if (yyGetBool(instance_exists(YYASSET_REF(0x0000004f)))) {
     return;
   }
@@ -102235,6 +102253,7 @@ function gml_Object_obj_ball_Step_2(_inst, _other) {
   }
 }
 function gml_Object_obj_ball_Draw_0(_inst, _other) {
+  if (RetroPunt.drawBall(_inst)) return;
   if (yyGetBool(_inst.gmlhidden)) {
     return;
   }
@@ -102277,6 +102296,7 @@ function gml_Object_obj_ball_Draw_0(_inst, _other) {
   }
 }
 function gml_Object_obj_ball_Draw_64(_inst, _other) {
+  if (RetroPunt.ownsBall()) return;
   if (yyGetBool(yyInst(_inst, _other, YYASSET_REF(0x00000069)).gmlkicking) && yyGetBool(gml_Script_s_aiming(_inst, _other))) {
     {
       gml_Script_s_draw_kicking_power(_inst, _other);
@@ -102324,6 +102344,7 @@ function gml_Object_obj_metaball_Create_0(_inst, _other) {
   layer_sprite_destroy(_inst.gmlmy_shadow);
 }
 function gml_Object_obj_metaball_Step_0(_inst, _other) {
+  if (RetroPunt.shadowStep(_inst)) return;
   var gmlball = global.gmlmaster_ball;
   _inst.x = yyInst(_inst, _other, gmlball).x;
   _inst.y = yyInst(_inst, _other, gmlball).y;

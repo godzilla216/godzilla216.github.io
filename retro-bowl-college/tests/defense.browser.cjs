@@ -36,13 +36,6 @@ async function main() {
             game.screenshotFolder = folder; console.log('Screenshots: ' + folder);
         }
         await ev('RetroDefense.snap(GetWithArray(105)[0]);true');
-        const opponentStars = await ev(`(function(){var c=GetWithArray(98)[0],m=GetWithArray(105)[0],side=1-Number(m.gmlhuman_team),id=String(ds_map_find_value(m.gmlteam[side],'uid'));
-            window.opponentSnapshot=function(id){var c=GetWithArray(98)[0];return c._opponentRosterMaps[id].players.map(function(p){return {fname:ds_map_find_value(p,'fname'),lname:ds_map_find_value(p,'lname'),age:ds_map_find_value(p,'age'),position:ds_map_find_value(p,'position'),speed:ds_map_find_value(p,'speed'),strength:ds_map_find_value(p,'strength'),skill:ds_map_find_value(p,'skill'),skin:ds_map_find_value(p,'skin'),face:ds_map_find_value(p,'face')};});};
-            var stars=c._opponentRosterMaps[id].players,field=GetWithArray(108).filter(function(p){return p.gmlpmap>=0;});
-            return {id:id,players:opponentSnapshot(id),allOnField:stars.every(function(p){return field.some(function(f){return f.gmlpmap===p;});}),unique:new Set(field.map(function(p){return p.gmlpmap;})).size===stars.length,userRoster:stars.every(function(p){return ds_list_find_index(c.gmlroster,p)<0;})};})()`);
-        assert(opponentStars.allOnField && opponentStars.unique && opponentStars.userRoster, JSON.stringify(opponentStars));
-        assert.deepEqual(opponentStars.players.map(p => p.position), [1,2,3,4,4,5,5]);
-        pass('opponent QB, RB, TE, two receivers and two linemen use unique native stars on the field');
         const before = await ev('(function(){var m=GetWithArray(105)[0],p=GetWithArray(m._liveDefense.selected)[0];return {id:p.id,x:p.x,y:p.y};})()');
         await game.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'ArrowDown', code: 'ArrowDown', windowsVirtualKeyCode: 40 });
         await game.sleep(250);
@@ -221,30 +214,6 @@ async function main() {
         await game.until('room_get_name(g_pBuiltIn.room)==="rm_match"&&GetWithArray(105).length===1');
         assert.equal(await ev('!!GetWithArray(105)[0]._liveDefense'), false);
         pass('a new match starts without stale defensive player or AI state');
-        assert.deepEqual(await ev(`opponentSnapshot(${JSON.stringify(opponentStars.id)})`), opponentStars.players);
-        pass('a repeat matchup retains opponent names, ages, ratings and appearance');
-        await ev('room_goto(asset_get_index("rm_home"));true');
-        await game.until('GetWithArray(105).length===0');
-        const persisted = await ev(`(function(){var c=GetWithArray(98)[0];c.gmlfirst_load=false;c.gmlstage=2;
-            gml_Script_s_savegame(c,c);var save=gml_Script_s_get_savename(c,c);gml_Script_s_loadgame(c,c,save);
-            RetroOpponentRosters.advance(c);return opponentSnapshot(${JSON.stringify(opponentStars.id)});})()`);
-        assert.deepEqual(persisted, opponentStars.players);
-        pass('native career save/reload restores opponent stars');
-        const rollover = await ev(`(function(){var c=GetWithArray(98)[0],id=${JSON.stringify(opponentStars.id)},year=Number(c.gmlyear);
-            gml_Script_s_start_new_season(c,c,false);return {year:Number(c.gmlyear),previous:year,players:opponentSnapshot(id),rosterYear:c._opponentRosters.teams[id].year};})()`);
-        assert.equal(rollover.year, rollover.previous + 1);
-        assert.equal(rollover.rosterYear, rollover.year);
-        opponentStars.players.forEach((p, i) => {
-            const next = rollover.players[i];
-            assert.equal(next.position, p.position);
-            if (p.age < 21) assert.deepEqual(next, { ...p, age: p.age + 1 });
-            else { assert.equal(next.age, 18); assert.notDeepEqual(next, p); }
-        });
-        pass('native season rollover ages returning stars and replaces graduating seniors with freshmen');
-        const skipped = await ev(`(function(){var c=GetWithArray(98)[0];c.gmlyear+=4;RetroOpponentRosters.advance(c);return opponentSnapshot(${JSON.stringify(opponentStars.id)});})()`);
-        assert(skipped.every(p => p.age >= 18 && p.age <= 21));
-        assert(skipped.every((p,i) => p.fname !== rollover.players[i].fname || p.lname !== rollover.players[i].lname));
-        pass('opponents cycle through graduation even across seasons without a matchup');
         console.log('Runtime errors:', JSON.stringify(game.errors));
         assert.deepEqual(game.errors, []); assert.deepEqual(game.external, []);
         console.log(`${passed} browser checks passed; no external requests or runtime errors.`);

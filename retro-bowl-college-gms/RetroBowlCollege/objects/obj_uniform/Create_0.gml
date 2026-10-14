@@ -1,0 +1,15 @@
+helmet[3] = 0;
+logo[3] = 0;
+shirt[3] = 0;
+sleeve[3] = 0;
+pants[3] = 0;
+pants_b[3] = 0;
+stripe[3] = 0;
+socks1[3] = 0;
+socks2[3] = 0;
+cleats[3] = 0;
+endzone[3] = 0;
+var colSkin = s_get_skin_colour_by_index(1);
+col_skin_r = color_get_red(colSkin) / 255;
+col_skin_g = color_get_green(colSkin) / 255;
+col_skin_b = color_get_blue(colSkin) / 255;

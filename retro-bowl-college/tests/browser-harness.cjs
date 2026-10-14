@@ -52,11 +52,22 @@ async function openGame() {
         while (Date.now() - started < timeout) { if (await evaluate(expression)) return; await sleep(100); }
         throw new Error('Timed out waiting for: ' + expression + '\nState: ' + JSON.stringify(await evaluate('(function(){var m=GetWithArray(105)[0],c=GetWithArray(98)[0];return {room:room_get_name(g_pBuiltIn.room),careerStage:c&&c.gmlstage,match:m&&{state:m.gmlstate,stage:m.gmlcomm_stage,down:m.gmldown,possession:m.gmlpossession,ball:GetWithArray(global.gmlmaster_ball).map(function(b){return {state:b.gmlstate,dead:b.gmlis_dead}})}};})()')) + '\nErrors: ' + JSON.stringify(errors));
     }
-    async function close() { try { await send('Browser.close'); } finally { ws.close(); child.kill(); server.close(); } }
+    async function close() {
+        // Keep the original assertion/timeout visible even if Chrome is hung.
+        ws.close(); server.close();
+        if (process.platform === 'win32') {
+            await new Promise(resolve => {
+                const killer = spawn('taskkill', ['/pid', String(child.pid), '/T', '/F'], { windowsHide: true, stdio: 'ignore' });
+                killer.on('exit', resolve); killer.on('error', resolve);
+            });
+        } else child.kill();
+    }
     await send('Runtime.enable'); await send('Network.enable');
     await send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 2 });
-    await send('Page.navigate', { url: origin });
-    await until('typeof RetroDefense !== "undefined" && typeof GetWithArray === "function" && GetWithArray(98).length === 1 && g_pBuiltIn.room === 2');
+    try {
+        await send('Page.navigate', { url: origin });
+        await until('typeof RetroDefense !== "undefined" && typeof GetWithArray === "function" && GetWithArray(98).length === 1 && g_pBuiltIn.room === 2');
+    } catch (error) { await close(); throw error; }
     return { send, evaluate, until, close, sleep, errors, external, origin,
         async screenshot(file) { const result = await send('Page.captureScreenshot', { format: 'png' }); fs.writeFileSync(file, Buffer.from(result.result.data, 'base64')); }
     };

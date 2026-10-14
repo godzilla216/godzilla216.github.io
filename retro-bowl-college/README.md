@@ -1,6 +1,6 @@
 # retro-bowl-college
 
-This local GameMaker HTML5 export includes real team and competition names, live defensive gameplay and the previously restored Sim Game option. Advertising remains disabled.
+This local GameMaker HTML5 export includes real team and competition names, live defensive gameplay, playable fourth-down punts and the previously restored Sim Game option. Advertising remains disabled.
 
 ## Play locally
 
@@ -50,6 +50,47 @@ Formations: Auto, 4-3, 3-4, nickel and dime. Calls: balanced, run, pass and blit
 
 Contact tackles require a live opposing ball carrier within range. Space offers a larger but limited tackle range with a missed-attempt cooldown. Native stiff arms can break tackles. Rating-based, reproducible fumble opportunities feed the original loose-ball system. Existing catch validation determines receptions, tips and interceptions; position, distance, height and field bounds still apply. Interception returners become controllable, and native rules handle touchdowns, safeties, spots, downs, possession, clock and quarter transitions. Named defenders receive existing tackle, sack and interception statistics.
 
+## Playable punts
+
+Fourth down offers **Go for it**, **Field Goal**, and **Punt** through the native game dialog. Punt starts at the current line of scrimmage. The kicking team has seven players on the line, three protectors behind it, and a punter 14.5 yards deep. Near the kicking team's end line, the punter's depth shortens to fit inside the field.
+
+| Action | Keyboard | Mouse / touch |
+| --- | --- | --- |
+| Aim punt | Up / Down or W / S | Hold and drag vertically on the field |
+| Set aim, then lock power and snap | Space or Enter, twice | Tap the bottom button twice, or release a field drag |
+| Move after receiving | WASD or arrows | Hold and drag on the field |
+| Call fair catch while punt is airborne | F | Tap FAIR CATCH |
+| Dive during return | Space or Enter | Tap DIVE |
+
+The power meter starts after aiming. Locking power starts one ordered sequence: bend, backward airborne long snap, catch, short approach, drop, and kick at foot contact. Aim and power lock before the snap; subsequent input cannot restart the animation or launch a second ball. Every player uses existing game sprites through the normal renderer, including body variants and team uniforms. The snapper reuses the standing/crouching and placement frames, and the punter reuses standing, running and `spr_kick2` frames. There are no custom sprite drawings or new sprite assets. The export has no dedicated long-snap sprite, so its existing crouch/placement poses represent the snap while the actual ball travels backward to the punter. The receiving players and coverage reuse kickoff roles, AI, acceleration, blocking and return sprites. CPU punt commentary also enters this live sequence, allowing user returns.
+
+Career direction follows possession relative to the human team's field orientation; exhibition uses the native possession/quarter direction. Native end-zone switches therefore mirror the punt. Punt horizontal launch speed uses the normal kickoff calculation at the same power and kicker attribute. Flight and ground movement reuse the native kickoff air drag, gravity, bounce energy loss, tumbling and bounce sounds. The punt arc remains adjusted for punt distance, and small bounces settle into a slowing roll.
+
+A grounded punt stays live while bouncing, rolling or resting. A coverage player (the defensive-role/kicking team) must touch it to down it. Any receiving player (the offensive-role team) can scoop it before it is downed and run; human control switches to that actual carrier. Both teams pursue a loose punt, and a fair-catch call expires when the ball hits the ground. Fair catches start at the catch spot, sidelines use the crossing spot, downed punts use the coverage touch spot, and punt touchbacks start on the **20-yard line**. Return touchdowns and safeties use native scoring. The result alarm transfers possession once, sets first down and the distance, restores the normal field orientation, and prevents commentary from adding a simulated second return. The clock runs from the snap through flight, loose-ball pursuit and the return. No career save fields are added.
+
+Implementation: `html5game/punts.js`, narrow integration hooks in `html5game/RetroBowl.js`, and the script include in `index.html`. Tests are `tests/punts.test.cjs` and `tests/punts.browser.cjs`. Browser screenshots of both formations and every animation stage are written to `artifacts/punts/`; these frames were visually reviewed, including backward snap travel and foot-contact launch in both directions.
+
+Run the checks with:
+
+```powershell
+node --check html5game/RetroBowl.js
+node --check html5game/punts.js
+node --check tests/browser-harness.cjs
+node --check tests/punts.browser.cjs
+node --test tests/real-names.test.cjs tests/defense.test.cjs tests/punts.test.cjs
+node tests/punts.browser.cjs
+node tests/defense.browser.cjs
+node tests/real-names.browser.cjs
+```
+
+The punt suite covers native fourth-down choices, both formation directions, animation order, continuous airborne snap travel, launch count under rapid input, actual controlled returns and fair catches, actual sideline/touchback flights, spotting/possession, running clocks, mouse/touch controls, opponent commentary, native end-zone switching, return scoring, and kickoff/field-goal/go-for-it regressions. It compares actual native kickoff speed and thirty frames of horizontal flight with punts at three power levels in both directions. Ground scenarios verify rising/repeated bounces, energy loss, resting without auto-downing, coverage touches, rejection of pickups after downing, and controllable pickups by receiving blockers in both directions. Some spotting/scoring/ground checks use constructed native-engine situations; live flight and controls are also exercised separately. Touch is tested with Chromium emulation, not a physical phone. Blocked punts and muffed returns are not simulated. Original GameMaker source, a build pipeline and a lint configuration are unavailable; syntax checks and the executable unit/browser suites validate the static export. Full-season balance and every overtime/device combination remain unverified.
+
+The fourth-down dialog passes its callback IDs directly from the native game script. These exported IDs are global lexical constants, not properties of `window`; reading them from `window` previously supplied `undefined` and crashed `script_execute` on a menu click. Regression checks now click **Go for it**, **Field Goal**, and **Punt** using actual browser input and assert valid callbacks and resulting game states, rather than only invoking the action functions directly.
+
+After the callback and sprite fixes, syntax checks passed, **22 unit tests passed**, **27 punt browser checks passed**, and **33 defense browser checks passed**. The browser suites reported no runtime errors or external requests. The punt suite also verifies that the custom player renderer is absent and that the contact frame uses the existing `spr_kick2` asset in both directions. Formation, punt direction, backward airborne snap and the entire catch/approach/drop/kick sequence were visually reviewed again from captured game frames in both directions using only the existing sprites. The crouch/placement poses approximate the snapper's motion because a dedicated long-snap asset is not present.
+
+After the kickoff-speed and live-ground-ball update, all four syntax checks, **22 unit tests**, and **34 punt browser checks** passed. The browser suite reported no runtime errors or external requests, and retained its kickoff, field-goal and go-for-it checks. Bounces and receiving-blocker pickup returns were visually reviewed from captured game frames in both directions. Ground tests keep a ball live through 600 simulated movement steps without any player touching it, then verify that a coverage touch resolves it once or that a receiving player can pick it up and move under real keyboard input. The browser harness also cleans up its temporary browser/server if startup fails.
+
 ## Architecture and files changed
 
 The project contains an exported JavaScript GameMaker runner and game code, four texture atlases, audio, text-based rosters/strings/schedules, and editor configuration. It has canvas-based rendering, native player acceleration/friction, role-specific AI, ball physics, catch tests, and centralized play-result/possession functions. There is no original GameMaker project, package manifest, build pipeline, linter or type-checker configuration.
@@ -57,7 +98,6 @@ The project contains an exported JavaScript GameMaker runner and game code, four
 | File | Purpose |
 | --- | --- |
 | `html5game/defense.js` | Separate defensive controls, assignments, AI, CPU offense, contact handling, stat credit and temporary play state. Also exports pure logic for unit tests. |
-| `html5game/opponent-rosters.js` | Career-owned opponent offensive stars, native field placement, save/reload and annual graduation/recruitment. |
 | `html5game/RetroBowl.js` | Small integration hooks at live-possession selection, play setup/reset, movement, tackling, ball control, catches, draw events and offensive record credit. Native football rules remain responsible for results. |
 | `index.html` | Loads the defense module before GameMaker starts. |
 | `scripts/serve.cjs` | Dependency-free local HTTP server. |
@@ -66,9 +106,7 @@ The project contains an exported JavaScript GameMaker runner and game code, four
 | `tests/defense.browser.cjs` | Native-engine integration, gameplay, controls, resets, transitions and offensive regression checks. |
 | `README.md` | Controls, implementation notes, validation and limitations. |
 
-Defensive control state belongs to the current match controller and is replaced for each play. Opponent offensive stars belong to the career and are saved in the optional `opponent_rosters_v1` key in the native save file, including backups. Existing careers generate each school's roster when first encountered. Each opponent has a QB, RB, TE, two WRs and two OL, using native names, ratings, appearances and field assignment. School UID identifies returning opponents even after name edits or home/away changes. Returning players age each season; seniors graduate at the same native age limit as the user's players and are replaced by freshmen. Tracked schools advance even during seasons without a matchup. Each save slot owns its own opponent rosters, and new careers start fresh. Existing offensive controls and gameplay remain on their original paths. Quarterback career mode, practice, pass-and-play exhibition, and Sim Game retain their existing possession behavior.
-
-Opponent roster validation: **38 defensive browser checks passed** with no runtime errors or external requests, including all seven stars on the field, repeat matchups, native career save/reload, native season rollover and graduation across skipped matchup seasons. The combined defense and naming unit suite also passed all **19 checks**.
+Defensive state belongs to the current match controller and is replaced for each play. It does not add keys to the career save format. Existing offensive controls and gameplay remain on their original paths. Quarterback career mode, practice, pass-and-play exhibition, and Sim Game retain their existing possession behavior.
 
 ## Verification performed
 
@@ -100,4 +138,4 @@ Review and testing corrected:
 - CPU touchdowns could inflate the user's touchdown counter/records; offensive credit is suppressed during live opposing plays.
 - The fourth-down CPU kick path initially selected the PAT commentary state; field goals now use the native three-point path.
 
-Opponent punts, field goals, point conversions and kickoff decisions use the original simulation/commentary system; special teams are not a new manually controlled defensive mode. Formation roles use the existing generic/player roster attributes and animations rather than introducing a new college depth chart or substitutions system. Defense is added to coaching gameplay, not quarterback career or practice. A physical controller and real mobile hardware were not available: controller reads were tested with mocked native APIs, and touch was tested with Chromium touch emulation. Full-season balance, every overtime scenario and all browsers/devices remain unverified. The original GameMaker project is unavailable, so this is an extension of the readable HTML5 export, not an editor-source rebuild.
+Opponent field goals, point conversions and kickoff decisions use their existing simulation/commentary system; opponent punts now enter the playable punt/return sequence described above. Formation roles use the existing generic/player roster attributes rather than introducing a new college depth chart or substitutions system. Defense and playable punts are added to coaching gameplay, not quarterback career or practice. A physical controller and real mobile hardware were not available: defensive controller reads were tested with mocked native APIs, and touch was tested with Chromium touch emulation. Full-season balance, every overtime scenario and all browsers/devices remain unverified. The original GameMaker project is unavailable, so this is an extension of the readable HTML5 export, not an editor-source rebuild.

@@ -1,0 +1,10 @@
+event_inherited();
+skin = 1;
+face_set = 0;
+face_x = -1;
+face_y = -1;
+helmet[2] = 0;
+shirt[2] = 0;
+pants[2] = 0;
+pants_b[2] = 0;
+s_set_up_uniform_profile(-4);

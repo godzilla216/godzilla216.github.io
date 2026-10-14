@@ -1,0 +1,44 @@
+{
+  "resources": {
+    "sprites": 408,
+    "sounds": 27,
+    "fonts": 5,
+    "paths": 24,
+    "shaders": 1,
+    "objects": 159,
+    "scripts": 797,
+    "rooms": 57,
+    "extensions": 1
+  },
+  "includedFiles": 24,
+  "roomInstances": 832,
+  "decompilerIssues": {},
+  "unresolvedCalls": {
+    "switch_accounts_get_nickname": 2,
+    "switch_accounts_is_user_open": 3,
+    "switch_save_data_mount": 1,
+    "switch_save_data_commit": 1,
+    "switch_accounts_get_accounts": 1,
+    "switch_controller_support_set_defaults": 1,
+    "switch_controller_joycon_set_holdtype": 1,
+    "switch_controller_set_supported_styles": 1,
+    "switch_controller_support_set_singleplayer_only": 1,
+    "switch_controller_support_set_player_min": 1,
+    "switch_controller_support_set_player_max": 1,
+    "switch_controller_support_show": 1,
+    "switch_controller_support_get_player_count": 1
+  },
+  "notes": [
+    "MISSING AUDIO: snd_music_co.ogg is not in the export; wrote a 1s silent placeholder snd_music_co.wav",
+    "MISSING AUDIO: snd_music.ogg is not in the export; wrote a 1s silent placeholder snd_music.wav",
+    "obj_schedulebox: PreCreate has non-assignment statements (moved to top of Create): str_fix_a[16] = \"0\";\n str_fix_h[16] = \"0\";\n srt_fix_vs[16] = \"0\";\n str_scr_a[16] = \"0\";\n str_scr_h[16] = \"0\";\n str_fix_a",
+    "obj_division: PreCreate has non-assignment statements (moved to top of Create): team_name[4] = \"Team\";\n col_txt[4] = 16777215;\n wins[4] = 0;\n losses[4] = 0;\n ties[4] = 0;\n pct[4] = 0;\n net[4] = 0;\n of",
+    "obj_scoreboard: PreCreate has non-assignment statements (moved to top of Create): teamnames[2] = \"\";\n scores1[5] = \"\";\n scores2[5] = \"\";\n ratings1[2] = 0;\n ratings2[2] = 0;\n",
+    "obj_uniform: PreCreate has non-assignment statements (moved to top of Create): helmet[3] = 0;\n logo[3] = 0;\n shirt[3] = 0;\n sleeve[3] = 0;\n pants[3] = 0;\n pants_b[3] = 0;\n stripe[3] = 0;\n socks1[3] =",
+    "obj_helmet: PreCreate has non-assignment statements (moved to top of Create): helmet[3] = 0;\n logo[3] = 0;\n shirt[3] = 0;\n sleeve[3] = 0;\n pants[3] = 0;\n pants_b[3] = 0;\n stripe[3] = 0;\n socks[3] = ",
+    "obj_roster: PreCreate has non-assignment statements (moved to top of Create): profile[5] = obj_player_profile;\n",
+    "obj_winners: PreCreate has non-assignment statements (moved to top of Create): profile[5] = obj_player_profile;\n",
+    "obj_draft: PreCreate has non-assignment statements (moved to top of Create): profile[5] = obj_player_profile;\n",
+    "obj_freeagents: PreCreate has non-assignment statements (moved to top of Create): profile[5] = obj_player_profile;\n"
+  ]
+}
