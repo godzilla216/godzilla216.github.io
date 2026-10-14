@@ -57,6 +57,7 @@ The project contains an exported JavaScript GameMaker runner and game code, four
 | File | Purpose |
 | --- | --- |
 | `html5game/defense.js` | Separate defensive controls, assignments, AI, CPU offense, contact handling, stat credit and temporary play state. Also exports pure logic for unit tests. |
+| `html5game/opponent-rosters.js` | Career-owned opponent offensive stars, native field placement, save/reload and annual graduation/recruitment. |
 | `html5game/RetroBowl.js` | Small integration hooks at live-possession selection, play setup/reset, movement, tackling, ball control, catches, draw events and offensive record credit. Native football rules remain responsible for results. |
 | `index.html` | Loads the defense module before GameMaker starts. |
 | `scripts/serve.cjs` | Dependency-free local HTTP server. |
@@ -65,7 +66,9 @@ The project contains an exported JavaScript GameMaker runner and game code, four
 | `tests/defense.browser.cjs` | Native-engine integration, gameplay, controls, resets, transitions and offensive regression checks. |
 | `README.md` | Controls, implementation notes, validation and limitations. |
 
-Defensive state belongs to the current match controller and is replaced for each play. It does not add keys to the career save format. Existing offensive controls and gameplay remain on their original paths. Quarterback career mode, practice, pass-and-play exhibition, and Sim Game retain their existing possession behavior.
+Defensive control state belongs to the current match controller and is replaced for each play. Opponent offensive stars belong to the career and are saved in the optional `opponent_rosters_v1` key in the native save file, including backups. Existing careers generate each school's roster when first encountered. Each opponent has a QB, RB, TE, two WRs and two OL, using native names, ratings, appearances and field assignment. School UID identifies returning opponents even after name edits or home/away changes. Returning players age each season; seniors graduate at the same native age limit as the user's players and are replaced by freshmen. Tracked schools advance even during seasons without a matchup. Each save slot owns its own opponent rosters, and new careers start fresh. Existing offensive controls and gameplay remain on their original paths. Quarterback career mode, practice, pass-and-play exhibition, and Sim Game retain their existing possession behavior.
+
+Opponent roster validation: **38 defensive browser checks passed** with no runtime errors or external requests, including all seven stars on the field, repeat matchups, native career save/reload, native season rollover and graduation across skipped matchup seasons. The combined defense and naming unit suite also passed all **19 checks**.
 
 ## Verification performed
 

@@ -43798,6 +43798,7 @@ function gml_GlobalScript_s_create_new_save(_inst, _other) {
   _inst.gmls_load_co_mode_files = __yy_method(_inst, gml_Script_s_load_co_mode_files);
 }
 function gml_Script_s_create_new_save(_inst, _other) {
+  RetroOpponentRosters.clear(GetWithArray(98)[0]);
   {
     gml_Script_slog(_inst, _other, "s_create_new_save");
     {
@@ -44014,6 +44015,7 @@ function gml_Script_s_loadgame(_inst, _other, argument0) {
         {
           gml_Script_slog(__yy__v798, _inst, yyfplus("loading save data: ", __yy_gml_errCheck(argument0)));
           ini_open(argument0);
+          RetroOpponentRosters.load(__yy__v798);
           if (yyGetBool(gml_Script_s_is_co_mode(__yy__v798, _inst))) {
             {
               __yy__v798.gmldata_version = ini_read_real("savegame", "data_version", 1);
@@ -44853,6 +44855,7 @@ function gml_Script_s_savegame(_inst, _other) {
           }
           gml_Script_slog(__yy__v801, _inst, yyfplus(yyfplus(yyfplus("My team ID(", __yy_gml_errCheck(string(__yy__v801.gmlmyteam_id))), ") My team="), __yy_gml_errCheck(gmlteam_name)));
           ini_open(gml_Script_s_get_savename(__yy__v801, _inst));
+          RetroOpponentRosters.save(__yy__v801);
           if (yyGetBool(gml_Script_s_is_co_mode(__yy__v801, _inst))) {
             {
               ini_write_real("savegame", "data_version", __yy__v801.gmldata_version);
@@ -54439,6 +54442,7 @@ function gml_Script_s_start_new_season(_inst, _other, argument0) {
           __yy__v1002.gmlfirst_week_playoffs = 19;
           gml_Script_s_college_shorter_season(__yy__v1002, _inst);
           __yy__v1002.gmlyear = yyfplus(__yy__v1002.gmlyear, 1);
+          RetroOpponentRosters.advance(__yy__v1002);
           __yy__v1002.gmlgamestarts = 0;
           __yy__v1002.gmldone_season_review = false;
           __yy__v1002.gmlqb_new_offer = -1;
@@ -65197,6 +65201,7 @@ function gml_GlobalScript_s_set_up_play(_inst, _other) {
   _inst.gmls_btn_fieldgoal_reposition = __yy_method(_inst, gml_Script_s_btn_fieldgoal_reposition);
 }
 function gml_Script_s_set_up_play(_inst, _other, argument0) {
+  RetroOpponentRosters.prepare(_inst);
   if (RetroDefense.special(_inst)) return;
   {
     show_debug_message(yyfplus("s_set_up_play: difficulty = ", __yy_gml_errCheck(string(yyfplus(5, __yy_gml_errCheck(yyInst(_inst, _other, YYASSET_REF(0x00000069)).gmldifficulty))))));
@@ -100225,6 +100230,7 @@ function gml_Object_obj_controller_Create_0(_inst, _other) {
     _inst.gmlcomm_col_a = merge_color(_inst.gmlcomm_col_a, 16777215, 0.2);
   }
   gml_Script_slog_roster(_inst, _other, "Create obj_contr. A", 0);
+  RetroOpponentRosters.prepare(_inst);
   _inst.gmlteam_roster[__yy_gml_array_check_index_set(0)] = gml_Script_s_sort_players(_inst, _other, _inst.gmlteam_roster[__yy_gml_array_check_index(0, _inst.gmlteam_roster)], 3);
   gml_Script_s_tag_backups_internal(_inst, _other, _inst.gmlteam_roster[__yy_gml_array_check_index(0, _inst.gmlteam_roster)]);
   _inst.gmlteam_roster[__yy_gml_array_check_index_set(0)] = gml_Script_s_sort_players(_inst, _other, _inst.gmlteam_roster[__yy_gml_array_check_index(0, _inst.gmlteam_roster)], 4);
