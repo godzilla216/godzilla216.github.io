@@ -100,7 +100,7 @@
         m._punt = { orientation: orientation, dir: dir, team: team, scrim: scrim, ballId: b.id,
             punter: kickers[0].id, punterX: kickers[0].x, snapper: kickers[1].id, returner: receivers[9].id,
             humanKick: team === Number(m.gmlhuman_team), humanReturn: team !== Number(m.gmlhuman_team),
-            phase: "aim", frame: 0, elapsed: 0, aim: 0, power: 0.65, meter: 0, launches: 0, resolved: false,
+            phase: "aim", frame: 0, elapsed: 0, aim: 0, aimFlip: 1, power: 0.65, meter: 0, launches: 0, resolved: false,
             fair: false, input: { x: 0, y: 0 }, pointer: null, contacts: {} };
         b.gmlholder = -4; b.gmlstate = 0; b.gmlheight = 3; b.gmlhidden = false;
         b.x = scrim; b.y = 300; b.gmlvelocity = 0; b.gmlzvel = 0; b.gmlis_dead = false;
@@ -137,6 +137,17 @@
         var s = m._punt, x = Number(r.keyboard_check(68) || r.keyboard_check(39)) - Number(r.keyboard_check(65) || r.keyboard_check(37));
         var y = Number(r.keyboard_check(83) || r.keyboard_check(40)) - Number(r.keyboard_check(87) || r.keyboard_check(38));
         var phase = s.phase, action = r.keyboard_check_pressed(32) || r.keyboard_check_pressed(13);
+        if (s.humanKick && phase === "aim" && !y && !s.pointer) {
+            var punter = objects(s.punter)[0];
+            // Match the field-goal sweep's skill/difficulty speed, using a
+            // local target so native kickoff state and ball ownership stay intact.
+            var speed = clamp(9 - punter.gmlmy_kick_skill / 3 - (5 + m.gmldifficulty) / 5, 3, 9);
+            var offset = Math.tan(s.aim * Math.PI / 180) * 100 / Math.tan(25 * Math.PI / 180);
+            offset += s.aimFlip * speed;
+            if (offset > 100) { offset = 200 - offset; s.aimFlip = -1; }
+            else if (offset < -100) { offset = -200 - offset; s.aimFlip = 1; }
+            s.aim = Math.atan2(offset, 100 / Math.tan(25 * Math.PI / 180)) * 180 / Math.PI;
+        }
         if (s.humanKick && phase === "aim") s.aim = clamp(s.aim + y * 0.6, -25, 25);
         if (s.humanKick && action && (phase === "aim" || phase === "power")) confirm(m);
         if (r.keyboard_check_pressed(70)) fairCatch(m);
@@ -401,11 +412,13 @@
         var s = m._punt, color = r.draw_get_color(), font = r.draw_get_font(), ha = r.draw_get_halign(), va = r.draw_get_valign(), alpha = r.draw_get_alpha();
         r.draw_set_alpha(1); r.draw_set_font(r.global.gmlfnt_small_flex); r.draw_set_halign(1); r.draw_set_valign(1);
         var w = r.display_get_gui_width(), h = r.display_get_gui_height(), text;
-        text = s.phase === "aim" ? (s.humanKick ? "PUNT | UP / DOWN OR DRAG TO AIM" : "OPPONENT PUNT") : s.phase === "power" ? "PUNT POWER" : s.phase === "flight" ? (s.fair ? "FAIR CATCH CALLED" : "PUNT") : s.phase === "ground" ? "LOOSE PUNT | BALL IS LIVE" : s.phase === "return" ? "PUNT RETURN | WASD / ARROWS OR DRAG" : s.phase === "dead" ? s.reason.toUpperCase() : "PUNT | " + s.phase.toUpperCase();
+        text = s.phase === "aim" ? (s.humanKick ? "PUNT | TIME THE AIMING ARROW" : "OPPONENT PUNT") : s.phase === "power" ? "PUNT POWER" : s.phase === "flight" ? (s.fair ? "FAIR CATCH CALLED" : "PUNT") : s.phase === "ground" ? "LOOSE PUNT | BALL IS LIVE" : s.phase === "return" ? "PUNT RETURN | WASD / ARROWS OR DRAG" : s.phase === "dead" ? s.reason.toUpperCase() : "PUNT | " + s.phase.toUpperCase();
         r.draw_set_color(65535); r.gml_Script_draw_hd_text(m, m, w / 2, 42, text);
         if (s.phase === "aim" || s.phase === "power") {
-            r.draw_set_color(0); r.draw_rectangle(w / 2 - 70, h - 56, w / 2 + 70, h - 42, false);
-            r.draw_set_color(65280); r.draw_rectangle(w / 2 - 68, h - 54, w / 2 - 68 + 136 * (s.phase === "power" ? s.meter : 0.65), h - 44, false);
+            if (s.phase === "power") {
+                r.draw_set_color(0); r.draw_rectangle(w / 2 - 70, h - 56, w / 2 + 70, h - 42, false);
+                r.draw_set_color(65280); r.draw_rectangle(w / 2 - 68, h - 54, w / 2 - 68 + 136 * s.meter, h - 44, false);
+            }
             r.draw_set_color(16777215); r.gml_Script_draw_hd_text(m, m, w / 2, h - 66, "AIM " + Math.round(s.aim) + " DEGREES");
         }
         if ((s.humanKick && ["aim", "power"].indexOf(s.phase) >= 0) || (s.humanReturn && ["flight", "return"].indexOf(s.phase) >= 0)) {
@@ -417,15 +430,21 @@
     }
     function drawField(m) {
         if (!active(m)) return;
-        var s = m._punt, color = r.draw_get_color();
+        var s = m._punt, color = r.draw_get_color(), alpha = r.draw_get_alpha();
         r.draw_set_color(16711680); r.draw_line(m.gmlx_scrim, 132, m.gmlx_scrim, 468);
         if (s.phase === "aim" || s.phase === "power") {
             var p = objects(s.punter)[0], a = s.aim * Math.PI / 180;
-            var tx = p.x + s.dir * Math.cos(a) * 140, ty = p.y + Math.sin(a) * 140;
-            r.draw_set_color(65535); r.draw_line_width(p.x + s.dir * 14, p.y - 8, tx, ty - 8, 2);
-            r.draw_line(tx, ty - 8, tx - s.dir * 14, ty - 16); r.draw_line(tx, ty - 8, tx - s.dir * 14, ty);
+            var length = 180 + 5 * p.gmlmy_kick_skill;
+            var coneLength = Math.max(220, length), halfWidth = Math.tan(25 * Math.PI / 180) * coneLength;
+            r.draw_set_color(16777215); r.draw_set_alpha(0.075);
+            r.draw_triangle(p.x + s.dir * coneLength, p.y - halfWidth, p.x + s.dir * coneLength, p.y + halfWidth, p.x, p.y, false);
+            var tx = p.x + s.dir * Math.cos(a) * length, ty = p.y + Math.sin(a) * length;
+            var rotation = -Math.atan2(Math.sin(a), s.dir * Math.cos(a)) * 180 / Math.PI;
+            r.draw_set_alpha(0.75); r.draw_line_width(p.x, p.y, tx, ty, 3);
+            // Same spr_route_end arrowhead, scale, opacity and rotation as field goals.
+            r.draw_sprite_ext(p, r.YYASSET_REF(0x0100004d), 0, tx + (s.dir < 0 ? 1 : 0), ty + (s.dir < 0 ? 1.5 : 0), 0.75, 0.75, rotation, 16777215, 0.75);
         }
-        r.draw_set_color(color);
+        r.draw_set_color(color); r.draw_set_alpha(alpha);
     }
     return { start: start, offer: offer, eligible: eligible, active: active, reset: reset, step: step, confirm: confirm, fairCatch: fairCatch,
         end: end, resolve: resolve, updateBall: updateBall, playerStep: playerStep, playerEnd: playerEnd, ownsBall: ownsBall, shadowStep: shadowStep, drawBall: drawBall, draw: draw, drawField: drawField,

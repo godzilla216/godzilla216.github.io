@@ -48,6 +48,38 @@ async function main() {
             assert.equal(game.errors.length,0,JSON.stringify(game.errors));
             pass(`actual ${choice} dialog click executes a valid callback without the undefined-script crash`);
         }
+        for (const dir of [-1, 1]) {
+            const aiming = await ev(`(function(){
+                puntTest.setup(${dir},false);var m=GetWithArray(105)[0],s=m._punt,values=[];
+                for(var i=0;i<180;i++){RetroPunt.step(m);values.push(s.aim);}
+                var originalSprite=draw_sprite_ext,originalTriangle=draw_triangle,arrows=[],triangles=[];
+                try {
+                    draw_sprite_ext=function(p,sprite,frame,x,y,sx,sy,rotation,color,alpha){arrows.push({sprite:sprite_get_name(sprite),x:x,y:y,rotation:rotation,sx:sx,sy:sy,alpha:alpha});};
+                    draw_triangle=function(x1,y1,x2,y2,x3,y3){triangles.push({x1:x1,y1:y1,x2:x2,y2:y2,x3:x3,y3:y3});};
+                    s.aim=-20;RetroPunt.drawField(m);s.aim=20;RetroPunt.drawField(m);
+                    RetroPunt.confirm(m);var locked=s.aim;
+                    for(var j=0;j<30;j++)RetroPunt.step(m);
+                    var stable=s.aim===locked;RetroPunt.drawField(m);
+                    s.phase='bend';RetroPunt.drawField(m);
+                    var p=GetWithArray(s.punter)[0];
+                    return {values:values,arrows:arrows,triangles:triangles,stable:stable,p:{x:p.x,y:p.y},sprite:sprite_get_name(YYASSET_REF(0x0100004d))};
+                } finally {draw_sprite_ext=originalSprite;draw_triangle=originalTriangle;}
+            })()`);
+            assert(Math.min(...aiming.values) < -20 && Math.max(...aiming.values) > 20);
+            assert(aiming.values.every(a => a >= -25 && a <= 25));
+            assert(aiming.stable); assert.equal(aiming.arrows.length, 3); assert.equal(aiming.triangles.length, 3);
+            aiming.arrows.forEach(a => {assert.equal(a.sprite, aiming.sprite);assert.equal(a.sx,.75);assert.equal(a.sy,.75);assert.equal(a.alpha,.75);assert((a.x-aiming.p.x)*dir>0);});
+            assert(aiming.arrows[0].y < aiming.p.y && aiming.arrows[1].y > aiming.p.y);
+            aiming.triangles.forEach(t => {assert.equal(t.x3,aiming.p.x);assert.equal(t.y3,aiming.p.y);assert((t.x1-t.x3)*dir>0);assert(t.y1<t.y3&&t.y2>t.y3);});
+            await ev(`puntTest.setup(${dir},false);puntTest.freeze();GetWithArray(105)[0]._punt.aim=-20;true`);
+            await game.sleep(80);await game.screenshot(path.join(folder,`${dir}-aim-up.png`));
+            await ev('GetWithArray(105)[0]._punt.aim=20;true');
+            await game.sleep(80);await game.screenshot(path.join(folder,`${dir}-aim-down.png`));
+            await ev('RetroPunt.confirm(GetWithArray(105)[0]);true');
+            await game.sleep(80);await game.screenshot(path.join(folder,`${dir}-aim-locked.png`));
+            await ev('puntTest.unfreeze();true');
+            pass(`field-goal arrow sprite sweeps both ways inside a triangle, mirrors and locks during power in direction ${dir}`);
+        }
         await ev('puntTest.setup(1,false);true');
         await key('keyDown', 'ArrowDown', 'ArrowDown', 40); await game.sleep(120); await key('keyUp', 'ArrowDown', 'ArrowDown', 40);
         assert((await ev('GetWithArray(105)[0]._punt.aim')) > 0);

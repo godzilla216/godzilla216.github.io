@@ -36,6 +36,8 @@ Results: **19 unit checks and 39 browser checks passed**, with no runtime errors
 
 ## Defensive gameplay and controls
 
+CPU field goals now use the native kicking formation, approach, kick animation and ball physics. The camera shows the kick and uprights; longer attempts follow the ball. Makes award three points once and lead into a playable kickoff return in normal coaching careers, including when simulated kickoffs are selected. Misses give the human team first down. Simulation and quarterback careers retain their commentary flow. Run `node tests/cpu-field-goals.browser.cjs` to verify makes, misses, scoring, possession, kickoff launches and camera framing in both directions.
+
 In a normal coaching career, opposing possessions now enter the field instead of simulating through commentary. A yellow ring identifies your defender. Choose a formation and call before snapping; play ends and the next down or possession follows the existing football rules.
 
 | Action | Keyboard | Mouse / touch | Controller |
@@ -56,11 +58,13 @@ Fourth down offers **Go for it**, **Field Goal**, and **Punt** through the nativ
 
 | Action | Keyboard | Mouse / touch |
 | --- | --- | --- |
-| Aim punt | Up / Down or W / S | Hold and drag vertically on the field |
+| Aim punt | Time the sweeping arrow; Up / Down or W / S adjusts it | Time the sweeping arrow or hold and drag vertically on the field |
 | Set aim, then lock power and snap | Space or Enter, twice | Tap the bottom button twice, or release a field drag |
 | Move after receiving | WASD or arrows | Hold and drag on the field |
 | Call fair catch while punt is airborne | F | Tap FAIR CATCH |
 | Dive during return | Space or Enter | Tap DIVE |
+
+Punt aiming uses the field-goal arrowhead sprite, white aiming line, and translucent triangle. The arrow sweeps up and down at the field-goal skill/difficulty speed. Set aim to lock the direction while selecting power; the guide disappears when the snap sequence begins. The guide mirrors with the kicking direction.
 
 The power meter starts after aiming. Locking power starts one ordered sequence: bend, backward airborne long snap, catch, short approach, drop, and kick at foot contact. Aim and power lock before the snap; subsequent input cannot restart the animation or launch a second ball. Every player uses existing game sprites through the normal renderer, including body variants and team uniforms. The snapper reuses the standing/crouching and placement frames, and the punter reuses standing, running and `spr_kick2` frames. There are no custom sprite drawings or new sprite assets. The export has no dedicated long-snap sprite, so its existing crouch/placement poses represent the snap while the actual ball travels backward to the punter. The receiving players and coverage reuse kickoff roles, AI, acceleration, blocking and return sprites. CPU punt commentary also enters this live sequence, allowing user returns.
 
@@ -138,4 +142,4 @@ Review and testing corrected:
 - CPU touchdowns could inflate the user's touchdown counter/records; offensive credit is suppressed during live opposing plays.
 - The fourth-down CPU kick path initially selected the PAT commentary state; field goals now use the native three-point path.
 
-Opponent field goals, point conversions and kickoff decisions use their existing simulation/commentary system; opponent punts now enter the playable punt/return sequence described above. Formation roles use the existing generic/player roster attributes rather than introducing a new college depth chart or substitutions system. Defense and playable punts are added to coaching gameplay, not quarterback career or practice. A physical controller and real mobile hardware were not available: defensive controller reads were tested with mocked native APIs, and touch was tested with Chromium touch emulation. Full-season balance, every overtime scenario and all browsers/devices remain unverified. The original GameMaker project is unavailable, so this is an extension of the readable HTML5 export, not an editor-source rebuild.
+Opponent field goals and punts play out on the field, and opponent scores lead into playable kickoff returns. Point conversions retain the existing commentary system. Formation roles use the existing generic/player roster attributes rather than introducing a new college depth chart or substitutions system. Defense and playable punts are added to coaching gameplay, not quarterback career or practice. A physical controller and real mobile hardware were not available: defensive controller reads were tested with mocked native APIs, and touch was tested with Chromium touch emulation. Full-season balance, every overtime scenario and all browsers/devices remain unverified. The original GameMaker project is unavailable, so this is an extension of the readable HTML5 export, not an editor-source rebuild.

@@ -30,9 +30,48 @@ async function main() {
         };true`);
         assert.deepEqual(await ev('defenseTest.setup()'), { live: true, ball: await ev('global.gmlmaster_ball'), offense: 11, defense: 11 });
         pass('live opponent possession creates eleven offensive and eleven defensive players');
+        const layout = await ev(`(function(){
+            var m=GetWithArray(105)[0], originalWidth=display_get_gui_width, originalText=gml_Script_draw_hd_text_ext_transformed;
+            var originalRectangle=draw_rectangle, originalSnapped=m._liveDefense.snapped, results=[];
+            try {
+                [320,480,640].forEach(function(width){[false,true].forEach(function(snapped){
+                    var labels=[],buttons=[];display_get_gui_width=function(){return width;};m._liveDefense.snapped=snapped;
+                    gml_Script_draw_hd_text_ext_transformed=function(a,b,x,y,text,sep,w,sx){var half=gml_Script_string_hd_width(a,b,text)*sx/2;labels.push({left:x-half,right:x+half,y:y});};
+                    draw_rectangle=function(x,y,right,bottom,outline){if(outline)buttons.push({left:x,right:right,y:y});};
+                    RetroDefense.draw(m);
+                    var items=labels.concat(buttons);
+                    results.push(items.every(function(item){return item.left>=0&&item.right<=width;})&&
+                        labels.every(function(a,i){return labels.every(function(b,j){return i===j||Math.abs(a.y-b.y)>=10||a.right<=b.left||b.right<=a.left;});})&&
+                        buttons.every(function(a,i){return buttons.every(function(b,j){return i===j||a.right<b.left||b.right<a.left;});})&&
+                        buttons.every(function(button){return labels.some(function(label){return label.y>button.y&&label.left>=button.left+4&&label.right<=button.right-4;});}));
+                });});
+                return results;
+            } finally {display_get_gui_width=originalWidth;gml_Script_draw_hd_text_ext_transformed=originalText;draw_rectangle=originalRectangle;m._liveDefense.snapped=originalSnapped;}
+        })()`);
+        assert(layout.every(Boolean), JSON.stringify(layout));
+        pass('defense labels and buttons fit without overlap before and after snap at three GUI widths');
+        const identity = await ev(`(function(){
+            var m=GetWithArray(105)[0],b=GetWithArray(global.gmlmaster_ball)[0],p=GetWithArray(b.gmlholder)[0];
+            var savedName=p.gmlpos_name,savedMap=p.gmlpmap,originalText=gml_Script_draw_hd_text_ext_transformed,originalSprite=draw_sprite;
+            var map=ds_map_create(),labels=[],icons=[];ds_map_set(map,'attitude',100);
+            try {
+                p.gmlpmap=map;p.gmlpos_name='QB A VERY LONG PLAYER NAME THAT MUST FIT BELOW THE SCOREBUG';
+                gml_Script_draw_hd_text_ext_transformed=function(a,b,x,y,text,sep,w,sx){if(text===p.gmlpos_name)labels.push({x:x,y:y,right:x+gml_Script_string_hd_width(a,b,text)*sx});};
+                draw_sprite=function(a,sprite,frame,x,y){if(x===22)icons.push({x:x,y:y});};
+                gml_Script_s_draw_scoreboard(m,m);
+                return {labels:labels,icons:icons,width:display_get_gui_width()};
+            } finally {p.gmlpos_name=savedName;p.gmlpmap=savedMap;ds_map_destroy(map);gml_Script_draw_hd_text_ext_transformed=originalText;draw_sprite=originalSprite;}
+        })()`);
+        assert.equal(identity.labels.length, 1);
+        assert.equal(identity.labels[0].x, 34); assert.equal(identity.labels[0].y, 28);
+        assert(identity.labels[0].right <= Math.min(254, identity.width - 14));
+        assert.deepEqual(identity.icons, [{ x: 22, y: 28 }]);
+        pass('carrier name and attitude render together below the scorebug, with long names fitted');
         if (process.argv.includes('--screenshots')) {
             const folder = fs.mkdtempSync(path.join(require('node:os').tmpdir(), 'retro-bowl-defense-preview-'));
+            await ev(`(function(){var b=GetWithArray(global.gmlmaster_ball)[0],p=GetWithArray(b.gmlholder)[0];window.identityPreview={p:p,name:p.gmlpos_name,map:p.gmlpmap};p.gmlpmap=ds_map_create();ds_map_set(p.gmlpmap,'attitude',100);p.gmlpos_name='QB ALEXANDER MONTGOMERY';return true;})()`);
             await game.sleep(150); await game.screenshot(path.join(folder, 'pregame.png'));
+            await ev(`(function(){var s=window.identityPreview;ds_map_destroy(s.p.gmlpmap);s.p.gmlpos_name=s.name;s.p.gmlpmap=s.map;delete window.identityPreview;return true;})()`);
             game.screenshotFolder = folder; console.log('Screenshots: ' + folder);
         }
         await ev('RetroDefense.snap(GetWithArray(105)[0]);true');
@@ -125,10 +164,9 @@ async function main() {
             return {down:m.gmldown,state:m.gmlstate,stage:m.gmlcomm_stage,live:!!m._liveDefense};})()`);
         assert.equal(thirdDown.down, 1); assert.equal(thirdDown.state, 1); assert.equal(thirdDown.stage, 5); assert.equal(thirdDown.live, false);
         pass('third-down stop routes the CPU fourth-down decision to native special teams');
-        const fieldGoal = await ev('(function(){var outcomes=[];for(var seed=1;seed<=12;seed++){defenseTest.setup({down:4,scrim:45});var m=GetWithArray(105)[0],before=m.gmlteam_score[Number(m.gmlpossession)],team=Number(m.gmlpossession),stage=m.gmlcomm_stage;random_set_seed(seed);gml_Script_s_update_commentary(m,m);outcomes.push({stage:stage,points:m.gmlteam_score[team]-before});}return outcomes;})()');
-        assert(fieldGoal.every(r => r.stage === 7 && [0, 3].includes(r.points)), JSON.stringify(fieldGoal));
-        assert(fieldGoal.some(r => r.points === 3) && fieldGoal.some(r => r.points === 0), JSON.stringify(fieldGoal));
-        pass('CPU fourth-down field goals use native three-point makes and zero-point misses');
+        const fieldGoal = await ev('(function(){defenseTest.setup({down:4,scrim:45});var m=GetWithArray(105)[0],b=GetWithArray(global.gmlmaster_ball)[0];return {live:RetroDefense.cpuFieldGoal(m),kicking:m.gmlkicking,state:m.gmlstate,ball:b.gmlstate};})()');
+        assert.deepEqual(fieldGoal,{live:true,kicking:1,state:2,ball:0});
+        pass('CPU fourth-down field goal enters the native on-field kicking sequence');
         const turnover = await ev('(function(){defenseTest.setup();var m=GetWithArray(105)[0];m.gmldown=5;gml_Script_s_set_up_play(m,m,true);return defenseTest.summary();})()');
         assert.equal(turnover.state, 1);
         await ev('(function(){var m=GetWithArray(105)[0];for(var i=0;i<8&&Number(m.gmlpossession)!==Number(m.gmlhuman_team);i++)gml_Script_s_update_commentary(m,m);return true;})()');

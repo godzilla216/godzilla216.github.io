@@ -58049,9 +58049,9 @@ function gml_Script_s_update_ball_fieldgoal(_inst, _other) {
           }
         }
         gml_Script_s_update_ball_offset(_inst, _other);
-        if (yyGetBool(gml_Script_s_cpu_is_kicking_off(_inst, _other))) {
+        if (yyGetBool((gml_Script_s_cpu_is_kicking_off(_inst, _other) || RetroDefense.cpuFieldGoal(GetWithArray(105)[0])))) {
           {
-            if (yyfequal(yyInst(_inst, _other, YYASSET_REF(0x00000062)).gmltag_kr_message_done, 3)) {
+            if (yyGetBool(gml_Script_s_cpu_is_kicking_off(_inst, _other)) && yyfequal(yyInst(_inst, _other, YYASSET_REF(0x00000062)).gmltag_kr_message_done, 3)) {
               {
                 _inst.gmlcpu_kickpow = 55;
                 yyInst(_inst, _other, YYASSET_REF(0x00000062)).gmltag_kr_message_done = 4;
@@ -58089,7 +58089,7 @@ function gml_Script_s_update_ball_fieldgoal(_inst, _other) {
       }
       case 1: {
         instance_destroy(_inst, YYASSET_REF(0x0000000c));
-        if (yyGetBool(gml_Script_s_cpu_is_kicking_off(_inst, _other)) || yyGetBool(yyGetBool(!yyGetBool(mouse_check_button(1))) && yyGetBool(yyGetBool(!yyGetBool(global.gmlgamepad)) || yyGetBool(!yyGetBool(gamepad_button_check(yyInst(_inst, _other, global.gmlgp).gmlslot, global.gmlgp_select)))))) {
+        if (yyGetBool((gml_Script_s_cpu_is_kicking_off(_inst, _other) || RetroDefense.cpuFieldGoal(GetWithArray(105)[0]))) || yyGetBool(yyGetBool(!yyGetBool(mouse_check_button(1))) && yyGetBool(yyGetBool(!yyGetBool(global.gmlgamepad)) || yyGetBool(!yyGetBool(gamepad_button_check(yyInst(_inst, _other, global.gmlgp).gmlslot, global.gmlgp_select)))))) {
           {
             _inst.gmlstate = 2;
             {
@@ -58153,7 +58153,7 @@ function gml_Script_s_update_ball_fieldgoal(_inst, _other) {
         _inst.gmldirec = gml_Script_s_get_kick_direction(_inst, _other);
         _inst.gmlvelocity = yyftime(__yy_gml_errCheck(yyfplus(50, __yy_gml_errCheck(_inst.gmlkickpow))), __yy_gml_errCheck(yyInst(_inst, _other, _inst.gmlholder).gmlmy_kick_power));
         _inst.gmlzvel = yyftime(__yy_gml_errCheck(_inst.gmlvelocity), 0.4);
-        if (yyGetBool(gml_Script_s_cpu_is_kicking_off(_inst, _other))) {
+        if (yyGetBool((gml_Script_s_cpu_is_kicking_off(_inst, _other) || RetroDefense.cpuFieldGoal(GetWithArray(105)[0])))) {
           gml_Script_s_kick_ball(_inst, _other);
         } else {
           if (yyGetBool(mouse_check_button(1)) && yyGetBool(gml_Script_s_is_touch_allowed(_inst, _other))) {
@@ -58999,6 +58999,8 @@ function gml_GlobalScript_s_check_ball_collision(_inst, _other) {
 }
 function gml_Script_s_check_ball_collision(_inst, _other) {
   if (RetroPunt.ownsBall()) return;
+  // Field-goal flight belongs to the goal/miss checks, not receiver catches.
+  if (RetroDefense.cpuFieldGoal(GetWithArray(105)[0])) return;
   {
     if (yyfgreater(_inst.gmlballdist, 20)) {
       return false;
@@ -65480,6 +65482,7 @@ function gml_GlobalScript_s_update_commentary(_inst, _other) {
   _inst.gmlslog_master_roster = __yy_method(_inst, gml_Script_slog_master_roster);
 }
 function gml_Script_s_update_commentary(_inst, _other) {
+  if (RetroDefense.startCpuFieldGoal(_inst)) return;
   {
     gml_Script_s_stop_brass_loop(_inst, _other);
     gml_Script_slog(_inst, _other, yyfplus(yyfplus(yyfplus(yyfplus(yyfplus("s_update_commentary: ", __yy_gml_errCheck(gml_Script_s_get_string_commstage(_inst, _other, _inst.gmlcomm_stage))), " possesion: "), __yy_gml_errCheck(gml_Script_s_co_poss_str(_inst, _other, _inst.gmlpossession))), " scrimmage:"), __yy_gml_errCheck(string(_inst.gmlscrimmage))));
@@ -69340,7 +69343,7 @@ function gml_Script_s_kick_off(_inst, _other) {
           if (yyGetBool(global.gmlexhibition)) {
             gmlko = ds_map_find_value(yyInst(_inst, _other, YYASSET_REF(0x00000062)).gmlmap_options, "exh_op_kickoffs");
           }
-          if (yyGetBool(gmlko) && yyGetBool(!yyGetBool(yyInst(_inst, _other, YYASSET_REF(0x00000062)).gmlqb_mode)) && yyGetBool(!yyGetBool(gml_Script_s_simming_action(__yy__v1320, _inst))) && yyGetBool(yyGetBool(yyfnotequal(__yy__v1320.gmlpossession, yyInst(_inst, _other, YYASSET_REF(0x00000062)).gmlplayerteamindex)) || yyGetBool(yyfequal(yyInst(_inst, _other, YYASSET_REF(0x00000062)).gmlplayerteamindex, -1)))) {
+          if ((yyGetBool(gmlko) || RetroDefense.shouldPlay(__yy__v1320)) && yyGetBool(!yyGetBool(yyInst(_inst, _other, YYASSET_REF(0x00000062)).gmlqb_mode)) && yyGetBool(!yyGetBool(gml_Script_s_simming_action(__yy__v1320, _inst))) && yyGetBool(yyGetBool(yyfnotequal(__yy__v1320.gmlpossession, yyInst(_inst, _other, YYASSET_REF(0x00000062)).gmlplayerteamindex)) || yyGetBool(yyfequal(yyInst(_inst, _other, YYASSET_REF(0x00000062)).gmlplayerteamindex, -1)))) {
             {
               __yy__v1320.gmldown = 99;
               __yy__v1320.gmlstate = 2;
@@ -70541,10 +70544,22 @@ function gml_Script_s_draw_scoreboard(_inst, _other) {
                   var gmltxt = yyInst(_inst, _other, __yy__v1395.gmlholder).gmlpos_name;
                   var gmlsx = 22;
                   var gmlsy = yyfminus(__yy_gml_errCheck(display_get_gui_height()), 10);
+                  var defenseName = RetroDefense.active(GetWithArray(105)[0]);
+                  var nameWidth = gml_Script_string_hd_width(__yy__v1395, _inst, gmltxt);
+                  var nameScale = 1;
+                  if (defenseName) {
+                    // Keep the carrier's identity below the scorebug, clear of controls.
+                    gmlsy = 28;
+                    var nameSpace = Math.min(220, display_get_gui_width() - 48);
+                    nameScale = Math.min(1, nameSpace / Math.max(1, nameWidth));
+                    draw_set_colour(0);
+                    draw_rectangle(14, 20, gmlsx + 16 + nameWidth * nameScale, 36, false);
+                  }
                   draw_sprite(__yy__v1395, YYASSET_REF(0x0100006b), gml_Script_s_get_attitude_icon(__yy__v1395, _inst, ds_map_find_value(yyInst(_inst, _other, __yy__v1395.gmlholder).gmlpmap, "attitude")), gmlsx, gmlsy);
                   draw_set_halign(0);
-                  draw_set_colour(0);
-                  gml_Script_draw_hd_text(__yy__v1395, _inst, yyfplus(__yy_gml_errCheck(gmlsx), 12), gmlsy, gmltxt);
+                  draw_set_colour(defenseName ? 16777215 : 0);
+                  if (defenseName) gml_Script_draw_hd_text_ext_transformed(__yy__v1395, _inst, gmlsx + 12, gmlsy, gmltxt, -1, -1, nameScale, nameScale, 0);
+                  else gml_Script_draw_hd_text(__yy__v1395, _inst, yyfplus(__yy_gml_errCheck(gmlsx), 12), gmlsy, gmltxt);
                   draw_set_colour(16777215);
                 }
               }
@@ -99574,6 +99589,7 @@ function gml_Object_obj_camera_Alarm_0(_inst, _other) {
   }
 }
 function gml_Object_obj_camera_Step_2(_inst, _other) {
+  if (RetroDefense.cpuKickCamera(GetWithArray(105)[0])) return;
   if (yyGetBool(is_undefined(_inst.gmlzoom))) {
     {
       gml_Script_s_create_camera(_inst, _other);
@@ -100557,12 +100573,20 @@ function gml_Object_obj_controller_Step_0(_inst, _other) {
   gml_Script_s_safe_run(_inst, _other, kgml_Script_s_obj_controller_step);
 }
 function gml_Object_obj_controller_Draw_64(_inst, _other) {
+  if (RetroDefense.cpuFieldGoal(_inst)) {
+    gml_Script_s_draw_scoreboard(_inst, _other);
+    return;
+  }
   if (RetroPunt.active(_inst)) {
     gml_Script_s_draw_scoreboard(_inst, _other);
     RetroPunt.draw(_inst);
     return;
   }
-  RetroDefense.draw(_inst);
+  if (RetroDefense.active(_inst)) {
+    gml_Script_s_draw_scoreboard(_inst, _other);
+    if (!RetroDefense.draw(_inst)) gml_Script_s_draw_commentary(_inst, _other);
+    return;
+  }
   if (yyGetBool(global.gmldebug)) {
     {
       draw_set_font(global.gmlfnt_small_flex);
@@ -102296,6 +102320,7 @@ function gml_Object_obj_ball_Draw_0(_inst, _other) {
   }
 }
 function gml_Object_obj_ball_Draw_64(_inst, _other) {
+  if (RetroDefense.cpuFieldGoal(GetWithArray(105)[0])) return;
   if (RetroPunt.ownsBall()) return;
   if (yyGetBool(yyInst(_inst, _other, YYASSET_REF(0x00000069)).gmlkicking) && yyGetBool(gml_Script_s_aiming(_inst, _other))) {
     {

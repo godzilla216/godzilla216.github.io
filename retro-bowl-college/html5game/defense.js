@@ -84,14 +84,49 @@
     function prefs(m) { return m._defensePrefs || (m._defensePrefs = { formation: "Auto", call: "Balanced" }); }
     function reset(m) {
         if (!m) return;
+        if (m._cpuFieldGoal) {
+            m.gmldrivedir = m._cpuFieldGoal.orientation;
+            m._cpuFieldGoal = null;
+            m.alarm[0] = -1;
+        }
         // A reset can destroy a dead ball while its result alarm is still pending.
         // Cancel that alarm so it cannot resolve a stale ball or the next play.
         if (m._liveDefense) m.alarm[0] = -1;
         m._liveDefense = null;
     }
+    function cpuFieldGoal(m) {
+        return !!(m && m._cpuFieldGoal && m.gmlstate === 2 && m.gmlkicking === 1);
+    }
+    function startCpuFieldGoal(m) {
+        if (!shouldPlay(m) || m.gmlcomm_stage !== 6) return false;
+        if (cpuFieldGoal(m)) return true;
+        reset(m);
+        var orientation = m.gmldrivedir;
+        if (root.global.gmlexhibition) root.gml_Script_s_force_kick_direction(m, m);
+        else m.gmldrivedir = -orientation;
+        m.gmlstate = 2; m.gmlcomm_stage = 3; m.gmlcomm_proceed = false;
+        m.gmlcomm_txt = ""; m.gmltap_msg = "";
+        root.gml_Script_s_set_up_fieldgoal(m, m, 1);
+        m._cpuFieldGoal = { orientation: orientation, ballId: ballObject().id };
+        m.alarm[0] = -1; m.alarm[1] = -1;
+        // Only the CPU chooses this kick. Hide the offensive change-play button.
+        [12, 30, 32].forEach(function (type) { objects(type).forEach(function (button) { root.instance_destroy(button); }); });
+        cpuKickCamera(m);
+        return true;
+    }
+    function cpuKickCamera(m) {
+        if (!cpuFieldGoal(m)) return false;
+        var camera = root.g_pBuiltIn.view_camera[0], goal = m.gmldrivedir === 1 ? 2510 : 90;
+        // Frame nearby uprights immediately; follow the ball on longer attempts.
+        var b = ballObject(), focus = b.gmlstate === 3 ? b.x : m.gmlx_scrim - m.gmldrivedir * 80;
+        var center = Math.abs(m.gmlx_scrim - goal) <= 720 ? (m.gmlx_scrim + goal) / 2 : focus + m.gmldrivedir * 200;
+        root.camera_set_view_size(camera, 960, 540);
+        root.camera_set_view_pos(camera, clamp(center - 480, 0, root.g_pBuiltIn.room_width - 960), Math.max(0, Math.min(30, root.g_pBuiltIn.room_height - 540)));
+        return true;
+    }
     function special(m) {
         if (!shouldPlay(m) || (m.gmldown !== 4 && m.gmldown !== 6 && m.gmldown !== 7)) return false;
-        // Opponent kicking and point conversions retain the native commentary rules.
+        // Route fourth down to live special teams; point conversions use commentary.
         reset(m);
         m.gmlstate = 1;
         if (m.gmldown === 4) {
@@ -203,12 +238,13 @@
     }
     function guiButtons(m) {
         var state = m._liveDefense, width = root.display_get_gui_width();
+        var scale = Math.min(1, (width - 32) / 302);
         if (!state.snapped) return [
-            { x: 8, w: 120, text: state.formation, action: "formation" },
-            { x: 134, w: 100, text: prefs(m).call, action: "call" },
-            { x: width - 90, w: 82, text: "SNAP", action: "snap" }
+            { x: 8, w: 120 * scale, text: state.formation, hint: "FORMATION [F]", action: "formation" },
+            { x: 16 + 120 * scale, w: 100 * scale, text: prefs(m).call, hint: "CALL [C]", action: "call" },
+            { x: width - 8 - 82 * scale, w: 82 * scale, text: "SNAP", hint: "SPACE / ENTER", action: "snap" }
         ];
-        return [{ x: width - 176, w: 80, text: "SWITCH", action: "switch" }, { x: width - 90, w: 82, text: "TACKLE", action: "dive" }];
+        return [{ x: width - 16 - 162 * scale, w: 80 * scale, text: "SWITCH", hint: "[Q]", action: "switch" }, { x: width - 8 - 82 * scale, w: 82 * scale, text: "TACKLE", hint: "SPACE / ENTER", action: "dive" }];
     }
     function changeCall(m, action) {
         var settings = prefs(m);
@@ -359,6 +395,7 @@
     function skipHuman(p) { return active(controller()) && p.gmloffense; }
     function opponentOffense() {
         var m = controller();
+        if (cpuFieldGoal(m)) return true;
         if (!active(m)) return false;
         var b = ballObject(), holder = b && objects(b.gmlholder)[0];
         return !holder || holder.gmloffense;
@@ -380,21 +417,35 @@
         p.x = x; p.y = y;
     }
     function draw(m) {
-        if (!active(m)) return;
+        if (!active(m)) return false;
         var s = m._liveDefense, b = ballObject();
-        if (!b || b.gmlis_dead) return;
+        if (!b || b.gmlis_dead || s.ended) return false;
         var color = root.draw_get_color(), font = root.draw_get_font(), halign = root.draw_get_halign(), valign = root.draw_get_valign(), alpha = root.draw_get_alpha();
         root.draw_set_alpha(1); root.draw_set_font(root.global.gmlfnt_small_flex); root.draw_set_halign(1); root.draw_set_valign(1);
-        var y = root.display_get_gui_height() - 27;
-        guiButtons(m).forEach(function (button) {
+        var width = root.display_get_gui_width(), y = root.display_get_gui_height() - 27, buttons = guiButtons(m);
+        // Hints and actions occupy separate rows outside the playing field.
+        // Measure each label so it stays within its own slot on narrow screens.
+        function textInSlot(x, ty, text, available) {
+            var textWidth = root.gml_Script_string_hd_width(m, m, text);
+            var scale = Math.min(1, available / Math.max(1, textWidth));
+            root.gml_Script_draw_hd_text_ext_transformed(m, m, x, ty, text, -1, -1, scale, scale, 0);
+        }
+        root.draw_set_color(0); root.draw_rectangle(0, y - 14, width, root.display_get_gui_height(), false);
+        buttons.forEach(function (button) {
             root.draw_set_color(0); root.draw_rectangle(button.x, y, button.x + button.w, y + 23, false);
             root.draw_set_color(65535); root.draw_rectangle(button.x, y, button.x + button.w, y + 23, true);
-            root.gml_Script_draw_hd_text(m, m, button.x + button.w / 2, y + 11, button.text.toUpperCase());
+            textInSlot(button.x + button.w / 2, y + 11, button.text.toUpperCase(), button.w - 12);
+            root.draw_set_color(12632256);
+            textInSlot(button.x + button.w / 2, y - 7, button.hint, button.w - 4);
         });
         root.draw_set_color(65535);
-        root.gml_Script_draw_hd_text(m, m, root.display_get_gui_width() / 2, 42, s.snapped ? "DEFENSE" : "DEFENSE  |  F: FORMATION  C: CALL  SPACE: SNAP");
-        if (s.snapped) { root.draw_set_halign(0); root.gml_Script_draw_hd_text(m, m, 8, y + 11, "WASD / ARROWS   Q: SWITCH   SPACE: TACKLE"); }
+        if (s.snapped) {
+            var available = buttons[0].x - 16, center = 8 + available / 2;
+            textInSlot(center, y - 7, "DEFENSE", available);
+            textInSlot(center, y + 11, "MOVE: WASD / ARROWS OR DRAG", available);
+        }
         root.draw_set_color(color); root.draw_set_font(font); root.draw_set_halign(halign); root.draw_set_valign(valign); root.draw_set_alpha(alpha);
+        return true;
     }
     function marker(p) {
         var m = controller();
@@ -402,6 +453,6 @@
         var color = root.draw_get_color();
         root.draw_set_color(65535); root.draw_circle(p.x, p.y + 2, 15, true); root.draw_set_color(color);
     }
-    return { shouldPlay: shouldPlay, special: special, afterSetup: afterSetup, reset: reset, step: step, destination: destination, updateBall: updateBall, skipHuman: skipHuman, opponentOffense: opponentOffense, skipNativeTackle: skipNativeTackle, bounds: bounds, draw: draw, marker: marker, snap: snap, switchPlayer: switchPlayer, dive: dive, tackle: tackle, recordInterception: recordInterception,
+    return { cpuKickCamera: cpuKickCamera, cpuFieldGoal: cpuFieldGoal, startCpuFieldGoal: startCpuFieldGoal, active: active, shouldPlay: shouldPlay, special: special, afterSetup: afterSetup, reset: reset, step: step, destination: destination, updateBall: updateBall, skipHuman: skipHuman, opponentOffense: opponentOffense, skipNativeTackle: skipNativeTackle, bounds: bounds, draw: draw, marker: marker, snap: snap, switchPlayer: switchPlayer, dive: dive, tackle: tackle, recordInterception: recordInterception,
         logic: { FORMATIONS: FORMATIONS, BOUNDS: BOUNDS, formation: formation, pursuit: pursuit, separate: separate, canTackle: canTackle, fumbleOpportunity: fumbleOpportunity, chooseNext: chooseNext, passTrajectory: passTrajectory, aiTarget: aiTarget, unit: unit, eligible: eligible } };
 });
