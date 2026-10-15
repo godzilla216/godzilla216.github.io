@@ -155,7 +155,7 @@
         if (!s.pointer) [1, 2, 3, 0].some(function (device) {
             if (!r.device_mouse_check_button(device, 1) && !r.device_mouse_check_button_pressed(device, 1)) return false;
             var mx = r.device_mouse_x_to_gui(device), my = r.device_mouse_y_to_gui(device);
-            s.pointer = { device: device, x: mx, y: my, phase: phase, button: my >= bottom };
+            s.pointer = { device: device, x: mx, y: my, phase: phase, button: my >= bottom, aim: s.aim, dragging: false };
             if (my >= bottom) {
                 if (phase === "flight") fairCatch(m);
                 else if (phase === "return") dive(m);
@@ -174,7 +174,12 @@
             });
             var dx = r.device_mouse_x_to_gui(p.device) - p.x, dy = r.device_mouse_y_to_gui(p.device) - p.y;
             if (held && !p.button) {
-                if (phase === "aim" && s.humanKick) s.aim = clamp(dy / 3, -25, 25);
+                if (phase === "aim" && s.humanKick) {
+                    // A field tap locks the sweeping arrow where it was pressed.
+                    // Ignore small pointer jitter; drags adjust from that angle.
+                    if (Math.abs(dy) > 6) p.dragging = true;
+                    if (p.dragging) s.aim = clamp(p.aim + dy / 3, -25, 25);
+                }
                 if (phase === "return" && s.humanReturn) { x += clamp(dx / 30, -1, 1); y += clamp(dy / 30, -1, 1); }
             }
             if (!held) {

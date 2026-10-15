@@ -91,6 +91,29 @@ async function main() {
         assert.equal(await ev('GetWithArray(105)[0]._punt.launches'), 1);
         pass('real keyboard aims, locks power, and completes snap through kick once despite rapid input');
         await ev('puntTest.freeze();true');
+        for (const dir of [-1, 1]) for (const aim of [-20, 20]) {
+            const result = await ev(`(function(){
+                puntTest.setup(${dir},false);var m=GetWithArray(105)[0],s=m._punt;
+                var held=true,my=200,original={};
+                ['keyboard_check','keyboard_check_pressed','device_mouse_check_button','device_mouse_check_button_pressed','device_mouse_x_to_gui','device_mouse_y_to_gui'].forEach(function(k){original[k]=window[k];});
+                try {
+                    keyboard_check=keyboard_check_pressed=function(){return false;};
+                    device_mouse_check_button=device_mouse_check_button_pressed=function(device){return device===0&&held;};
+                    device_mouse_x_to_gui=function(){return 300;};device_mouse_y_to_gui=function(){return my;};
+                    // Keep the sweep still on the initial press so the chosen angle is exact.
+                    s.aim=${aim};s.pointer={device:0,x:300,y:200,phase:'aim',button:false,aim:s.aim,dragging:false};
+                    puntTest.step(m);var pressed=s.aim;
+                    my+=2;puntTest.step(m);var jitter=s.aim;
+                    held=false;puntTest.step(m);var locked=s.aim,phase=s.phase;
+                    s.meter=.65;RetroPunt.confirm(m);puntTest.advance(100);
+                    var b=GetWithArray(global.gmlmaster_ball)[0];
+                    return {pressed:pressed,jitter:jitter,locked:locked,phase:phase,dy:b.y-s.launchY,dx:b.x-s.launchX};
+                } finally {Object.keys(original).forEach(function(k){window[k]=original[k];});}
+            })()`);
+            assert.equal(result.pressed,aim);assert.equal(result.jitter,aim);assert.equal(result.locked,aim);
+            assert.equal(result.phase,'power');assert(result.dy*aim>0);assert(result.dx*dir>0);
+            pass(`field tap preserves aim ${aim} through launch and flight in direction ${dir}`);
+        }
         const speedComparison=await ev(`(function(){var cases=[];[-1,1].forEach(function(dir){[.15,.65,1].forEach(function(power){puntTest.setup(dir,false);var m=GetWithArray(105)[0],s=m._punt,b=GetWithArray(global.gmlmaster_ball)[0],p=GetWithArray(s.punter)[0],t=RetroPunt.logic.trajectory(1200,300,dir,12,power,p.gmlmy_kick_power);
             b.x=1200;b.y=300;b.gmlheight=12;b.gmlbouncecount=0;b.gmlholder=p.id;b.gmlkickpow=Math.max(15,power*55);b.gmlvelocity=(50+b.gmlkickpow)*p.gmlmy_kick_power;b.gmlzvel=b.gmlvelocity*.4;b.gmldirec=Math.atan2(t.dy,t.dx)*180/Math.PI;
             gml_Script_s_kick_ball(b,b);var kickoffSpeed=b.gmlvelocity,normal=[];for(var i=0;i<30;i++){gml_Script_s_update_ball_movement(b,b,false);normal.push([b.x,b.y,b.gmlvelocity]);}
