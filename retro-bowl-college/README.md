@@ -12,6 +12,10 @@ node scripts/serve.cjs
 
 Open **http://127.0.0.1:8080/**. Serve the game over HTTP so its text files, textures and audio can load. Stop the server with Ctrl+C. No dependencies need to be installed.
 
+Rendering follows the display's refresh rate without a game-imposed FPS cap. `html5game/timing.js` accumulates elapsed time while the native game loop keeps its original simulation rate, including physics, input, animation, alarms and time sources. Render interpolation smooths positions between ticks and restores simulation coordinates afterward; rendering also preserves the gameplay random-number state. Catch-up work is bounded, and suspended tabs do not build up a simulation backlog. Interpolation adds up to one simulation tick of visual latency.
+
+Timing checks: `node --test tests/timing.test.cjs` and `node tests/timing.browser.cjs`. The browser comparison runs the same native scrimmage and airborne-ball scenarios at synthetic 30, 60, 144 and 240 Hz and compares player positions, velocities, animation states, ball physics, game clock and down. These checks complement the defense and punt browser regression suites; they do not require a high-refresh monitor.
+
 ## Real names
 
 All 261 college teams use their real school identities and abbreviations. The conference, division, bowl and championship labels have been replaced across all 32 conference records and 112 competition records, including retired entries and the three playoff rotations. Examples include Durham → Duke, Annapolis → Navy, Waco → Baylor, Large X → Big Ten and Lilac Bowl → Rose Bowl. Pro draft destinations use the full names of all 32 NFL teams. Award messages now name real awards such as the Heisman Trophy, Davey O'Brien Award and Doak Walker Award.
@@ -38,7 +42,7 @@ Results: **19 unit checks and 39 browser checks passed**, with no runtime errors
 
 CPU field goals now use the native kicking formation, approach, kick animation and ball physics. The camera shows the kick and uprights; longer attempts follow the ball. Makes award three points once and lead into a playable kickoff return in normal coaching careers, including when simulated kickoffs are selected. Misses give the human team first down. Simulation and quarterback careers retain their commentary flow. Run `node tests/cpu-field-goals.browser.cjs` to verify makes, misses, scoring, possession, kickoff launches and camera framing in both directions.
 
-In a normal coaching career, opposing possessions now enter the field instead of simulating through commentary. A yellow ring identifies your defender. Choose a formation and call before snapping; play ends and the next down or possession follows the existing football rules.
+In a normal coaching career, opposing possessions now enter the field instead of simulating through commentary. The game's original white pulsing highlight identifies your defender. Choose a formation and call before snapping; play ends and the next down or possession follows the existing football rules.
 
 | Action | Keyboard | Mouse / touch | Controller |
 | --- | --- | --- | --- |

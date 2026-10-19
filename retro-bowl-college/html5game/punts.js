@@ -79,6 +79,8 @@
         m.alarm[0] = -1; m.alarm[1] = -1; r.global.gmlreplay_do = false;
         for (var i = 0; i < 11; i++) r.instance_create_layer(0, 0, "Players", 108);
         for (var j = 0; j < 11; j++) r.instance_create_layer(0, 0, "Players", 109);
+        // Identify the punter before native roster, appearance and ratings setup.
+        objects(109)[0]._puntRole = "punter";
         objects(107).forEach(function (p) { r.gml_Script_s_set_skills_and_skin(p, m); p.gmlmy_route_alpha = 0; });
         r.global.gmlmaster_ball = r.instance_create_layer(0, 0, "Ball", 111);
         r.instance_create_layer(0, 0, "Ball", 112);
@@ -417,6 +419,18 @@
         var s = m._punt, color = r.draw_get_color(), font = r.draw_get_font(), ha = r.draw_get_halign(), va = r.draw_get_valign(), alpha = r.draw_get_alpha();
         r.draw_set_alpha(1); r.draw_set_font(r.global.gmlfnt_small_flex); r.draw_set_halign(1); r.draw_set_valign(1);
         var w = r.display_get_gui_width(), h = r.display_get_gui_height(), text;
+        var kicker = objects(s.punter)[0];
+        if (kicker && kicker.gmlpmap >= 0 && ["ground", "return", "dead"].indexOf(s.phase) < 0) {
+            // Keep the kicker's native identity visible while the snapper holds
+            // the ball and while the punt is airborne, clear of the controls.
+            var name = kicker.gmlpos_name, nameWidth = r.gml_Script_string_hd_width(m, m, name);
+            var nameScale = Math.min(1, Math.max(1, Math.min(220, w - 48)) / Math.max(1, nameWidth));
+            r.draw_set_color(0); r.draw_rectangle(14, 20, 38 + nameWidth * nameScale, 36, false);
+            r.draw_sprite(m, r.YYASSET_REF(0x0100006b), r.gml_Script_s_get_attitude_icon(m, m, r.ds_map_find_value(kicker.gmlpmap, "attitude")), 22, 28);
+            r.draw_set_halign(0); r.draw_set_color(16777215);
+            r.gml_Script_draw_hd_text_ext_transformed(m, m, 34, 28, name, -1, -1, nameScale, nameScale, 0);
+            r.draw_set_halign(1);
+        }
         text = s.phase === "aim" ? (s.humanKick ? "PUNT | TIME THE AIMING ARROW" : "OPPONENT PUNT") : s.phase === "power" ? "PUNT POWER" : s.phase === "flight" ? (s.fair ? "FAIR CATCH CALLED" : "PUNT") : s.phase === "ground" ? "LOOSE PUNT | BALL IS LIVE" : s.phase === "return" ? "PUNT RETURN | WASD / ARROWS OR DRAG" : s.phase === "dead" ? s.reason.toUpperCase() : "PUNT | " + s.phase.toUpperCase();
         r.draw_set_color(65535); r.gml_Script_draw_hd_text(m, m, w / 2, 42, text);
         if (s.phase === "aim" || s.phase === "power") {

@@ -450,8 +450,9 @@
     function marker(p) {
         var m = controller();
         if (!active(m) || m._liveDefense.selected !== p.id || !eligible(p)) return;
-        var color = root.draw_get_color();
-        root.draw_set_color(65535); root.draw_circle(p.x, p.y + 2, 15, true); root.draw_set_color(color);
+        // Use spr_highlight with the native ball-carrier marker's size and pulse.
+        var alpha = (Math.sin(root.g_pBuiltIn.get_current_time() / 60) + 1) / 2;
+        root.draw_sprite_ext(p, root.YYASSET_REF(0x01000050), 0, p.x, p.y, 2, 2, 0, 16777215, alpha);
     }
     return { cpuKickCamera: cpuKickCamera, cpuFieldGoal: cpuFieldGoal, startCpuFieldGoal: startCpuFieldGoal, active: active, shouldPlay: shouldPlay, special: special, afterSetup: afterSetup, reset: reset, step: step, destination: destination, updateBall: updateBall, skipHuman: skipHuman, opponentOffense: opponentOffense, skipNativeTackle: skipNativeTackle, bounds: bounds, draw: draw, marker: marker, snap: snap, switchPlayer: switchPlayer, dive: dive, tackle: tackle, recordInterception: recordInterception,
         logic: { FORMATIONS: FORMATIONS, BOUNDS: BOUNDS, formation: formation, pursuit: pursuit, separate: separate, canTackle: canTackle, fumbleOpportunity: fumbleOpportunity, chooseNext: chooseNext, passTrajectory: passTrajectory, aiTarget: aiTarget, unit: unit, eligible: eligible } };

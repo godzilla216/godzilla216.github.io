@@ -60364,6 +60364,13 @@ function gml_Script_s_set_skills_and_skin(_inst, _other) {
         }
       }
     }
+    // Punt coverage uses kickoff objects, whose native setup omits the kicker.
+    // Resolve the active kicker before deriving body, skin, name and attributes.
+    if (_inst._puntRole === "punter") {
+      _inst.gmlplayer_roster = gmlattack_roster;
+      _inst.gmlpmap = gml_Script_s_get_player_by_position_from_roster(_inst, _other, 10, 1, gmlattack_roster);
+      _inst.gmlbody_type = gml_Script_s_get_player_body_type(_inst, _other, true, _inst.gmlpmap, gmlteam_defense);
+    }
     if (yyfequal(_inst.gmlbody_type, -1)) {
       {
         var gmlbody_pmap = _inst.gmlpmap;
@@ -217686,8 +217693,8 @@ function _6F3() {
     _fA2();
   }
 }
-function _7F3() {
-  g_pBuiltIn.delta_time = (_ZD3 - g_pBuiltIn._n_2) * 1000;
+function _7F3(fixedStepMs) {
+  g_pBuiltIn.delta_time = fixedStepMs === undefined ? (_ZD3 - g_pBuiltIn._n_2) * 1000 : fixedStepMs * 1000;
   g_pBuiltIn._n_2 = _ZD3;
   _0s3();
   _ug._Dd3();
@@ -217748,10 +217755,7 @@ function _7F3() {
   _Wi3();
   if (_t3 != null) {
     _t3._mo3();
-    if (_mM) {
-      _t3._19();
-      _4F3();
-    }
+    // Drawing runs once per browser frame, outside fixed simulation steps.
   }
   _t3._Hk3();
   _3F3();
@@ -217999,6 +218003,8 @@ function _pF3() {
 }
 var _qF3 = 0;
 var _rF3 = 0;
+var retroFrameClock = null;
+var retroPreviousPose = null;
 function _EE3() {
   if (_e8) {
     _e8._Dj1();
@@ -218014,79 +218020,79 @@ function _EE3() {
       _t3._J03(1);
     }
   }
-  const _sF3 = _ZD3;
   _ZD3 = Date.now();
-  const _tF3 = (_ZD3 - _sF3) * 1000;
-  _2m1._WA2(_tF3);
-  _2n1._WA2(_tF3);
+  if (!retroFrameClock) retroFrameClock = RetroTiming.createClock();
+  var retroFrame = retroFrameClock.advance(performance.now(), _Q93);
   if (_ZD3 >= _WD3 + 1000) {
-    if (_ZD3 - __D3 < 2000) {
-      _xz2 = _XD3;
-      g_pBuiltIn.fps = _xz2;
-    }
+    _xz2 = _XD3 * 1000 / (_ZD3 - _WD3);
+    g_pBuiltIn.fps = _Q93;
+    g_pBuiltIn.fps_real = _xz2;
     _XD3 = 0;
     _WD3 = _ZD3;
   }
   _XD3++;
-  var _uF3 = __D3 + 1000 / _Q93;
-  var now = Date.now();
-  var _XU1 = __D3 + 1000 / _Q93 - now;
-  if (_XU1 < 0) _XU1 = 0;
-  __D3 = now + _XU1;
-  if (_XU1 > 4) {
-    setTimeout(function () {
-      if (window._7E3) {
-        window._7E3(_9E3);
-      } else {
-      }
-    }, _XU1);
-  } else {
-    if (window._7E3) {
-      window._7E3(_9E3);
-    } else {
-      window.postMessage("yyRequestAnimationFrame", "*");
-    }
-  }
-  if (!_Wz2) {
+  // Render at the browser refresh rate; simulation keeps its native tick rate.
+  window.requestAnimFrame(_9E3);
+  if (!_Wz2 && !document.hidden) {
     _pF3();
-    var _vF3 = 10;
-    var _7C1 = false;
-    while (!_7C1) {
-      _7C1 = true;
-      if (_t3 === null) {
-        _dL2._dg = _dL2._0o3 = _dL2._Ek3 = _dL2._9j1 = _Gn1;
-        _dL2._fg = _dL2._1o3 = _dL2._Fk3 = _dL2._aj1 = _Hn1;
-      } else {
-        _5o3();
+    for (var retroTick = 0; retroTick < retroFrame.steps; retroTick++) {
+      _2m1._WA2(retroFrame.step * 1000);
+      _2n1._WA2(retroFrame.step * 1000);
+      var _vF3 = 10;
+      var _7C1 = false;
+      while (!_7C1) {
+        _7C1 = true;
+        if (_t3 === null) {
+          _dL2._dg = _dL2._0o3 = _dL2._Ek3 = _dL2._9j1 = _Gn1;
+          _dL2._fg = _dL2._1o3 = _dL2._Fk3 = _dL2._aj1 = _Hn1;
+        } else {
+          _5o3();
+        }
+        _s63();
+        retroPreviousPose = RetroTiming.capture(_Hn._7c3._Vk);
+        _7F3(retroFrame.step);
+        _u63();
+        switch (_881) {
+          case -1:
+            break;
+          case _c81:
+          case _HF2:
+            _2F3(false);
+            return;
+          case _d81:
+            _2F3(true);
+            _mT._xo3();
+            _DE3();
+            break;
+          case _GF2:
+            _NN2();
+            break;
+          default:
+            _0F3(_881);
+            _7C1 = false;
+            break;
+        }
+        _vF3--;
+        if (_vF3 <= 0) break;
       }
-      _s63();
-      _7F3();
-      _u63();
-      switch (_881) {
-        case -1:
-          break;
-        case _c81:
-        case _HF2:
-          _2F3(false);
-          return;
-        case _d81:
-          _2F3(true);
-          _mT._xo3();
-          _DE3();
-          break;
-        case _GF2:
-          _NN2();
-          break;
-        default:
-          _0F3(_881);
-          _7C1 = false;
-          break;
-      }
-      _vF3--;
-      if (_vF3 <= 0) break;
+      _Vn1 = 0;
+      _Wn1 = 0;
     }
-    _Vn1 = 0;
-    _Wn1 = 0;
+    if (_t3 && _mM) {
+      // Cosmetic drawing cannot consume the simulation's random sequence.
+      var retroRandomState = state.slice(), retroRandomIndex = _MX, retroRandomSeed = _NX, retroRandomMask = _PX;
+      _s63();
+      try {
+        RetroTiming.render(retroPreviousPose, _Hn._7c3._Vk, retroFrame.alpha, function () { _t3._19(); });
+      } finally {
+        state = retroRandomState; _MX = retroRandomIndex; _NX = retroRandomSeed; _PX = retroRandomMask;
+        _u63();
+      }
+      _4F3();
+    }
+  } else {
+    retroFrameClock.reset();
+    retroPreviousPose = null;
   }
   if (_rE.Options && _rE.Options.debugMode) {
     UpdateDebugWindow();
