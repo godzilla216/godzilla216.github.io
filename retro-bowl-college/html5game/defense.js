@@ -5,6 +5,20 @@
     else root.RetroDefense = api;
 })(typeof window === "object" ? window : globalThis, function (root) {
     "use strict";
+    var STORAGE_KEY = "retro-bowl-college.playable-defense";
+    var enabled = true;
+    try { enabled = root.localStorage.getItem(STORAGE_KEY) !== "off"; } catch (_) { /* Storage may be unavailable. */ }
+    function isEnabled() { return enabled; }
+    function setEnabled(value) {
+        enabled = !!value;
+        try { root.localStorage.setItem(STORAGE_KEY, enabled ? "on" : "off"); } catch (_) { /* Keep the session preference. */ }
+        return enabled;
+    }
+    function updateOption(button) { button.gmltext = enabled ? "ON" : "OFF"; }
+    function toggleOption(button) {
+        setEnabled(!enabled);
+        updateOption(button);
+    }
     var FORMATIONS = { "4-3": [4, 3, 2, 2], "3-4": [3, 4, 2, 2], Nickel: [4, 2, 3, 2], Dime: [4, 1, 4, 2] };
     var CALLS = ["Balanced", "Run", "Pass", "Blitz"];
     var BOUNDS = { left: 145, right: 2455, top: 134, bottom: 466 };
@@ -77,6 +91,7 @@
     function controller() { return objects(105)[0]; }
     function ballObject() { return objects(root.global.gmlmaster_ball)[0]; }
     function shouldPlay(m) {
+        if (!enabled) return false;
         var c = master();
         return !!(m && c && !c.gmlsim_action && !c.gmlqb_mode && !c.gmlgamepractice && c.gmlplayerteamindex >= 0 && Number(m.gmlpossession) !== Number(m.gmlhuman_team) && m.gmlcomm_stage !== 31);
     }
@@ -454,6 +469,6 @@
         var alpha = (Math.sin(root.g_pBuiltIn.get_current_time() / 60) + 1) / 2;
         root.draw_sprite_ext(p, root.YYASSET_REF(0x01000050), 0, p.x, p.y, 2, 2, 0, 16777215, alpha);
     }
-    return { cpuKickCamera: cpuKickCamera, cpuFieldGoal: cpuFieldGoal, startCpuFieldGoal: startCpuFieldGoal, active: active, shouldPlay: shouldPlay, special: special, afterSetup: afterSetup, reset: reset, step: step, destination: destination, updateBall: updateBall, skipHuman: skipHuman, opponentOffense: opponentOffense, skipNativeTackle: skipNativeTackle, bounds: bounds, draw: draw, marker: marker, snap: snap, switchPlayer: switchPlayer, dive: dive, tackle: tackle, recordInterception: recordInterception,
+    return { isEnabled: isEnabled, setEnabled: setEnabled, updateOption: updateOption, toggleOption: toggleOption, cpuKickCamera: cpuKickCamera, cpuFieldGoal: cpuFieldGoal, startCpuFieldGoal: startCpuFieldGoal, active: active, shouldPlay: shouldPlay, special: special, afterSetup: afterSetup, reset: reset, step: step, destination: destination, updateBall: updateBall, skipHuman: skipHuman, opponentOffense: opponentOffense, skipNativeTackle: skipNativeTackle, bounds: bounds, draw: draw, marker: marker, snap: snap, switchPlayer: switchPlayer, dive: dive, tackle: tackle, recordInterception: recordInterception,
         logic: { FORMATIONS: FORMATIONS, BOUNDS: BOUNDS, formation: formation, pursuit: pursuit, separate: separate, canTackle: canTackle, fumbleOpportunity: fumbleOpportunity, chooseNext: chooseNext, passTrajectory: passTrajectory, aiTarget: aiTarget, unit: unit, eligible: eligible } };
 });

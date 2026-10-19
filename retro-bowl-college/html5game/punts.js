@@ -48,6 +48,7 @@
         return { x: b.x + Math.cos(angle) * distance, y: b.y + Math.sin(angle) * distance };
     }
     function eligible(m) {
+        if (m && Number(m.gmlpossession) !== Number(m.gmlhuman_team) && !r.RetroDefense.isEnabled()) return false;
         var c = objects(98)[0];
         return !!(m && c && !c.gmlsim_action && !c.gmlqb_mode && !c.gmlgamepractice && (m.gmldown === 4 || m.gmlcomm_stage === 5));
     }

@@ -40,6 +40,8 @@ Results: **19 unit checks and 39 browser checks passed**, with no runtime errors
 
 ## Defensive gameplay and controls
 
+Use **Options → Playable Defense → ON / OFF** to choose live defense or simulated opposing possessions, including CPU punts and field goals. It defaults to ON and remembers your choice in this browser. Offensive gameplay and your own playable punts remain available with defense OFF. Change this option between games. Verify the toggle and reload persistence with `node tests/defense-toggle.browser.cjs`.
+
 CPU field goals now use the native kicking formation, approach, kick animation and ball physics. The camera shows the kick and uprights; longer attempts follow the ball. Makes award three points once and lead into a playable kickoff return in normal coaching careers, including when simulated kickoffs are selected. Misses give the human team first down. Simulation and quarterback careers retain their commentary flow. Run `node tests/cpu-field-goals.browser.cjs` to verify makes, misses, scoring, possession, kickoff launches and camera framing in both directions.
 
 In a normal coaching career, opposing possessions now enter the field instead of simulating through commentary. The game's original white pulsing highlight identifies your defender. Choose a formation and call before snapping; play ends and the next down or possession follows the existing football rules.
@@ -55,6 +57,26 @@ In a normal coaching career, opposing possessions now enter the field instead of
 Formations: Auto, 4-3, 3-4, nickel and dime. Calls: balanced, run, pass and blitz. Auto uses distance, field position and available receivers. Uncontrolled linemen pressure the quarterback, linebackers cover gaps or blitz, corners cover receivers, and safeties protect deep zones. Defenders pursue runs and pass landing positions, separate from teammates, and react to turnovers. Opponent quarterbacks drop back, choose receivers, throw through the existing ball physics, hand off, or scramble.
 
 Contact tackles require a live opposing ball carrier within range. Space offers a larger but limited tackle range with a missed-attempt cooldown. Native stiff arms can break tackles. Rating-based, reproducible fumble opportunities feed the original loose-ball system. Existing catch validation determines receptions, tips and interceptions; position, distance, height and field bounds still apply. Interception returners become controllable, and native rules handle touchdowns, safeties, spots, downs, possession, clock and quarter transitions. Named defenders receive existing tackle, sack and interception statistics.
+
+## Halfback pass
+
+Normal offensive scrimmage plays have a **1 in 15 chance** of becoming a halfback pass. The pre-snap message identifies it. Snap to automatically pitch backward to the RB, then release the snap gesture and use the normal aim-and-throw controls from the RB. The QB runs a route and can catch the pass. The pitch does not use up the forward pass; after a completion, normal running controls take over. Practice, quarterback careers and simulated games retain their usual plays.
+
+Run `node tests/halfback-pass.browser.cjs` to check the pitch, native RB passing input and QB reception in both field directions, play reset, selection frequency and excluded modes.
+
+## Jet sweep
+
+Normal offensive scrimmage plays have a **1 in 13 chance** of becoming a jet sweep. Snap to start the receiver's motion across the formation. The QB automatically throws a short forward touch pass to that receiver while four blockers shift toward the sweep lane and then lead the carrier. The opening sequence locks out QB runs, manual throws and alternate targets; after the touch pass, normal receiver running controls resume. The halfback pass keeps its 1 in 15 chance, and the two plays cannot overlap. Practice, quarterback careers, simulated games and CPU possessions retain their usual plays.
+
+Run `node tests/jet-sweep.browser.cjs` to verify both directions, motion, the forced forward touch, shifted blockers, QB input restrictions, pass attempts, reset and the selection frequencies.
+
+## Philly Special
+
+Normal offensive scrimmage plays have a **1 in 15 chance** of calling the Philly Special. Tap to begin: the QB shifts to the offense's right before the snap, the center snaps directly to the RB, the RB runs left and pitches backward to the TE crossing right, and the TE rolls right while the QB runs into the right flat. The TE then waits for you to aim and release the pass using the normal passing controls; you can target the QB or another eligible receiver. The formation mirrors with field direction. Manual runs and audibles remain locked out. The exchanges and rollout are automatic; only the final throw is yours. Release the initial snap gesture before aiming. Normal ball physics, coverage, interceptions, incompletions, catches and scoring decide the final pass; after any offensive catch, normal running controls resume.
+
+The sequence follows the [Eagles' account from Foles and Burton](https://www.philadelphiaeagles.com/news/nick-foles-trey-burton-eagles-philly-special-espn-30-documentary) and [their Super Bowl film breakdown](https://www.philadelphiaeagles.com/news/eagle-eye-how-the-eagles-won-the-super-bowl-20350492). Choose the final target and timing yourself. It can appear outside the goal line. The halfback pass remains 1 in 15 and the jet sweep 1 in 13; the three calls cannot overlap. Practice, quarterback careers, simulated games and CPU possessions keep their usual plays.
+
+Run `node tests/philly-special.browser.cjs` to check the exchange order, run restrictions, manual TE passing input, QB and alternate receiver catches, both field directions, selection frequencies and cleanup.
 
 ## Playable punts
 

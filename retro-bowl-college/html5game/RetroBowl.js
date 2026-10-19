@@ -55100,6 +55100,7 @@ function gml_Script_s_update_options(_inst, _other) {
         break;
       }
     }
+    RetroDefense.updateOption(yyInst(_inst, _other, 100318));
     yyInst(_inst, _other, 100294).gmltext = yyfplus("v", __yy_gml_errCheck(gml_Script_s_get_gm_version(_inst, _other)));
     if (yyGetBool(!yyGetBool(yyInst(_inst, _other, YYASSET_REF(0x00000062)).gmlfr_mode)) && yyGetBool(global.gmldebug)) {
       yyInst(_inst, _other, 100294).gmltext = yyfplus(yyInst(_inst, _other, 100294).gmltext, yyfplus(yyfplus("\n", __yy_gml_errCheck(gml_Script_s_str(_inst, _other, "ui_Version_Mode"))), __yy_gml_errCheck(gml_Script_s_get_data_version_string(_inst, _other))));
@@ -57524,6 +57525,9 @@ function gml_GlobalScript_s_update_ball(_inst, _other) {
   _inst.gmls_update_ball = __yy_method(_inst, gml_Script_s_update_ball);
 }
 function gml_Script_s_update_ball(_inst, _other) {
+  if (RetroPhillySpecial.updateBall(_inst)) return;
+  if (RetroJetSweep.updateBall(_inst)) return;
+  if (RetroHalfbackPass.updateBall(_inst)) return;
   if (RetroDefense.updateBall(_inst)) return;
   {
     var gmlmx = device_mouse_x_to_gui(0);
@@ -58998,6 +59002,9 @@ function gml_GlobalScript_s_check_ball_collision(_inst, _other) {
   _inst.gmls_check_ball_collision = __yy_method(_inst, gml_Script_s_check_ball_collision);
 }
 function gml_Script_s_check_ball_collision(_inst, _other) {
+  if (RetroPhillySpecial.ownsExchange()) return;
+  if (RetroJetSweep.ownsTouch()) return;
+  if (RetroHalfbackPass.ownsPitch()) return;
   if (RetroPunt.ownsBall()) return;
   // Field-goal flight belongs to the goal/miss checks, not receiver catches.
   if (RetroDefense.cpuFieldGoal(GetWithArray(105)[0])) return;
@@ -63071,6 +63078,9 @@ function gml_GlobalScript_s_get_destination(_inst, _other) {
   _inst.gmls_get_destination = __yy_method(_inst, gml_Script_s_get_destination);
 }
 function gml_Script_s_get_destination(_inst, _other) {
+  if (RetroPhillySpecial.destination(_inst)) return;
+  if (RetroJetSweep.destination(_inst)) return;
+  if (RetroHalfbackPass.destination(_inst)) return;
   if (RetroDefense.destination(_inst)) return;
   {
     var gmlball = global.gmlmaster_ball;
@@ -63151,6 +63161,8 @@ function gml_GlobalScript_s_check_human_control(_inst, _other) {
   _inst.gmls_do_stutterstep = __yy_method(_inst, gml_Script_s_do_stutterstep);
 }
 function gml_Script_s_check_human_control(_inst, _other) {
+  if (RetroPhillySpecial.locked()) return;
+  if (RetroJetSweep.locked()) return;
   if (RetroDefense.skipHuman(_inst)) return;
   {
     if (!yyGetBool(yyInst(_inst, _other, global.gmlmaster_ball).gmlholder)) {
@@ -64579,6 +64591,8 @@ function gml_GlobalScript_s_can_throw(_inst, _other) {
   _inst.gmls_can_throw = __yy_method(_inst, gml_Script_s_can_throw);
 }
 function gml_Script_s_can_throw(_inst, _other) {
+  if (RetroPhillySpecial.locked() && !RetroPhillySpecial.canAim()) return false;
+  if (RetroJetSweep.locked()) return false;
   {
     {
       var __yy__v1243 = GetWithArray(yyInst(_inst, _other, global.gmlmaster_ball).gmlholder);
@@ -65452,6 +65466,9 @@ function gml_Script_s_set_up_play(_inst, _other, argument0) {
       }
     }
     RetroDefense.afterSetup(_inst);
+    RetroHalfbackPass.afterSetup(_inst);
+    RetroJetSweep.afterSetup(_inst);
+    RetroPhillySpecial.afterSetup(_inst);
     if (_inst.gmldown === 4 && !argument0 && RetroPunt.eligible(_inst)) {
       gml_Script_s_msg_clear(_inst, _other);
       // Exported script IDs are global lexical constants, not window properties.
@@ -67997,6 +68014,9 @@ function gml_GlobalScript_s_destroy_match_objects(_inst, _other) {
   _inst.gmls_destroy_match_objects = __yy_method(_inst, gml_Script_s_destroy_match_objects);
 }
 function gml_Script_s_destroy_match_objects(_inst, _other) {
+  RetroPhillySpecial.reset(GetWithArray(105)[0]);
+  RetroJetSweep.reset(GetWithArray(105)[0]);
+  RetroHalfbackPass.reset(GetWithArray(105)[0]);
   RetroPunt.reset(GetWithArray(105)[0]);
   RetroDefense.reset(GetWithArray(105)[0]);
   {
@@ -72854,6 +72874,7 @@ function gml_GlobalScript_s_qb_run(_inst, _other) {
   _inst.gmls_qb_revert_throw = __yy_method(_inst, gml_Script_s_qb_revert_throw);
 }
 function gml_Script_s_qb_run(_inst, _other, argument0) {
+  if (RetroPhillySpecial.locked()) return;
   {
     if (yyGetBool(yyfequal(yyInst(_inst, _other, YYASSET_REF(0x00000062)).gmlgamepractice, 3)) || yyGetBool(yyfequal(yyInst(_inst, _other, YYASSET_REF(0x00000062)).gmlgamepractice, 4))) {
       _inst.gmlstate = 0;
@@ -72887,6 +72908,7 @@ function gml_Script_s_qb_run(_inst, _other, argument0) {
   }
 }
 function gml_Script_s_qb_revert_throw(_inst, _other) {
+  if (RetroPhillySpecial.locked()) return;
   {
     {
       var __yy__v1465 = GetWithArray(_inst.gmlholder);
@@ -72917,6 +72939,7 @@ function gml_GlobalScript_s_throw_ball(_inst, _other) {
   _inst.gmls_throw_ball = __yy_method(_inst, gml_Script_s_throw_ball);
 }
 function gml_Script_s_throw_ball(_inst, _other) {
+  if (!RetroPhillySpecial.allowThrow(_inst)) return;
   {
     var gmlcont = YYASSET_REF(0x00000069);
     {
@@ -109782,18 +109805,19 @@ function gml_RoomCC_rm_options_44_PreCreate(_inst, _other) {
   _inst.gmlonClickAction = kgml_Script_btn_click_exhibition_start;
 }
 function gml_RoomCC_rm_options_45_Create(_inst, _other) {
-  _inst.visible = false;
+  _inst.visible = true;
 }
 function gml_RoomCC_rm_options_45_PreCreate(_inst, _other) {
-  _inst.gmltext = "Toggle Color";
+  _inst.gmltext = "Playable Defense";
   _inst.gmldraw_box = false;
   _inst.gmlhalign = 2;
 }
 function gml_RoomCC_rm_options_46_Create(_inst, _other) {
-  _inst.visible = false;
+  _inst.visible = true;
+  RetroDefense.updateOption(_inst);
 }
 function gml_RoomCC_rm_options_46_PreCreate(_inst, _other) {
-  _inst.gmlonClickAction = kgml_Script_btn_click_CollegeToggleColor;
+  _inst.gmlonClickAction = RetroDefense.toggleOption;
 }
 function gml_Room_rm_playoffs_Create(_inst, _other) {
   layer_background_blend(layer_background_get_id(layer_get_id("Background")), global.gmlc_background);
