@@ -10,7 +10,7 @@
         if (r.path_exists(p.gmlmy_route)) r.path_delete(p.gmlmy_route);
         p.gmlmy_route = -1; p.gmlmy_route_point = 0;
     }
-    function afterSetup(m) {
+    function afterSetup(m, forced) {
         reset(m);
         var c = objects(98)[0], b = ball();
         if (!c || !b || m._halfbackPass || c.gmlsim_action || c.gmlqb_mode || c.gmlgamepractice ||
@@ -21,7 +21,7 @@
         var receiver = offense.filter(function (p) { return p.gmlposition === 4; })
             .sort(function (a, b) { return Math.abs(b.y - qb.y) - Math.abs(a.y - qb.y) || a.gmlinum - b.gmlinum; })[0];
         // Halfback pass already takes 1/15 of plays. (14/15)*(15/182)=1/13.
-        if (!qb || !receiver || r.irandom(181) >= 15) return;
+        if (!qb || !receiver || (!forced && r.irandom(181) >= 15)) return;
         var side = receiver.y <= qb.y ? 1 : -1;
         receiver.x = qb.x + m.gmldrivedir * 24;
         receiver.y = clamp(qb.y - side * 120, 150, 450);

@@ -10,7 +10,7 @@
         p.gmlmy_route = -1;
         p.gmlmy_route_point = 0;
     }
-    function afterSetup(m) {
+    function afterSetup(m, forced) {
         reset(m);
         var c = objects(98)[0], b = ball();
         if (!c || !b || c.gmlsim_action || c.gmlqb_mode || c.gmlgamepractice ||
@@ -18,7 +18,7 @@
             Number(m.gmlpossession) !== Number(m.gmlhuman_team) || b.gmlstate !== 0) return;
         var offense = objects(108), qb = offense.find(function (p) { return p.gmlposition === 1; });
         var rb = offense.find(function (p) { return p.gmlposition === 2; });
-        if (!qb || !rb || root.irandom(14) !== 0) return;
+        if (!qb || !rb || (!forced && root.irandom(14) !== 0)) return;
         m._halfbackPass = { ballId: b.id, qb: qb.id, rb: rb.id, phase: "ready", frame: 0 };
         // Keep the pitch backward and give the back room to receive it.
         rb.x = Math.max(145, Math.min(2455, qb.x - m.gmldrivedir * 65));
@@ -37,6 +37,32 @@
         var pad = objects(root.global.gmlgp)[0];
         return !!(pad && (pad.gmlaxisl_force > 0.2 || pad.gmlaxisr_force > 0.2 ||
             root.gamepad_button_check_released(pad.gmlslot, root.global.gmlgp_handoff)));
+    }
+    function preparePass(s, b, passer) {
+        if (b.gmlholder !== passer.id) return false;
+        // The snap gesture belongs to the exchange, never to the final throw.
+        if (s.waitRelease) {
+            s.waitRelease = snapInput(b);
+            root.gml_Script_s_update_ball_offset(b, passer);
+            return true;
+        }
+        // Releasing inside the aim deadzone cancels the gesture. Do not let the
+        // native pre-snap state move the ball back to the line of scrimmage.
+        if (b.gmlstate === 0) b.gmlstate = 18;
+        if (b.gmlstate !== 18) return false;
+        root.gml_Script_s_update_ball_offset(b, passer);
+        if (!root.gml_Script_s_can_throw(b, b) || root.gml_Script_s_is_paused_or_just_unpaused(b, b)) return true;
+        var pointer = root.mouse_check_button(1) && root.gml_Script_s_is_touch_allowed(b, b);
+        var pad = root.global.gmlgamepad && objects(root.global.gmlgp)[0];
+        var axis = pad && (root.gml_Script_s_get_op_invert_throw(b, b) === 3 ? pad.gmlaxisr_force : pad.gmlaxisl_force);
+        // Accept a fresh gesture anywhere, just like the original snap-to-aim
+        // controls, and let the native deadzone/aim states handle the throw.
+        if (pointer || axis > 0.2) {
+            b.gmlxtouch = root.device_mouse_x_to_gui(0);
+            b.gmlytouch = root.device_mouse_y_to_gui(0);
+            b.gmlstate = 1;
+        }
+        return true;
     }
     function receive(m, s, b, qb, rb) {
         root.gml_Script_s_receive_ball(rb, qb);
@@ -61,7 +87,7 @@
         m.gmlrunning_play = false;
         s.phase = "pass";
         s.waitRelease = true;
-        m.gmltap_msg = "RB PASS - AIM AND THROW";
+        m.gmltap_msg = "";
         root.gml_Script_s_update_ball_offset(b, rb);
     }
     function updateBall(b) {
@@ -97,12 +123,7 @@
             if (t === 1) receive(m, s, b, qb, rb);
             return true;
         }
-        // A held snap gesture must not also throw the RB's pass.
-        if (s.phase === "pass" && s.waitRelease) {
-            s.waitRelease = snapInput(b);
-            root.gml_Script_s_update_ball_offset(b, rb);
-            return true;
-        }
+        if (s.phase === "pass" && preparePass(s, b, rb)) return true;
         return false;
     }
     function destination(p) {
@@ -118,5 +139,5 @@
         }
         return false;
     }
-    root.RetroHalfbackPass = { afterSetup: afterSetup, reset: reset, updateBall: updateBall, destination: destination, ownsPitch: ownsPitch, snapInput: snapInput };
+    root.RetroHalfbackPass = { afterSetup: afterSetup, reset: reset, updateBall: updateBall, destination: destination, ownsPitch: ownsPitch, snapInput: snapInput, preparePass: preparePass };
 })(window);

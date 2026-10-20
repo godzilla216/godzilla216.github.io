@@ -58,11 +58,31 @@ Formations: Auto, 4-3, 3-4, nickel and dime. Calls: balanced, run, pass and blit
 
 Contact tackles require a live opposing ball carrier within range. Space offers a larger but limited tackle range with a missed-attempt cooldown. Native stiff arms can break tackles. Rating-based, reproducible fumble opportunities feed the original loose-ball system. Existing catch validation determines receptions, tips and interceptions; position, distance, height and field bounds still apply. Interception returners become controllable, and native rules handle touchdowns, safeties, spots, downs, possession, clock and quarter transitions. Named defenders receive existing tackle, sack and interception statistics.
 
+## Offensive playbook
+
+**Options → Auto Playbook** defaults to **ON**, keeping the usual automatic play calls and special-play frequencies. Turn it **OFF** to choose **Pass**, **HB Run**, **HB Pass**, **Jet Sweep**, or **Philly Special** before each offensive scrimmage play. The setting is remembered in this browser.
+
+Tap a play and **Call Play**, or choose with **1–5 / arrow keys** and confirm with **Enter**. Controllers use the left stick and **A / cross**. Release the selection gesture before snapping. Use **Playbook [P]** to change the call before the snap. The clock waits while you choose, and changing calls does not add an extra snap. HB Run hands off to the RB when you snap. CPU possessions, practice, quarterback careers, simulations, kickoffs, punts, field goals, and the fourth-down decision keep their existing flow.
+
+Checks: `node --test tests/playbook.test.cjs` and `node tests/playbook.browser.cjs`. The browser suite uses actual mouse/touch selection and snaps for all five plays in both directions, checks setting persistence, switching calls, clock/snap preservation, and exercises controller navigation with a simulated device.
+
+## Pitching with Q
+
+During a live offensive scrimmage play, press **Q** to pitch to the nearest available teammate **behind or level with the carrier** in the attacking direction. Targets and airborne pitches are limited to **seven yards**. Forward teammates, fallen players, and teammates outside that range are skipped; if nobody qualifies, you keep the ball. A **Q: PITCH** hint lights up when a target is available. Q retains its defender-switching action on defense.
+
+Pitches travel through the air toward a landing point fixed at release. Receiver skill, distance, nearby defenders, and receiver movement affect success. A missed or bobbled pitch is a **live fumble**, recoverable by either team; a defender taking the pitch gets a fumble recovery, not an interception. Successful pitches transfer running control without adding a forward-pass attempt or completion. Q works with automatic or manual play calling, including after the scripted trick-play exchanges finish.
+
+Checks: `node --test tests/lateral.test.cjs` and `node tests/lateral.browser.cjs`. Browser checks use actual Q input in both directions and cover lateral/backward targets, range limits, flight, control transfer, drops, recoveries, and moving receivers. Catch and drop edge cases use controlled random rolls.
+
 ## Halfback pass
 
 Normal offensive scrimmage plays have a **1 in 15 chance** of becoming a halfback pass. The pre-snap message identifies it. Snap to automatically pitch backward to the RB, then release the snap gesture and use the normal aim-and-throw controls from the RB. The QB runs a route and can catch the pass. The pitch does not use up the forward pass; after a completion, normal running controls take over. Practice, quarterback careers and simulated games retain their usual plays.
 
-Run `node tests/halfback-pass.browser.cjs` to check the pitch, native RB passing input and QB reception in both field directions, play reset, selection frequency and excluded modes.
+After releasing the snap, start the RB's aim by dragging anywhere on the field or moving your configured controller aim stick. A short tap cancels aiming and lets you try again without restarting the play.
+
+Missed forward passes end as incompletions at the original line of scrimmage. Fumbles after a completed catch remain live.
+
+Run `node tests/halfback-pass.browser.cjs` to check the pitch, native RB passing input and QB reception in both field directions, play reset, selection frequency and excluded modes. Both trick-play browser suites also check aiming away from the passer, mouse/touch cancellation and all four controller aim settings.
 
 ## Jet sweep
 
@@ -72,11 +92,13 @@ Run `node tests/jet-sweep.browser.cjs` to verify both directions, motion, the fo
 
 ## Philly Special
 
-Normal offensive scrimmage plays have a **1 in 15 chance** of calling the Philly Special. Tap to begin: the QB shifts to the offense's right before the snap, the center snaps directly to the RB, the RB runs left and pitches backward to the TE crossing right, and the TE rolls right while the QB runs into the right flat. The TE then waits for you to aim and release the pass using the normal passing controls; you can target the QB or another eligible receiver. The formation mirrors with field direction. Manual runs and audibles remain locked out. The exchanges and rollout are automatic; only the final throw is yours. Release the initial snap gesture before aiming. Normal ball physics, coverage, interceptions, incompletions, catches and scoring decide the final pass; after any offensive catch, normal running controls resume.
+Normal offensive scrimmage plays have a **1 in 15 chance** of calling the Philly Special. Tap to begin: the QB shifts to the offense's right before the snap, the center snaps directly to the RB, the RB runs left and pitches backward to the TE crossing right, and the TE rolls right while the QB runs into the right flat. The TE then waits for you to pass or scramble using the normal QB controls; you can target the QB or another eligible receiver. The formation mirrors with field direction. The exchanges and rollout stay automatic, then the TE's decision is yours. Release the initial snap gesture before aiming or scrambling. Normal ball physics, coverage, interceptions, incompletions, catches and scoring decide the play; after a scramble or an offensive catch, normal running controls resume.
 
 The sequence follows the [Eagles' account from Foles and Burton](https://www.philadelphiaeagles.com/news/nick-foles-trey-burton-eagles-philly-special-espn-30-documentary) and [their Super Bowl film breakdown](https://www.philadelphiaeagles.com/news/eagle-eye-how-the-eagles-won-the-super-bowl-20350492). Choose the final target and timing yourself. It can appear outside the goal line. The halfback pass remains 1 in 15 and the jet sweep 1 in 13; the three calls cannot overlap. Practice, quarterback careers, simulated games and CPU possessions keep their usual plays.
 
-Run `node tests/philly-special.browser.cjs` to check the exchange order, run restrictions, manual TE passing input, QB and alternate receiver catches, both field directions, selection frequencies and cleanup.
+After releasing the opening gesture, drag anywhere on the field or move your configured controller aim stick to aim the TE's pass. A short tap cancels aiming so you can retry. To scramble, drag forward instead of pulling back to pass, or use the controller's normal QB run button. Scrambling stays locked during the opening exchanges and rollout.
+
+Run `node tests/philly-special.browser.cjs` to check the exchange order, opening run restrictions, manual TE passing input, mouse/touch/controller scrambles, continued TE movement, QB and alternate receiver catches, both field directions, selection frequencies and cleanup. Controller scrambles use a simulated device.
 
 ## Playable punts
 

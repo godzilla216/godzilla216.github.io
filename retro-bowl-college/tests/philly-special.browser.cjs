@@ -1,5 +1,6 @@
 const assert = require('node:assert/strict');
 const { openGame } = require('./browser-harness.cjs');
+const { checkControllerAim, checkCanceledAim } = require('./trick-pass-controls.cjs');
 async function main() {
     const game = await openGame(), ev = game.evaluate;
     try {
@@ -29,9 +30,9 @@ async function main() {
             if (scrim > 0) await ev(`(function(){var m=GetWithArray(105)[0],delta=(${scrim}-m.gmlscrimmage)*20*m.gmldrivedir;m.gmlscrimmage=${scrim};m.gmlx_scrim+=delta;GetWithArray(108).forEach(function(p){p.x+=delta;});GetWithArray(109).forEach(function(p){p.x=500;p.y=145;});return true;})()`);
             const before = await ev(`(function(){var m=GetWithArray(105)[0],rand=irandom;try{irandom=function(){return 0;};RetroPhillySpecial.afterSetup(m);}finally{irandom=rand;}
                 var s=m._phillySpecial,q=GetWithArray(s.qb)[0],rb=GetWithArray(s.rb)[0],te=GetWithArray(s.te)[0];
-                window.phillyTest={phases:[],holders:[],throws:[],nativeThrow:gml_Script_s_throw_ball,nativeUpdate:RetroPhillySpecial.updateBall};
+                window.phillyTest={phases:[],holders:[],snapshots:{},throws:[],nativeThrow:gml_Script_s_throw_ball,nativeUpdate:RetroPhillySpecial.updateBall};
                 gml_Script_s_throw_ball=function(b,o){var holder=b.gmlholder,previous=b.gmlstate,result=phillyTest.nativeThrow(b,o);if(previous!==3&&b.gmlstate===3)phillyTest.throws.push(holder);return result;};
-                RetroPhillySpecial.updateBall=function(b){var result=phillyTest.nativeUpdate(b),s=m._phillySpecial;if(s){if(phillyTest.phases[phillyTest.phases.length-1]!==s.phase)phillyTest.phases.push(s.phase);if(phillyTest.holders[phillyTest.holders.length-1]!==b.gmlholder)phillyTest.holders.push(b.gmlholder);}return result;};
+                RetroPhillySpecial.updateBall=function(b){var result=phillyTest.nativeUpdate(b),s=m._phillySpecial;if(s){if(phillyTest.phases[phillyTest.phases.length-1]!==s.phase)phillyTest.phases.push(s.phase);if(!phillyTest.snapshots[s.phase])phillyTest.snapshots[s.phase]={holder:b.gmlholder,qy:GetWithArray(s.qb)[0].y,canThrow:gml_Script_s_can_throw(b,b)};if(phillyTest.holders[phillyTest.holders.length-1]!==b.gmlholder)phillyTest.holders.push(b.gmlholder);}return result;};
                 return {qb:s.qb,rb:s.rb,te:s.te,qy:q.y,side:s.side,teName:te.gmlpos_name,rbx:rb.x,tex:te.x,line:m.gmlx_scrim};})()`);
             assert((before.rbx - before.line) * dir < 0);
             assert((before.tex - before.rbx) * dir < 0, 'reverse pitch must be backward');
@@ -41,27 +42,30 @@ async function main() {
             assert.equal(await ev('gml_Script_s_can_throw(GetWithArray(global.gmlmaster_ball)[0],GetWithArray(global.gmlmaster_ball)[0])'), false);
             const point = await ev('(function(){var r=document.getElementById("canvas").getBoundingClientRect();return {x:r.left+r.width/2,y:r.top+r.height/2};})()');
             await game.send('Input.dispatchMouseEvent', { type: 'mousePressed', ...point, button: 'left', clickCount: 1 });
-            await game.until('GetWithArray(105)[0]._phillySpecial.phase==="shift"');
+            await game.until('!!phillyTest.snapshots.shift');
             await game.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: point.x - dir * 130, y: point.y + 70, button: 'left', buttons: 1 });
             await game.sleep(100);
             await game.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: point.x - dir * 130, y: point.y + 70, button: 'left', clickCount: 1 });
-            await game.until('GetWithArray(105)[0]._phillySpecial.phase==="snap"', 6000);
-            assert((await ev(`GetWithArray(${before.qb})[0].y`) - before.qy) * before.side > 35, 'QB shifts right before snap');
-            assert.equal(await ev('GetWithArray(global.gmlmaster_ball)[0].gmlholder'), -4);
-            await game.until('GetWithArray(105)[0]._phillySpecial.phase==="reverse"');
-            assert.equal(await ev('GetWithArray(global.gmlmaster_ball)[0].gmlholder'), before.rb, 'snap goes directly to RB');
-            await game.until('GetWithArray(105)[0]._phillySpecial.phase==="pitch"', 6000);
-            assert.equal(await ev('GetWithArray(global.gmlmaster_ball)[0].gmlholder'), -4);
-            await game.until('GetWithArray(105)[0]._phillySpecial.phase==="rollout"');
-            assert.equal(await ev('GetWithArray(global.gmlmaster_ball)[0].gmlholder'), before.te);
-            assert.equal(await ev('gml_Script_s_can_throw(GetWithArray(global.gmlmaster_ball)[0],GetWithArray(global.gmlmaster_ball)[0])'), false);
+            await game.until('!!phillyTest.snapshots.snap', 6000);
+            const snap = await ev('phillyTest.snapshots.snap');
+            assert((snap.qy - before.qy) * before.side > 35, 'QB shifts right before snap');
+            assert.equal(snap.holder, -4);
+            await game.until('!!phillyTest.snapshots.reverse');
+            assert.equal(await ev('phillyTest.snapshots.reverse.holder'), before.rb, 'snap goes directly to RB');
+            await game.until('!!phillyTest.snapshots.pitch', 6000);
+            assert.equal(await ev('phillyTest.snapshots.pitch.holder'), -4);
+            await game.until('!!phillyTest.snapshots.rollout');
+            assert.equal(await ev('phillyTest.snapshots.rollout.holder'), before.te);
+            assert.equal(await ev('phillyTest.snapshots.rollout.canThrow'), false);
             await game.until('GetWithArray(105)[0]._phillySpecial.phase==="pass"', 7000);
             await game.sleep(250);
             assert.deepEqual(await ev('phillyTest.throws'), [], 'TE waits for user to throw');
             assert.equal(await ev('gml_Script_s_can_throw(GetWithArray(global.gmlmaster_ball)[0],GetWithArray(global.gmlmaster_ball)[0])'), true);
             assert((await ev(`GetWithArray(${before.qb})[0].x`) - before.line) * dir > 20, 'QB runs the forced route');
-            assert.equal(await ev('(function(){var b=GetWithArray(global.gmlmaster_ball)[0];gml_Script_s_qb_run(b,b,true);return b.gmlstate;})()'),18);
             const aim = await ev(`hbTest.point(GetWithArray(${before.te})[0].x,GetWithArray(${before.te})[0].y)`);
+            aim.y -= 100;
+            await checkControllerAim(game,'_phillySpecial',before.te);
+            await checkCanceledAim(game,aim,before.te,dir===-1);
             await game.send('Input.dispatchMouseEvent', {type:'mousePressed',...aim,button:'left',clickCount:1});
             await game.sleep(100);
             const end = {x:Math.max(5,Math.min(1275,aim.x-dir*100)),y:aim.y+(dir===1?30:-30)};
@@ -87,6 +91,62 @@ async function main() {
             if (process.argv.includes('--screenshots')) await game.screenshot(require('node:path').join(require('node:os').tmpdir(), 'philly-special-' + dir + '-' + scrim + '.png'));
             await ev('gml_Script_s_throw_ball=phillyTest.nativeThrow;RetroPhillySpecial.updateBall=phillyTest.nativeUpdate;true');
             console.log('PASS: QB shift, direct RB snap, backward TE pitch, manual TE aim, throw and native receiver catch: ' + dir + '/' + scrim);
+        }
+        for (const dir of [1,-1]) for (const input of ['mouse','touch','controller']) {
+            const carrier = await ev(`(function(){
+                hbTest.setup(${dir},false);var m=GetWithArray(105)[0];RetroPhillySpecial.afterSetup(m,true);
+                GetWithArray(109).forEach(function(p){p.x=${dir===1?2200:400};p.y=145;});
+                var s=m._phillySpecial,te=GetWithArray(s.te)[0];return {id:s.te,map:te.gmlpmap,roster:te.gmlplayer_roster};
+            })()`);
+            const start = await ev('(function(){var r=document.querySelector("canvas").getBoundingClientRect();return {x:r.left+r.width/2,y:r.top+r.height/2};})()');
+            await game.send('Input.dispatchMouseEvent',{type:'mousePressed',...start,button:'left',clickCount:1});
+            await game.sleep(100);
+            await game.send('Input.dispatchMouseEvent',{type:'mouseReleased',...start,button:'left',clickCount:1});
+            await game.until('GetWithArray(105)[0]._phillySpecial.phase==="pass"&&!GetWithArray(105)[0]._phillySpecial.waitRelease',12000);
+            assert.equal(await ev(`(function(){var s=GetWithArray(105)[0]._phillySpecial,b=GetWithArray(global.gmlmaster_ball)[0];s.waitRelease=true;try{gml_Script_s_qb_run(b,b,true);return b.gmlstate;}finally{s.waitRelease=false;}})()`),18,'held opening input cannot scramble');
+            const x = await ev(`GetWithArray(${carrier.id})[0].x`);
+            if (input==='controller') {
+                await ev(`(function(){
+                    var b=GetWithArray(global.gmlmaster_ball)[0],pad=GetWithArray(global.gmlgp)[0];
+                    var saved=[global.gmlgamepad,gamepad_button_check_released,pad.gmlaxisl_force,pad.gmlaxisr_force,pad.gmlaxisr_flick,gml_Script_s_get_op_invert_throw];
+                    try {
+                        global.gmlgamepad=true;pad.gmlaxisl_force=pad.gmlaxisr_force=0;
+                        gml_Script_s_get_op_invert_throw=function(){return 0;};
+                        gamepad_button_check_released=function(slot,button){return button===32771;};
+                        b.gmlstate=2;b.gmldragdist=60;
+                        gml_Script_s_update_ball(b,b);gml_Script_s_update_ball(b,b);
+                    } finally {
+                        global.gmlgamepad=saved[0];gamepad_button_check_released=saved[1];
+                        pad.gmlaxisl_force=saved[2];pad.gmlaxisr_force=saved[3];pad.gmlaxisr_flick=saved[4];
+                        gml_Script_s_get_op_invert_throw=saved[5];
+                    }
+                    return true;
+                })()`);
+            } else {
+                const aim = await ev(`hbTest.point(GetWithArray(${carrier.id})[0].x,GetWithArray(${carrier.id})[0].y)`);
+                aim.y-=70;const end={x:aim.x+dir*90,y:aim.y+20};
+                if (input==='touch') {
+                    await game.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{...aim,id:0}]});
+                    await game.sleep(100);
+                    await game.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{...end,id:0}]});
+                } else {
+                    await game.send('Input.dispatchMouseEvent',{type:'mousePressed',...aim,button:'left',clickCount:1});
+                    await game.sleep(100);
+                    await game.send('Input.dispatchMouseEvent',{type:'mouseMoved',...end,button:'left',buttons:1});
+                }
+                await game.until('GetWithArray(global.gmlmaster_ball)[0].gmlstate===2');await game.sleep(80);
+                if(input==='touch')await game.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+                else await game.send('Input.dispatchMouseEvent',{type:'mouseReleased',...end,button:'left',clickCount:1});
+            }
+            await game.until('GetWithArray(105)[0]._phillySpecial.phase==="run"');
+            const result=await ev(`(function(){var m=GetWithArray(105)[0],b=GetWithArray(global.gmlmaster_ball)[0],te=GetWithArray(${carrier.id})[0];
+                return {holder:b.gmlholder,state:b.gmlstate,running:m.gmlrunning_play,locked:RetroPhillySpecial.locked(),
+                    rushing:te.gmlqb_rushing,position:te.gmlposition,map:te.gmlpmap,roster:te.gmlplayer_roster};})()`);
+            assert.equal(result.holder,carrier.id);assert.equal(result.state,5);assert.equal(result.running,true);
+            assert.equal(result.locked,false);assert.equal(result.rushing,true);assert.equal(result.position,2);
+            assert.equal(result.map,carrier.map);assert.equal(result.roster,carrier.roster);
+            await game.until(`(GetWithArray(${carrier.id})[0].x-${x})*${dir}>5`);
+            console.log('PASS: TE chooses native QB scramble and keeps moving with '+input+' in direction '+dir);
         }
         await ev('hbTest.setup(1,false);true');
         const frequency = await ev(`(function(){var m=GetWithArray(105)[0],baseline=GetWithArray(108).map(function(p){return {p:p,pos:p.gmlposition,blocking:p.gmlte_blocking,x:p.x,y:p.y};}),count={halfback:0,jet:0,philly:0,overlap:0};random_set_seed(151513);

@@ -1,4 +1,4 @@
-/* Forced QB shift, direct RB snap and TE pitch; the user aims the TE's pass.
+/* Forced QB shift, direct RB snap and TE pitch, then QB pass/scramble controls.
  * Reference: Philadelphia Eagles, "Nick Foles, Trey Burton relive the Philly
  * Special ahead of ESPN documentary" (February 2026). */
 (function (r) {
@@ -13,7 +13,7 @@
         p.gmlmy_route = -1; p.gmlmy_route_point = 0;
         p.hspeed = 0; p.vspeed = 0;
     }
-    function afterSetup(m) {
+    function afterSetup(m, forced) {
         reset(m);
         var c = objects(98)[0], b = ball();
         if (!c || !b || m._halfbackPass || m._jetSweep || c.gmlsim_action || c.gmlqb_mode || c.gmlgamepractice ||
@@ -24,7 +24,7 @@
         var te = offense.find(function (p) { return p.gmlposition === 3; }) ||
             offense.find(function (p) { return p.gmlte_blocking; });
         // Previous calls occupy 28/195 of plays: (167/195)*(13/167)=1/15.
-        if (!qb || !rb || !te || r.irandom(166) >= 13) return;
+        if (!qb || !rb || !te || (!forced && r.irandom(166) >= 13)) return;
         var dir = m.gmldrivedir, side = dir, center = clamp(m.gmly_scrim, 255, 345);
         [qb, rb, te].forEach(clearRoute);
         rb.x = m.gmlx_scrim - dir * 100; rb.y = center;
@@ -45,7 +45,7 @@
             shift: { x: m.gmlx_scrim - dir * 20, y: center + side * 95 },
             route: { x: clamp(m.gmlx_scrim + dir * 145, 160, 2440), y: center + side * 110 } };
         m.gmltap_msg = "PHILLY SPECIAL - TAP TO START";
-        [122, 124].forEach(function (type) { objects(type).forEach(function (p) { r.instance_destroy(p); }); });
+        if (!forced) [122, 124].forEach(function (type) { objects(type).forEach(function (p) { r.instance_destroy(p); }); });
     }
     function state() {
         var m = match(), s = m && m._phillySpecial, b = s && ball();
@@ -59,7 +59,12 @@
     function allowThrow(b) {
         return !locked() || canAim();
     }
-    function ownsExchange() { var s = state(); return !!(s && (s.phase === "snap" || s.phase === "pitch")); }
+    function ownsExchange() {
+        var s = state();
+        // The unheld ball at the center is reserved for the direct snap, even
+        // while the user is choosing a play or waiting to start the QB shift.
+        return !!(s && ["ready", "shift", "snap", "pitch"].indexOf(s.phase) >= 0);
+    }
     function steer(p, point) {
         var distance = Math.hypot(p.x - point.x, p.y - point.y);
         p.gmljdir = r.point_direction(p.x, p.y, point.x, point.y);
@@ -95,18 +100,9 @@
         }
         if (s.phase === "pass") {
             if (b.gmlstate === 3) { s.phase = "flight"; return false; }
-            if (s.waitRelease) {
-                s.waitRelease = r.RetroHalfbackPass.snapInput(b);
-                r.gml_Script_s_update_ball_offset(b, te);
-                return true;
-            }
-            // Short/backward gestures cancel aiming rather than becoming a run.
-            if (b.gmlstate === 0 || (!r.global.gmlgamepad && b.gmlstate === 2 && !r.mouse_check_button(1) &&
-                (b.gmldragdist < 20 || r.gml_Script_s_opposite_aim(b, b, b.gmldirec)))) {
-                b.gmlstate = 18;
-                r.gml_Script_s_update_ball_offset(b, te);
-                return true;
-            }
+            if (b.gmlstate === 5 && b.gmlholder === s.te) { s.phase = "run"; return false; }
+            if (r.RetroHalfbackPass.preparePass(s, b, te)) return true;
+            // Native QB controls decide whether the user throws or scrambles.
             return false;
         }
         // Never unlock an alternative play if an exchange participant is down.
@@ -155,7 +151,7 @@
             r.gml_Script_s_set_anim(te, te, 0);
             b.gmlstate = 18;
             s.phase = "pass"; s.waitRelease = true;
-            m.gmltap_msg = "TE PASS - AIM AND THROW";
+            m.gmltap_msg = "";
             return true;
         }
         return true;
