@@ -64,8 +64,8 @@ function s_meter_change(_arg0, _arg1, _arg2, _arg3) {
 			bg.alarm[0] = 160;
 			break;
 	}
-	obj.x = g_pBuiltIn.room_width * 0.5 - obj.sprite_width * 0.5;
-	obj.y = g_pBuiltIn.room_height * 0.5 - obj.sprite_height * 0.5;
+	obj.x = room_width * 0.5 - obj.sprite_width * 0.5;
+	obj.y = room_height * 0.5 - obj.sprite_height * 0.5;
 	obj.depth = bg.depth - 1;
 	if (_arg3 != "") {
 		var msg = instance_create_layer(display_get_gui_width() * 0.5, display_get_gui_height() * 0.35, "PopUps", obj_messagebox);

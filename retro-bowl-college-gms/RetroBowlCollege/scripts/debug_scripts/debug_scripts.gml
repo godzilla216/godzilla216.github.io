@@ -2,7 +2,7 @@ function s_debug_window_size() {
 	if (!global.debug) {
 		return;
 	}
-	if (keyboard_check_pressed(76) && current_room != rm_edit_competition) {
+	if (keyboard_check_pressed(76) && room != rm_edit_competition) {
 		slogf("Force change resolution. Current %1p", window_get_height());
 		if (window_get_height() == 480 || window_get_height() == 810) {
 			window_set_size(1280, 720);

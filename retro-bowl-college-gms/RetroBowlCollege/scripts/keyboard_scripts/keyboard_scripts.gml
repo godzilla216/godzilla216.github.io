@@ -174,18 +174,18 @@ function s_custkb_base_step() {
 
 function s_custkb_confirm() {
 	with (global.custkb.input_id) {
-		text = g_pBuiltIn.keyboard_string;
+		text = keyboard_string;
 		editing = false;
 		s_keyboard_custom_hide();
 		if (script_exists(validate_script)) {
-			script_execute(self, other, validate_script);
+			script_execute(validate_script);
 		}
 	}
 }
 
 function s_custkb_delete() {
-	if (string_length(g_pBuiltIn.keyboard_string) > 0) {
-		g_pBuiltIn.keyboard_string = string_delete(g_pBuiltIn.keyboard_string, string_length(g_pBuiltIn.keyboard_string), 1);
+	if (string_length(keyboard_string) > 0) {
+		keyboard_string = string_delete(keyboard_string, string_length(keyboard_string), 1);
 	}
 }
 
@@ -194,9 +194,9 @@ function s_custkb_shift_toggle() {
 }
 
 function s_custkb_add_text() {
-	g_pBuiltIn.keyboard_string += text;
+	keyboard_string += text;
 	if (global.custkb.type == 0) {
-		var lc = string_copy(g_pBuiltIn.keyboard_string, string_length(g_pBuiltIn.keyboard_string), 1);
+		var lc = string_copy(keyboard_string, string_length(keyboard_string), 1);
 		switch (lc) {
 			case "":
 			case " ":

@@ -35,7 +35,7 @@ function s_co_subdivision_init() {
 		array_copy(_teams, 0, obj_master.subdiv_data[_tier].rankings, 0, array_length(obj_master.subdiv_data[_tier].rankings));
 		array_sort(_teams, s_co_teams_data_sort_rank);
 		s_team_data_array_add_formatted_data(_teams, myid, true);
-		_show_prev_rank = true && current_room != rm_post_match;
+		_show_prev_rank = true && room != rm_post_match;
 	} else {
 		s_subdivision_update_rankings(_tier, obj_master.week == 1);
 		_teams = obj_master.subdiv_data[_tier].rankings;

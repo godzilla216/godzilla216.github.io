@@ -1,7 +1,7 @@
 speed = random_range(1, 2);
 direction = -90;
 dstep = 0;
-ground = irandom(g_pBuiltIn.room_height);
+ground = irandom(room_height);
 scl = random_range(1, 2);
 alf = random_range(0.5, 0.9);
 y2 = y - 25;

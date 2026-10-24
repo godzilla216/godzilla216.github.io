@@ -1,6 +1,6 @@
 function btn_click_exhibition_start() {
 	slog("btn_click_exhibition_start");
-	if ((os_type == 21 || s_is_debug_desktop()) && current_room == rm_master) {
+	if ((os_type == 21 || s_is_debug_desktop()) && room == rm_master) {
 		slogf("NX: Controller options");
 		room_goto(rm_exhibition_options);
 		return;
@@ -377,7 +377,7 @@ function s_set_exhibition_buttons(_arg0) {
 }
 
 function btn_click_exhibition_switch_start() {
-	if (current_room == rm_exhibition_options && s_is_multicon_wanted()) {
+	if (room == rm_exhibition_options && s_is_multicon_wanted()) {
 		s_create_message("", s_str("msg_TouchscreenDeactivation"), s_str("ui_Continue"), s_str("ui_Back"), s_exhibition_controller_check_continue, s_msg_clear, global.c_background, 1);
 		return;
 	}

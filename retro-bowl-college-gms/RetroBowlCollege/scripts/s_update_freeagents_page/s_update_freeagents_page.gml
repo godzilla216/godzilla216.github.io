@@ -24,8 +24,8 @@ function s_update_freeagents_page() {
 	if (size <= 6) {
 		cards_per_row = 3;
 	}
-	var px = round(g_pBuiltIn.room_width * 0.5);
-	var py = round(g_pBuiltIn.room_height * 0.49);
+	var px = round(room_width * 0.5);
+	var py = round(room_height * 0.49);
 	var pw = sprite_get_width(spr_box_64x80) + gap;
 	if (size > cards_per_row) {
 		py -= 44;
@@ -41,7 +41,7 @@ function s_update_freeagents_page() {
 		px += pw;
 		if (i == cards_per_row - 1) {
 			var sz = size - cards_per_row;
-			px = g_pBuiltIn.room_width * 0.5;
+			px = room_width * 0.5;
 			px -= (sz - 1) * (pw * 0.5);
 			py += 88;
 		}

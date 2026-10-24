@@ -12,5 +12,5 @@ if (!instance_exists(obj_msgbg) && !instance_exists(obj_input_box)) {
 	ds_map_set(obj_master.map_options, "op_credits_purchased", ds_map_find_value(obj_master.map_options, "op_credits_purchased") + 10);
 	obj_master.season_credits_purchased += 100;
 	audio_play_sound(snd_purchase, 1, false);
-	s_meter_change(8, obj_master.coach_credit, current_room, "Coins!");
+	s_meter_change(8, obj_master.coach_credit, room, "Coins!");
 }

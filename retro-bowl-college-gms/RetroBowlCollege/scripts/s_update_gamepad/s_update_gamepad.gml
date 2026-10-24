@@ -93,7 +93,7 @@ function s_clear_last_selected_history() {
 }
 
 function s_overwrite_last_selected() {
-	s_get_last_selected(current_room);
+	s_get_last_selected(room);
 	s_save_last_selected();
 }
 
@@ -101,7 +101,7 @@ function s_save_last_selected() {
 	if (object_index == obj_kb_key) {
 		return;
 	}
-	var ls = { rm: current_room, ls: id };
+	var ls = { rm: room, ls: id };
 	ds_list_add(global.lsh, ls);
 }
 

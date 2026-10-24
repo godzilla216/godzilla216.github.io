@@ -25,9 +25,9 @@ function s_update_camera() {
 			bzoom = 1;
 			break;
 	}
-	camera_set_view_size(g_pBuiltIn.view_camera[0], 960 * bzoom, 540 * bzoom);
-	var cam_w = camera_get_view_width(g_pBuiltIn.view_camera[0]);
-	var cam_h = camera_get_view_height(g_pBuiltIn.view_camera[0]);
+	camera_set_view_size(view_camera[0], 960 * bzoom, 540 * bzoom);
+	var cam_w = camera_get_view_width(view_camera[0]);
+	var cam_h = camera_get_view_height(view_camera[0]);
 	var cam_trackx = cam_w * 0.5;
 	var cam_tracky = cam_h * 0.5;
 	var cx = 1300;
@@ -83,10 +83,10 @@ function s_update_camera() {
 		}
 	}
 	cy -= 10;
-	var newpos_x = lerp(camera_get_view_x(g_pBuiltIn.view_camera[0]), cx - cam_trackx, lrp * 0.5);
-	var newpos_y = lerp(camera_get_view_y(g_pBuiltIn.view_camera[0]), cy - cam_tracky, lrp * 0.5);
-	newpos_x = clamp(newpos_x, 0, g_pBuiltIn.room_width - cam_w);
-	newpos_y = clamp(newpos_y, 0, g_pBuiltIn.room_height - cam_h);
-	camera_set_view_pos(g_pBuiltIn.view_camera[0], newpos_x, newpos_y);
+	var newpos_x = lerp(camera_get_view_x(view_camera[0]), cx - cam_trackx, lrp * 0.5);
+	var newpos_y = lerp(camera_get_view_y(view_camera[0]), cy - cam_tracky, lrp * 0.5);
+	newpos_x = clamp(newpos_x, 0, room_width - cam_w);
+	newpos_y = clamp(newpos_y, 0, room_height - cam_h);
+	camera_set_view_pos(view_camera[0], newpos_x, newpos_y);
 }
 

@@ -198,7 +198,7 @@ function s_get_gm_version() {
 }
 
 function s_update_options_if_present() {
-	if (current_room == rm_options) {
+	if (room == rm_options) {
 		slogf("*** refresh options");
 		s_update_options();
 	}

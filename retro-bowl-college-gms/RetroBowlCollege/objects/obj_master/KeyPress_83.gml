@@ -4,7 +4,7 @@ if (!global.debug) {
 with (obj_input_box) {
 	exit;
 }
-if (current_room == rm_home && !instance_exists(obj_msgbg) && !instance_exists(obj_input_box)) {
+if (room == rm_home && !instance_exists(obj_msgbg) && !instance_exists(obj_input_box)) {
 	if (keyboard_check(17)) {
 		if (s_is_co_mode()) {
 			s_skip_to_week(s_get_skip_to_week());

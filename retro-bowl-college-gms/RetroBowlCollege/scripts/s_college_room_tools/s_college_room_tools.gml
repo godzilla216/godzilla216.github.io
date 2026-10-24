@@ -8,7 +8,7 @@ function s_goto_room(_arg0, _arg1) {
 
 function s_init_rm() {
 	global.rm = self;
-	slogf("\n*** INIT ROOM %1", room_get_name(current_room));
+	slogf("\n*** INIT ROOM %1", room_get_name(room));
 	if (variable_global_exists("rm_params")) {
 		array_foreach(variable_struct_get_names(global.rm_params), function(_arg0, _arg1) {
 			slogf("rm_params %1: %2 = %3", _arg1, _arg0, variable_struct_get(global.rm_params, _arg0));

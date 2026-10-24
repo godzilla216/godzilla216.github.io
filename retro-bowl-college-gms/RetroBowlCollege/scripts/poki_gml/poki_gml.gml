@@ -33,7 +33,7 @@ function poki_script_closure(_arg0, _arg1) {
 }
 
 function gmcallback_poki_closure(_arg0, _arg1, _arg2) {
-	script_execute(self, other, _arg0, _arg1, _arg2);
+	script_execute(_arg0, _arg1, _arg2);
 }
 
 function poki_get_team() {

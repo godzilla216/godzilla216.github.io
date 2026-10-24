@@ -48,7 +48,7 @@ function s_co_pre_match() {
 	}
 	if (fix) {
 		slogf("*** Enter: Next human match (season or post season)");
-		if (current_room == rm_home && s_is_co_postseason()) {
+		if (room == rm_home && s_is_co_postseason()) {
 			s_goto_room(rm_postseason);
 		} else {
 			room_goto(rm_pre_match);

@@ -70,7 +70,7 @@ function s_check_tackling() {
 					s_set_anim(3);
 					other.tackling = id;
 					other.tackle_time = current_time;
-					s_set_anim(3);
+					method(other, s_set_anim)(3);
 					s_sound_tackle();
 				}
 			}

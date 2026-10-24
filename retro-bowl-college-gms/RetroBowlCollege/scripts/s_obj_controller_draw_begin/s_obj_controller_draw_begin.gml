@@ -30,7 +30,7 @@ function s_obj_controller_draw_begin() {
 		draw_sprite_ext(spr_sideline_crew2_noout, 0, 682, 68, 2, 2, 0, 16777215, 1);
 		var i = cheer_frame;
 		var cl_adjust = 30;
-		if (camera_get_view_x(g_pBuiltIn.view_camera[0]) < 1300) {
+		if (camera_get_view_x(view_camera[0]) < 1300) {
 			draw_sprite_ext(spr_cl1, i, 250 + cl_adjust, 100, 2, 2, 0, 16777215, 1);
 			draw_sprite_ext(spr_cl3, i + 2.5, 220 + cl_adjust, 110, 2, 2, 0, 16777215, 1);
 			draw_sprite_ext(spr_cl5, i, 190 + cl_adjust, 100, 2, 2, 0, 16777215, 1);
@@ -54,7 +54,7 @@ function s_obj_controller_draw_begin() {
 			draw_sprite_ext(spr_cl4, i + 5, 2470, 528, 2, 2, 0, 16777215, 1);
 		}
 		if (show_band) {
-			if (camera_get_view_x(g_pBuiltIn.view_camera[0]) < 1300) {
+			if (camera_get_view_x(view_camera[0]) < 1300) {
 				draw_sprite_ext(spr_band_flute, i, 328, 61, 2, 2, 0, 16777215, 1);
 				if (scored_by == 1) {
 					draw_sprite_ext(spr_band_drum1, i, 364, 61, 2, 2, 0, 16777215, 1);

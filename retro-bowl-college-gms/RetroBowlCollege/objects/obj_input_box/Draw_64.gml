@@ -11,8 +11,8 @@ var tx = x + sprite_width * 0.5;
 var ty = y + sprite_height * 0.5;
 if (editing) {
 	var a = (sin(current_time / 100) + 1) / 2;
-	draw_hd_text_color(tx + 3 + string_hd_width(g_pBuiltIn.keyboard_string) * 0.5, ty, "|", tcolour, tcolour, tcolour, tcolour, a);
-	draw_hd_text_color(tx, ty, g_pBuiltIn.keyboard_string, tcolour, tcolour, tcolour, tcolour, 1);
+	draw_hd_text_color(tx + 3 + string_hd_width(keyboard_string) * 0.5, ty, "|", tcolour, tcolour, tcolour, tcolour, a);
+	draw_hd_text_color(tx, ty, keyboard_string, tcolour, tcolour, tcolour, tcolour, 1);
 } else {
 	draw_hd_text_color(tx, ty, text, tcolour, tcolour, tcolour, tcolour, active ? 1 : 0.3);
 }

@@ -263,7 +263,7 @@ function s_check_intro_rm_profile_boss_college() {
 }
 
 function s_check_intro_case1() {
-	if (current_room == rm_home) {
+	if (room == rm_home) {
 		var msg = s_parse_intro("msg_Intro_1");
 		s_create_message("", msg, s_str("ui_SkipTutorial"), s_str("ui_Ok"), btn_response_skip_tutorial, s_msg_clear, global.c_background, 0.85);
 		intro++;
@@ -271,7 +271,7 @@ function s_check_intro_case1() {
 }
 
 function s_check_intro_case2() {
-	if (current_room == rm_frontoffice) {
+	if (room == rm_frontoffice) {
 		var msg = s_parse_intro("msg_Intro_2");
 		s_create_message("", msg, "", s_str("ui_Ok"), "", s_msg_clear, global.c_background, 0.85);
 		intro++;
@@ -280,10 +280,10 @@ function s_check_intro_case2() {
 }
 
 function s_check_intro_case3() {
-	if (current_room == rm_frontoffice) {
+	if (room == rm_frontoffice) {
 		inst_100160.flash = true;
 	}
-	if (current_room == rm_home) {
+	if (room == rm_home) {
 		var msg = s_parse_intro("msg_Intro_3");
 		s_create_message("", msg, "", s_str("ui_Ok"), "", s_msg_clear, global.c_background, 0.85);
 		intro++;
@@ -291,7 +291,7 @@ function s_check_intro_case3() {
 }
 
 function s_check_intro_case4() {
-	if (current_room == rm_roster) {
+	if (room == rm_roster) {
 		var msg = s_parse_intro("msg_Intro_4");
 		s_create_message("", msg, "", s_str("ui_Ok"), "", s_msg_clear, global.c_background, 0.85);
 		intro++;
@@ -299,7 +299,7 @@ function s_check_intro_case4() {
 }
 
 function s_check_intro_case5() {
-	if (current_room == rm_profile_player) {
+	if (room == rm_profile_player) {
 		var msg = s_parse_intro("msg_Intro_5");
 		s_create_message("", msg, "", s_str("ui_Ok"), "", s_msg_clear, global.c_background, 0.85);
 		intro++;
@@ -308,7 +308,7 @@ function s_check_intro_case5() {
 }
 
 function s_check_intro_case6() {
-	if (current_room == rm_home) {
+	if (room == rm_home) {
 		var msg = s_parse_intro("msg_Intro_6");
 		s_create_message("", msg, "", s_str("ui_Ok"), "", s_msg_clear, global.c_background, 0.85);
 		intro++;
@@ -316,14 +316,14 @@ function s_check_intro_case6() {
 }
 
 function s_check_intro_case7() {
-	if (current_room == rm_pre_match) {
+	if (room == rm_pre_match) {
 		btn_click_Passing();
 		intro++;
 	}
 }
 
 function s_check_intro_case8() {
-	if (current_room == rm_home) {
+	if (room == rm_home) {
 		var msg = s_parse_intro("msg_Intro_8");
 		s_create_message("", msg, "", s_str("ui_Ok"), "", s_msg_clear, global.c_background, 0.85);
 		intro = 0;
@@ -332,7 +332,7 @@ function s_check_intro_case8() {
 }
 
 function s_check_intro_case2_b() {
-	if (current_room == rm_frontoffice) {
+	if (room == rm_frontoffice) {
 		var msg = s_parse_intro("msg_Intro_2_b");
 		s_create_message("", msg, "", s_str("ui_Ok"), "", s_msg_clear, global.c_background, 0.85);
 		intro++;
@@ -342,7 +342,7 @@ function s_check_intro_case2_b() {
 }
 
 function s_check_intro_case2_c() {
-	if (current_room == rm_profile_staff) {
+	if (room == rm_profile_staff) {
 		var msg = s_parse_intro("msg_Intro_2_c");
 		s_create_message("", msg, "", s_str("ui_Ok"), "", s_msg_clear, global.c_background, 0.85);
 		intro++;
@@ -351,7 +351,7 @@ function s_check_intro_case2_c() {
 }
 
 function s_check_intro_case2_d() {
-	if (current_room == rm_frontoffice) {
+	if (room == rm_frontoffice) {
 		var msg = s_parse_intro("msg_Intro_2_d");
 		s_create_message("", msg, "", s_str("ui_Ok"), "", s_msg_clear, global.c_background, 0.85);
 		intro++;
@@ -361,7 +361,7 @@ function s_check_intro_case2_d() {
 }
 
 function s_check_intro_case2_e() {
-	if (current_room == rm_profile_boss) {
+	if (room == rm_profile_boss) {
 		var msg = s_parse_intro("msg_Intro_2_e");
 		s_create_message("", msg, "", s_str("ui_Ok"), "", s_msg_clear, global.c_background, 0.85);
 		intro++;
@@ -374,7 +374,7 @@ function s_check_intro_case2_f() {
 }
 
 function s_check_intro_case2_g() {
-	if (current_room == rm_frontoffice) {
+	if (room == rm_frontoffice) {
 		inst_100187.flash = false;
 		inst_100160.active = false;
 		inst_100160.flash = true;
@@ -393,7 +393,7 @@ function s_info_gpa_explanation_open() {
 
 function btn_info_gpa_explanation_intro_close() {
 	s_msg_clear();
-	if (current_room == rm_profile_boss) {
+	if (room == rm_profile_boss) {
 		inst_100783.flash = false;
 		inst_100779.active = true;
 		inst_100779.flash = true;
@@ -402,7 +402,7 @@ function btn_info_gpa_explanation_intro_close() {
 }
 
 function s_check_intro_case5_b() {
-	if (current_room == rm_profile_player) {
+	if (room == rm_profile_player) {
 		var msg = s_parse_intro("msg_Intro_5");
 		s_create_message("", msg, "", s_str("ui_Ok"), "", s_check_intro_case5_second_msg, global.c_background, 0.85);
 		intro++;

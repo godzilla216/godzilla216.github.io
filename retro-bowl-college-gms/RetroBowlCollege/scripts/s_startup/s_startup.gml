@@ -1,4 +1,6 @@
 function s_startup() {
+	// Palette replacement requires exact sprite colors before scaling.
+	gpu_set_texfilter(false);
 	slog("------ S_STARTUP ------");
 	global.g_m = id;
 	slog("s_startup: s_set_up_globals");
@@ -7,8 +9,8 @@ function s_startup() {
 	display_set_gui_size(480, 270);
 	device_mouse_dbclick_enable(false);
 	randomise();
-	canvaswidth = g_pBuiltIn.room_width;
-	canvasheight = g_pBuiltIn.room_height;
+	canvaswidth = room_width;
+	canvasheight = room_height;
 	do_welcome_msg = false;
 	if (!instance_exists(obj_nx)) {
 		global.nx = instance_create_layer(0, 0, id.layer, obj_nx);

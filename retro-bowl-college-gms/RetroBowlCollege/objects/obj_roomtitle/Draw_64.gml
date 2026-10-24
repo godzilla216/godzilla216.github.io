@@ -11,7 +11,7 @@ var txt = string_upper(text);
 var tx = display_get_gui_width() * 0.5;
 var tw = string_hd_width(txt) * 0.5 + sprite_get_width(frame_img) + 16;
 draw_hd_text(tx, ty, txt);
-if (show_stars && (string_hd_width(txt) < display_get_gui_width() * 0.5 || current_room == rm_master)) {
+if (show_stars && (string_hd_width(txt) < display_get_gui_width() * 0.5 || room == rm_master)) {
 	if (draw_for_co == false) {
 		draw_sprite_ext(frame_img, 0, tx - tw, ty, 2, 2, 0, 16777215, 1);
 		draw_sprite_ext(frame_img, 0, tx + tw - 2, ty, -2, 2, 0, 16777215, 1);

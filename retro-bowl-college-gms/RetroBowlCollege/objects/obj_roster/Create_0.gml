@@ -1,4 +1,3 @@
-profile[5] = obj_player_profile;
 s_tag_backups();
 obj_master.roster = s_sort_players(obj_master.roster, 4);
 if (obj_master.qb_mode) {
@@ -21,8 +20,8 @@ if (size <= 8) {
 if (size <= 6) {
 	cards_per_row = 3;
 }
-var px = round(g_pBuiltIn.room_width * 0.5);
-var py = round(g_pBuiltIn.room_height * 0.49);
+var px = round(room_width * 0.5);
+var py = round(room_height * 0.49);
 var pw = sprite_get_width(spr_box_64x80) + gap;
 if (size > cards_per_row) {
 	py -= 44;
@@ -47,7 +46,7 @@ for (var r = 0; r < size; r++) {
 	px += pw;
 	if (r == cards_per_row - 1) {
 		var sz = size - cards_per_row;
-		px = g_pBuiltIn.room_width * 0.5;
+		px = room_width * 0.5;
 		px -= (sz - 1) * (pw * 0.5);
 		px += buf;
 		py += 88;

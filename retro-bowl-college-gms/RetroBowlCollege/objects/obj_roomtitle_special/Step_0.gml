@@ -7,14 +7,14 @@ if (s_is_touch_allowed() && point_in_rectangle(device_mouse_x_to_gui(0), device_
 		tap_count++;
 	}
 	if (tap_count > 4) {
-		script_execute(self, other, onClickAction);
+		script_execute(onClickAction);
 		tap_count = 0;
 	}
 }
 if (global.gamepad && gamepad_button_check(global.gp.slot, 32781) && (gamepad_button_check_released(global.gp.slot, 32776) || gamepad_button_check_released(global.gp.slot, 32774))) {
 	tap_count++;
 	if (tap_count > 4) {
-		script_execute(self, other, onClickAction);
+		script_execute(onClickAction);
 		tap_count = 0;
 	}
 }

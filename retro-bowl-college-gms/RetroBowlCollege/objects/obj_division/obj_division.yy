@@ -73,7 +73,7 @@
     },
     {
       "varType": 4,
-      "value": "team_name",
+      "value": "[0, 0, 0, 0, \"Team\"]",
       "rangeEnabled": false,
       "rangeMin": 0,
       "rangeMax": 10,
@@ -87,7 +87,7 @@
     },
     {
       "varType": 4,
-      "value": "col_txt",
+      "value": "[0, 0, 0, 0, 16777215]",
       "rangeEnabled": false,
       "rangeMin": 0,
       "rangeMax": 10,
@@ -101,7 +101,7 @@
     },
     {
       "varType": 4,
-      "value": "wins",
+      "value": "[0, 0, 0, 0, 0]",
       "rangeEnabled": false,
       "rangeMin": 0,
       "rangeMax": 10,
@@ -115,7 +115,7 @@
     },
     {
       "varType": 4,
-      "value": "losses",
+      "value": "[0, 0, 0, 0, 0]",
       "rangeEnabled": false,
       "rangeMin": 0,
       "rangeMax": 10,
@@ -129,7 +129,7 @@
     },
     {
       "varType": 4,
-      "value": "ties",
+      "value": "[0, 0, 0, 0, 0]",
       "rangeEnabled": false,
       "rangeMin": 0,
       "rangeMax": 10,
@@ -171,7 +171,7 @@
     },
     {
       "varType": 4,
-      "value": "pct",
+      "value": "[0, 0, 0, 0, 0]",
       "rangeEnabled": false,
       "rangeMin": 0,
       "rangeMax": 10,
@@ -185,7 +185,7 @@
     },
     {
       "varType": 4,
-      "value": "net",
+      "value": "[0, 0, 0, 0, 0]",
       "rangeEnabled": false,
       "rangeMin": 0,
       "rangeMax": 10,
@@ -199,7 +199,7 @@
     },
     {
       "varType": 4,
-      "value": "offense",
+      "value": "[0, 0, 0, 0, 0]",
       "rangeEnabled": false,
       "rangeMin": 0,
       "rangeMax": 10,
@@ -213,7 +213,7 @@
     },
     {
       "varType": 4,
-      "value": "defense",
+      "value": "[0, 0, 0, 0, 0]",
       "rangeEnabled": false,
       "rangeMin": 0,
       "rangeMax": 10,

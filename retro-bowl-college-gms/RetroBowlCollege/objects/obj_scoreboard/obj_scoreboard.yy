@@ -46,7 +46,7 @@
   "properties": [
     {
       "varType": 4,
-      "value": "teamnames",
+      "value": "[0, 0, \"\"]",
       "rangeEnabled": false,
       "rangeMin": 0,
       "rangeMax": 10,
@@ -60,7 +60,7 @@
     },
     {
       "varType": 4,
-      "value": "scores1",
+      "value": "[0, 0, 0, 0, 0, \"\"]",
       "rangeEnabled": false,
       "rangeMin": 0,
       "rangeMax": 10,
@@ -74,7 +74,7 @@
     },
     {
       "varType": 4,
-      "value": "scores2",
+      "value": "[0, 0, 0, 0, 0, \"\"]",
       "rangeEnabled": false,
       "rangeMin": 0,
       "rangeMax": 10,
@@ -88,7 +88,7 @@
     },
     {
       "varType": 4,
-      "value": "ratings1",
+      "value": "[0, 0, 0]",
       "rangeEnabled": false,
       "rangeMin": 0,
       "rangeMax": 10,
@@ -102,7 +102,7 @@
     },
     {
       "varType": 4,
-      "value": "ratings2",
+      "value": "[0, 0, 0]",
       "rangeEnabled": false,
       "rangeMin": 0,
       "rangeMax": 10,

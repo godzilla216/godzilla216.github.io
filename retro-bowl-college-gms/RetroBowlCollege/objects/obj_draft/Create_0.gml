@@ -1,4 +1,3 @@
-profile[5] = obj_player_profile;
 slog("obj_draft");
 var picks = 0;
 with (obj_master) {

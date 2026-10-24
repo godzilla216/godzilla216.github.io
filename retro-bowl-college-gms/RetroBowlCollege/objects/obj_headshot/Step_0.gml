@@ -26,7 +26,7 @@ if (global.gamepad) {
 			audio_play_sound(snd_click, 1, false);
 		}
 		s_save_last_selected();
-		script_execute(self, other, onClickAction);
+		script_execute(onClickAction);
 	}
 } else if (s_is_touch_allowed()) {
 	if (point_in_rectangle(device_mouse_x_to_gui(0), device_mouse_y_to_gui(0), x, y, x + sprite_width, y + sprite_height)) {
@@ -40,7 +40,7 @@ if (global.gamepad) {
 			if (ds_map_find_value(obj_master.map_options, "op_soundfx")) {
 				audio_play_sound(snd_click, 1, false);
 			}
-			script_execute(self, other, onClickAction);
+			script_execute(onClickAction);
 			clicked = false;
 		}
 	} else {

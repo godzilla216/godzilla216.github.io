@@ -42,7 +42,7 @@ if (ds_map_exists(pmap, "resting") && ds_map_find_value(pmap, "resting")) {
 } else if (s_is_co_mode() && ds_map_exists(pmap, "suspended") && ds_map_find_value(pmap, "suspended")) {
 	pos_col = 8421504;
 }
-if (current_room == rm_halloffame_players) {
+if (room == rm_halloffame_players) {
 	pos_col = global.c_primary;
 }
 draw_rectangle_color(bx + 2, by + 2, bx + sprite_width - 3, by + sprite_height * 0.5, pos_col, pos_col, pos_col, pos_col, 0);
@@ -148,7 +148,7 @@ draw_set_halign(2);
 var att = ds_map_find_value(pmap, "attitude");
 var con = ds_map_find_value(pmap, "condition");
 var age = real(ds_map_find_value(pmap, "age"));
-if (current_room != rm_halloffame_players) {
+if (room != rm_halloffame_players) {
 	if (!flash_attitude || sin(current_time / 200) > 0.1) {
 		draw_sprite(spr_attitude, s_get_attitude_icon(att), bx + sprite_width - 9, by + 8);
 		switch (show_arrow) {
@@ -268,7 +268,7 @@ if (s_is_staff(pos)) {
 			drawNormalPlayer = true;
 		}
 	}
-	if (current_room == rm_halloffame_players) {
+	if (room == rm_halloffame_players) {
 		draw_hd_text(tx, ty, my_tla);
 	} else if (drawNormalPlayer) {
 		var cx = x + 2;

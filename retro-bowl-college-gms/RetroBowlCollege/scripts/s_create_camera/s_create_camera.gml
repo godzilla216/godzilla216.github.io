@@ -30,7 +30,7 @@ function s_create_camera() {
 		window_set_size(view_width * max_window_scale, view_height * max_window_scale);
 		display_set_gui_size(view_width, view_height);
 		alarm[0] = 1;
-		surface_resize(g_pBuiltIn.application_surface, view_width * max_window_scale, view_height * max_window_scale);
+		surface_resize(application_surface, view_width * max_window_scale, view_height * max_window_scale);
 	}
 }
 

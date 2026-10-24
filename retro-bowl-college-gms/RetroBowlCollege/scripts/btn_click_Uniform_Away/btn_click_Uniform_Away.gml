@@ -9,7 +9,7 @@ function btn_click_Uniform_Away() {
 	with (obj_rm_exhibition) {
 		instance_destroy();
 	}
-	if (current_room == rm_pre_match) {
+	if (room == rm_pre_match) {
 		instance_create_layer(0, 0, "Instances", obj_prematch);
 	} else {
 		instance_create_layer(0, 0, "Instances", obj_rm_exhibition);

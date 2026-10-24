@@ -42,7 +42,7 @@ switch (os_type) {
 		break;
 }
 var mb = gp_mapped_button;
-if (current_room == rm_master && global.gamepad) {
+if (room == rm_master && global.gamepad) {
 	if (s_is_ui_selected()) {
 		mb = global.gp_select;
 	} else {

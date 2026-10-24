@@ -53,8 +53,8 @@ function s_set_up_hof_players_screen() {
 		ds_list_delete(hof_list, ds_list_size(hof_list) - 1);
 	}
 	size = ds_list_size(hof_list);
-	var px = round(g_pBuiltIn.room_width * 0.5);
-	var py = round(g_pBuiltIn.room_height * 0.45);
+	var px = round(room_width * 0.5);
+	var py = round(room_height * 0.45);
 	var pw = sprite_get_width(spr_box_64x80) + 8;
 	if (size > 5) {
 		py -= 24;
@@ -103,7 +103,7 @@ function s_set_up_hof_players_screen() {
 		px += pw;
 		if (r == 4) {
 			var sz = min(size, 10) - 5;
-			px = g_pBuiltIn.room_width * 0.5;
+			px = room_width * 0.5;
 			px -= (sz - 1) * (pw * 0.5);
 			py += 88;
 		}

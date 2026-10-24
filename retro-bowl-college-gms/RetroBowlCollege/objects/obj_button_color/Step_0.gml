@@ -36,7 +36,7 @@ if (hover) {
 		if (ds_map_find_value(obj_master.map_options, "op_soundfx")) {
 			audio_play_sound(snd_click, 1, false);
 		}
-		script_execute(self, other, onClickAction);
+		script_execute(onClickAction);
 		clicked = false;
 	}
 } else {

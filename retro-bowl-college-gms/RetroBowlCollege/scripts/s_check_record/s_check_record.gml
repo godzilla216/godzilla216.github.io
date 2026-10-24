@@ -7,7 +7,7 @@ function s_check_record(_arg0, _arg1, _arg2, _arg3, _arg4) {
 	}
 	var map = s_get_record(_arg0);
 	if (ds_exists(map, 1) && ds_map_exists(map, "stat") && _arg1 > ds_map_find_value(map, "stat")) {
-		if (ds_map_find_value(map, "stat") > 0 && current_room == rm_match && instance_exists(obj_ball)) {
+		if (ds_map_find_value(map, "stat") > 0 && room == rm_match && instance_exists(obj_ball)) {
 			global.replay_do = true;
 			s_notification(s_str("ui_NewRecord") + "!", s_str(ds_map_find_value(map, "tag")));
 		}

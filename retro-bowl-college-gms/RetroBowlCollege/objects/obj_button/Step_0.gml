@@ -34,7 +34,7 @@ if (global.gamepad) {
 		if (goto_room) {
 			room_goto(goto_room);
 		} else {
-			script_execute(self, other, onClickAction);
+			script_execute(onClickAction);
 		}
 	}
 } else {
@@ -56,7 +56,7 @@ if (global.gamepad) {
 			if (goto_room) {
 				room_goto(goto_room);
 			} else {
-				script_execute(self, other, onClickAction);
+				script_execute(onClickAction);
 			}
 			clicked = false;
 		}

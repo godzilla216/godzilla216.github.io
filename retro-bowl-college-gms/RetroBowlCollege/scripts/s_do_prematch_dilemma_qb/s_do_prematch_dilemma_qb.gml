@@ -58,7 +58,7 @@ function s_do_prematch_dilemma_qb() {
 		} else if (string_count("news_", msg)) {
 			if (string_count("news_CharityWork", msg)) {
 				msg = s_parse_player_message(s_str(msg), pmap);
-				s_meter_change(1, obj_master.fans, current_room, msg);
+				s_meter_change(1, obj_master.fans, room, msg);
 				obj_master.fans += 2;
 			} else {
 				msg = s_parse_player_message(s_str(msg), pmap);

@@ -154,7 +154,7 @@
     },
     {
       "varType": 4,
-      "value": "helmet",
+      "value": "[0, 0, 0, 0]",
       "rangeEnabled": false,
       "rangeMin": 0,
       "rangeMax": 10,
@@ -168,7 +168,7 @@
     },
     {
       "varType": 4,
-      "value": "logo",
+      "value": "[0, 0, 0, 0]",
       "rangeEnabled": false,
       "rangeMin": 0,
       "rangeMax": 10,
@@ -182,7 +182,7 @@
     },
     {
       "varType": 4,
-      "value": "shirt",
+      "value": "[0, 0, 0, 0]",
       "rangeEnabled": false,
       "rangeMin": 0,
       "rangeMax": 10,
@@ -196,7 +196,7 @@
     },
     {
       "varType": 4,
-      "value": "sleeve",
+      "value": "[0, 0, 0, 0]",
       "rangeEnabled": false,
       "rangeMin": 0,
       "rangeMax": 10,
@@ -210,7 +210,7 @@
     },
     {
       "varType": 4,
-      "value": "pants",
+      "value": "[0, 0, 0, 0]",
       "rangeEnabled": false,
       "rangeMin": 0,
       "rangeMax": 10,
@@ -224,7 +224,7 @@
     },
     {
       "varType": 4,
-      "value": "pants_b",
+      "value": "[0, 0, 0, 0]",
       "rangeEnabled": false,
       "rangeMin": 0,
       "rangeMax": 10,
@@ -238,7 +238,7 @@
     },
     {
       "varType": 4,
-      "value": "stripe",
+      "value": "[0, 0, 0, 0]",
       "rangeEnabled": false,
       "rangeMin": 0,
       "rangeMax": 10,
@@ -252,7 +252,7 @@
     },
     {
       "varType": 4,
-      "value": "socks",
+      "value": "[0, 0, 0, 0]",
       "rangeEnabled": false,
       "rangeMin": 0,
       "rangeMax": 10,
@@ -266,7 +266,7 @@
     },
     {
       "varType": 4,
-      "value": "socks_b",
+      "value": "[0, 0, 0, 0]",
       "rangeEnabled": false,
       "rangeMin": 0,
       "rangeMax": 10,
@@ -280,7 +280,7 @@
     },
     {
       "varType": 4,
-      "value": "cleats",
+      "value": "[0, 0, 0, 0]",
       "rangeEnabled": false,
       "rangeMin": 0,
       "rangeMax": 10,

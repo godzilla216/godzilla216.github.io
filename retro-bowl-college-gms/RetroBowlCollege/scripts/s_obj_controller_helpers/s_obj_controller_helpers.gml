@@ -2,7 +2,7 @@ function s_obj_controller_step() {
 	global.replay_tick++;
 	if (current_time > fps_timer + 100) {
 		fps_timer = current_time;
-		myfps += g_pBuiltIn.fps_real;
+		myfps += fps_real;
 		myfps = round(myfps / 2);
 	}
 	control_alpha -= 0.01;

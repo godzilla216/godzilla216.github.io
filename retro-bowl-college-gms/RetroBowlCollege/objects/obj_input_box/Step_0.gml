@@ -12,8 +12,8 @@ with (obj_msgbg) {
 hover = false;
 custom_keyboard = s_keyboard_custom_enabled();
 if (editing) {
-	if (string_length(g_pBuiltIn.keyboard_string) > max_length) {
-		g_pBuiltIn.keyboard_string = string_copy(g_pBuiltIn.keyboard_string, 1, max_length);
+	if (string_length(keyboard_string) > max_length) {
+		keyboard_string = string_copy(keyboard_string, 1, max_length);
 	}
 	if (!custom_keyboard) {
 		if (s_is_touch_allowed() && mouse_check_button_released(1)) {
@@ -33,11 +33,11 @@ if (editing) {
 			break;
 		case 3:
 		case 4:
-			if (g_pBuiltIn.keyboard_string != "" || os_is_paused()) {
+			if (keyboard_string != "" || os_is_paused()) {
 				slog("keyboard_virtual_status=" + string(keyboard_virtual_status()));
-				slog("keyboard_lastkey=" + string(g_pBuiltIn.keyboard_lastkey));
-				slog("keyboard_lastchar=" + string(g_pBuiltIn.keyboard_lastchar));
-				if (g_pBuiltIn.keyboard_lastchar == "\n" || g_pBuiltIn.keyboard_lastchar == "\n" || g_pBuiltIn.keyboard_lastchar == "\r" || g_pBuiltIn.keyboard_lastkey == 10 || keyboard_virtual_status() == false) {
+				slog("keyboard_lastkey=" + string(keyboard_lastkey));
+				slog("keyboard_lastchar=" + string(keyboard_lastchar));
+				if (keyboard_lastchar == "\n" || keyboard_lastchar == "\n" || keyboard_lastchar == "\r" || keyboard_lastkey == 10 || keyboard_virtual_status() == false) {
 					editing = false;
 				}
 			}
@@ -54,7 +54,7 @@ if (editing) {
 		if (ds_map_find_value(obj_master.map_options, "op_soundfx")) {
 			audio_play_sound(snd_click, 1, false);
 		}
-		text = g_pBuiltIn.keyboard_string;
+		text = keyboard_string;
 		text = string_replace_all(text, " ", "1X1");
 		text = string_replace_all(text, ".", "2X2");
 		text = string_replace_all(text, "'", "3X3");
@@ -62,10 +62,10 @@ if (editing) {
 		text = string_replace_all(text, "1X1", " ");
 		text = string_replace_all(text, "2X2", ".");
 		text = string_replace_all(text, "3X3", "'");
-		g_pBuiltIn.keyboard_string = "";
-		g_pBuiltIn.keyboard_lastkey = -1;
+		keyboard_string = "";
+		keyboard_lastkey = -1;
 		if (script_exists(validate_script)) {
-			script_execute(self, other, validate_script);
+			script_execute(validate_script);
 		}
 	}
 } else {
@@ -87,8 +87,8 @@ if (editing) {
 			if (custom_keyboard) {
 				s_keyboard_custom_show(id);
 			}
-			g_pBuiltIn.keyboard_string = "";
-			g_pBuiltIn.keyboard_lastkey = -1;
+			keyboard_string = "";
+			keyboard_lastkey = -1;
 		}
 	} else {
 		if (s_is_touch_allowed() && point_in_rectangle(device_mouse_x_to_gui(0), device_mouse_y_to_gui(0), x, y, x + sprite_width, y + sprite_height)) {
@@ -112,8 +112,8 @@ if (editing) {
 				if (custom_keyboard) {
 					s_keyboard_custom_show(id);
 				}
-				g_pBuiltIn.keyboard_string = "";
-				g_pBuiltIn.keyboard_lastkey = -1;
+				keyboard_string = "";
+				keyboard_lastkey = -1;
 			}
 		} else {
 			clicked = false;

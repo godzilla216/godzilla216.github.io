@@ -1,13 +1,13 @@
 var gw = display_get_gui_width();
 var gh = display_get_gui_height();
 var col = global.c_background;
-if (current_room == rm_title) {
+if (room == rm_title) {
 	col = 0;
 }
-if (current_room == rm_master && !instance_exists(obj_msgbg)) {
+if (room == rm_master && !instance_exists(obj_msgbg)) {
 	col = 0;
 }
-if (current_room == rm_match) {
+if (room == rm_match) {
 	col = 0;
 }
 draw_rectangle_color(-1080, -1080, -1, 1080, col, col, col, col, 0);

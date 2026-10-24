@@ -1,5 +1,5 @@
 function s_data_path(_arg0) {
-	return g_pBuiltIn.working_directory + _arg0;
+	return working_directory + _arg0;
 }
 
 function s_fonts_init() {

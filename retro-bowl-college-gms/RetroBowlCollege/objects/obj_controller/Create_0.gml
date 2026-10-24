@@ -6,7 +6,7 @@ s_qb_mode_update_resting();
 if (obj_master.qb_mode) {
 	obj_master.prematch_team_morale_qb = s_get_morale();
 }
-myfps = g_pBuiltIn.fps_real;
+myfps = fps_real;
 fps_timer = 0;
 global.replay_frame = 0;
 global.replay_tick = 0;
@@ -162,7 +162,7 @@ practice_chain_qb_mode = 0;
 if (obj_master.gamepractice) {
 	s_set_up_practice();
 }
-camera_set_view_pos(g_pBuiltIn.view_camera[0], 1300 - camera_get_view_width(g_pBuiltIn.view_camera[0]) * 0.5, 0);
+camera_set_view_pos(view_camera[0], 1300 - camera_get_view_width(view_camera[0]) * 0.5, 0);
 field_type = 0;
 var tmap = team[1];
 switch (real(ds_map_find_value(tmap, "roof"))) {

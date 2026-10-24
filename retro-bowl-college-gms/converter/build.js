@@ -251,7 +251,12 @@ for (const o of game.GMObjects) {
 for (const [F] of dc.funcs) {
   if (!F.startsWith('gml_GlobalScript_')) continue;
   const name = F.slice('gml_GlobalScript_'.length), dir = path.join(OUT, 'scripts', name);
-  write(path.join(dir, name + '.gml'), dc.globalScript(F));
+  let code = dc.globalScript(F);
+  // Native targets may enable linear filtering by default. It blends palette
+  // markers before the uniform shader can replace them, leaving neon colors.
+  if (name === 's_startup') code = code.replace('function s_startup() {',
+    'function s_startup() {\n\t// Palette replacement requires exact sprite colors before scaling.\n\tgpu_set_texfilter(false);');
+  write(path.join(dir, name + '.gml'), code);
   writeJson(path.join(dir, name + '.yy'), { isDnD: false, isCompatibility: false, parent: folder('Scripts'), resourceVersion: '1.0', name, tags: [], resourceType: 'GMScript' });
   addRes('scripts', name);
 }

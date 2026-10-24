@@ -3,7 +3,7 @@ function btn_click_nrg_buy() {
 		qb_nrg++;
 	}
 	s_savegame();
-	room_goto(current_room);
+	room_goto(room);
 }
 
 function btn_click_nrg_drink() {
@@ -26,7 +26,7 @@ function s_drink_nrg() {
 	ds_map_set(qb, "condition", clamp(ds_map_find_value(qb, "condition") + 100, 1, 100));
 	s_qb_mode_update_resting();
 	s_savegame();
-	room_goto(current_room);
+	room_goto(room);
 }
 
 function s_get_condition_colour(_arg0, _arg1) {

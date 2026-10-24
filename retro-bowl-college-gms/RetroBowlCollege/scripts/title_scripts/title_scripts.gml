@@ -25,7 +25,7 @@ function s_title_create() {
 
 function s_title_exit() {
 	display_set_gui_size(480, 270);
-	surface_resize(g_pBuiltIn.application_surface, 480, 270);
+	surface_resize(application_surface, 480, 270);
 	room_goto(rm_master);
 }
 
@@ -110,7 +110,7 @@ function s_title_create_image() {
 		slog("newDH [" + string(newDH) + "]");
 		slog("----------------");
 		display_set_gui_size(newDW, newDH);
-		surface_resize(g_pBuiltIn.application_surface, newDW, newDH);
+		surface_resize(application_surface, newDW, newDH);
 	}
 }
 
@@ -205,7 +205,7 @@ function s_title_create_video() {
 	slog("s_title_create_video [" + vidName + "] size [" + string(resW) + "/" + string(resH) + "] for screen [" + string(dW) + "/" + string(dH) + "]  aspRat[" + aspRat + "]");
 	video_open("AppleArcade/" + vidName);
 	display_set_gui_size(resW, resH);
-	surface_resize(g_pBuiltIn.application_surface, resW, resH);
+	surface_resize(application_surface, resW, resH);
 }
 
 function s_title_async_social_video() {
@@ -225,7 +225,7 @@ function s_title_do_video_end() {
 	s_save_options();
 	video_close();
 	display_set_gui_size(480, 270);
-	surface_resize(g_pBuiltIn.application_surface, 480, 270);
+	surface_resize(application_surface, 480, 270);
 }
 
 function s_title_step_video() {

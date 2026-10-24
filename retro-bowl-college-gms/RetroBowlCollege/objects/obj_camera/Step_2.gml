@@ -7,8 +7,8 @@ if (global.browser || os_type == 21) {
 		s_create_camera();
 	}
 }
-var _cur_x = camera_get_view_x(g_pBuiltIn.view_camera[0]);
-var _cur_y = camera_get_view_y(g_pBuiltIn.view_camera[0]);
+var _cur_x = camera_get_view_x(view_camera[0]);
+var _cur_y = camera_get_view_y(view_camera[0]);
 var _x = _cur_x;
 var _y = _cur_y;
 var des_zoom = 1.2;
@@ -97,9 +97,9 @@ if (!ds_map_find_value(obj_master.map_options, "op_zoom")) {
 } else {
 	zoom = lerp(zoom, des_zoom, 0.02);
 }
-camera_set_view_size(g_pBuiltIn.view_camera[0], view_width * zoom, view_height * zoom);
-var cam_w = camera_get_view_width(g_pBuiltIn.view_camera[0]);
-var cam_h = camera_get_view_height(g_pBuiltIn.view_camera[0]);
-_x = clamp(lerp(_cur_x, _x, _spd), 0, g_pBuiltIn.room_width - cam_w);
-_y = clamp(lerp(_cur_y, _y, _spd), 0, g_pBuiltIn.room_height - cam_h);
-camera_set_view_pos(g_pBuiltIn.view_camera[0], _x, _y);
+camera_set_view_size(view_camera[0], view_width * zoom, view_height * zoom);
+var cam_w = camera_get_view_width(view_camera[0]);
+var cam_h = camera_get_view_height(view_camera[0]);
+_x = clamp(lerp(_cur_x, _x, _spd), 0, room_width - cam_w);
+_y = clamp(lerp(_cur_y, _y, _spd), 0, room_height - cam_h);
+camera_set_view_pos(view_camera[0], _x, _y);

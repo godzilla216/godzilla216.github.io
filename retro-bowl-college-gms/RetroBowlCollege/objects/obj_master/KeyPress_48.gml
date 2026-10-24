@@ -5,4 +5,4 @@ with (obj_input_box) {
 	exit;
 }
 s_update_ui_colours();
-room_goto(current_room);
+room_goto(room);

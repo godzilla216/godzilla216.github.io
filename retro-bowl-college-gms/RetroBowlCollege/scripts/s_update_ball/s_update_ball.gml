@@ -96,7 +96,7 @@ function s_update_ball() {
 				if (!path_exists(my_route) && !s_is_falling() && balldist < 10) {
 					s_set_anim(11);
 				}
-				s_update_ball_offset();
+				method(other, s_update_ball_offset)();
 			}
 			switch (global.gamepad) {
 				case true:

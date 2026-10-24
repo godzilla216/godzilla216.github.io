@@ -53,7 +53,7 @@
   "properties": [
     {
       "varType": 4,
-      "value": "profile",
+      "value": "[0, 0, 0, 0, 0, obj_player_profile]",
       "rangeEnabled": false,
       "rangeMin": 0,
       "rangeMax": 10,

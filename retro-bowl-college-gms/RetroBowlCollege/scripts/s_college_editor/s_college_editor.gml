@@ -77,7 +77,7 @@ function s_btn_editor_back() {
 	var back = s_save_editor_status();
 	back.conference = -4;
 	back.group = -4;
-	s_goto_room(current_room, s_get_editor_status());
+	s_goto_room(room, s_get_editor_status());
 }
 
 function s_btn_editor_edit_subdivision() {
@@ -112,7 +112,7 @@ function s_btn_editor_select_bowl_competition() {
 }
 
 function s_save_editor_status() {
-	if (current_room == rm_editor) {
+	if (room == rm_editor) {
 		with (global.rm) {
 			global.rm_params_save = {
 				mode: variable_instance_exists(id, "mode") ? mode : -4,

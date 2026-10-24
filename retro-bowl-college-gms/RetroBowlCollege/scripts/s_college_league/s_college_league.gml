@@ -102,11 +102,11 @@ function s_btn_league_view() {
 }
 
 function s_btn_league_mode() {
-	s_goto_room(current_room, { mode: mode });
+	s_goto_room(room, { mode: mode });
 }
 
 function s_btn_league_subdivision() {
-	s_goto_room(current_room, { mode: global.rm.mode, tier: tier });
+	s_goto_room(room, { mode: global.rm.mode, tier: tier });
 }
 
 function s_btn_division_home_view() {
@@ -130,7 +130,7 @@ function s_btn_league_next_conference() {
 	if (next >= array_length(cl)) {
 		next = 0;
 	}
-	s_goto_room(current_room, { mode: global.rm.mode, tier: global.rm.tier, confd: cl[next], conf_chosen: true });
+	s_goto_room(room, { mode: global.rm.mode, tier: global.rm.tier, confd: cl[next], conf_chosen: true });
 }
 
 function s_set_league_mode_btn_colour(_arg0) {
@@ -203,7 +203,7 @@ function s_league_create_conference_buttons(_arg0) {
 }
 
 function s_league_btn_conference() {
-	s_goto_room(current_room, { mode: global.rm.mode, tier: tier, confd: conference, conf_chosen: true });
+	s_goto_room(room, { mode: global.rm.mode, tier: tier, confd: conference, conf_chosen: true });
 }
 
 function s_league_create_conference_panels(_arg0, _arg1) {

@@ -19,6 +19,8 @@ const UNWRAP1 = new Set(['yyGetBool', '__yy_gml_errCheck', 'yyGetInt32', 'yyGetR
 // asset type nibble from YYASSET_REF
 const ASSET_TYPES = { 0: 'GMObjects', 1: 'Sprites', 2: 'Sounds', 3: 'GMRooms', 5: 'Paths', 7: 'Fonts', 10: 'Shaders' };
 const SPECIAL_INST = { '-1': 'self', '-2': 'other', '-3': 'all', '-4': 'noone', '-5': 'global' };
+const BUILTIN_NAMES = { current_room: 'room', view_enable: 'view_enabled' };
+const builtinName = name => BUILTIN_NAMES[name] || name;
 
 class Decompiler {
   constructor(game, ast, src, runnerSrc) {
@@ -149,6 +151,9 @@ class Decompiler {
       return { s: (obj.p >= P_POSTFIX ? obj.s : '(' + obj.s + ')') + '[' + this.expr(n.property, ctx).s + ']', p: P_POSTFIX };
     }
     const prop = n.property.name;
+    // The HTML5 runner stores GML built-ins on this JavaScript object.
+    // Native GML reads and writes the built-in variable directly.
+    if (this.isIdent(n.object, 'g_pBuiltIn')) return { s: builtinName(prop), p: P_ATOM };
     if (prop === 'undefined') return { s: 'undefined', p: P_ATOM };
     if (this.isIdent(n.object, '$$args') && prop === 'length') return { s: 'argument_count + 2', p: 6 };
     const base = this.instRef(n.object, ctx);
@@ -311,6 +316,9 @@ class Decompiler {
     const c = n.callee;
     if (c.type === 'Identifier') {
       const f = c.name;
+      // The HTML5 runner prepends self/other; native script_execute starts
+      // with the script or method, followed by its actual callback arguments.
+      if (f === 'script_execute') return { s: f + '(' + this.callArgs(n.arguments.slice(2), ctx) + ')', p: P_POSTFIX };
       if (UNWRAP1.has(f)) return this.expr(n.arguments[0], ctx);
       if (BINOPS[f]) return this.bin(BINOPS[f], n.arguments[0], n.arguments[1], ctx);
       if (f === 'YYASSET_REF') {
@@ -328,7 +336,12 @@ class Decompiler {
       if (f === '__yy__processException') return this.expr(n.arguments[0], ctx);
       if (f.startsWith('gml_Script_') || f.startsWith('gml_GlobalScript_')) {
         // script call: (self, other, ...args)
-        return { s: this.scriptName(f) + '(' + this.callArgs(n.arguments.slice(2), ctx) + ')', p: P_POSTFIX };
+        const name = this.scriptName(f);
+        const target = n.arguments[0];
+        const callable = target && !this.isIdent(target, ctx.self)
+          ? 'method(' + this.instRef(target, ctx) + ', ' + name + ')'
+          : name;
+        return { s: callable + '(' + this.callArgs(n.arguments.slice(2), ctx) + ')', p: P_POSTFIX };
       }
       if (this.selfOther.has(f)) return { s: f + '(' + this.callArgs(n.arguments.slice(2), ctx) + ')', p: P_POSTFIX };
       if (this.onlySelf.has(f)) {
@@ -344,8 +357,8 @@ class Decompiler {
     }
     if (c.type === 'MemberExpression' && this.isIdent(c.object, 'g_pBuiltIn')) {
       const p = c.property.name;
-      if (p.startsWith('get_')) return { s: p.slice(4), p: P_ATOM };
-      if (p.startsWith('set_')) return { s: p.slice(4) + ' = ' + this.callArgs(n.arguments, ctx), p: -1 };
+      if (p.startsWith('get_')) return { s: builtinName(p.slice(4)), p: P_ATOM };
+      if (p.startsWith('set_')) return { s: builtinName(p.slice(4)) + ' = ' + this.callArgs(n.arguments, ctx), p: -1 };
     }
     if (c.type === 'CallExpression' && this.isCall(c, '__yyg_call_method')) {
       // __yyg_call_method(F)(self, other, ...args)
@@ -706,8 +719,33 @@ class Decompiler {
     const ctx = this.makeCtx(fn, 'event');
     ctx.paramSet = new Set();
     const res = { inherited: false, vars: [], other: [] };
+    const arrayDefaults = new Map();
     for (const s of this.flatten(fn.body.body)) {
       if (s.type === 'ExpressionStatement' && this.isCall(s.expression, 'event_inherited')) { res.inherited = true; continue; }
+      if (s.type === 'ExpressionStatement' && s.expression.type === 'AssignmentExpression') {
+        const e = s.expression;
+        // Ownership checks are runner bookkeeping, not property initializers.
+        if (this.isCall(e.right, '__yy_gml_array_check')) continue;
+        const left = e.left;
+        if (left.type === 'MemberExpression' && left.computed && left.object.type === 'MemberExpression' &&
+            !left.object.computed && this.isIdent(left.object.object, '_inst')) {
+          const indexText = this.expr(left.property, ctx).s;
+          if (/^\d+$/.test(indexText)) {
+            const name = left.object.property.name.replace(/^gml/, '');
+            const index = Number(indexText);
+            let entry = arrayDefaults.get(name);
+            if (!entry) {
+              entry = { values: [], property: { name, value: '[]' } };
+              arrayDefaults.set(name, entry);
+              res.vars.push(entry.property);
+            }
+            while (entry.values.length <= index) entry.values.push('0');
+            entry.values[index] = this.expr(e.right, ctx).s;
+            entry.property.value = '[' + entry.values.join(', ') + ']';
+            continue;
+          }
+        }
+      }
       if (s.type === 'ExpressionStatement' && s.expression.type === 'AssignmentExpression' && s.expression.left.type === 'MemberExpression' &&
           this.isIdent(s.expression.left.object, '_inst') && !s.expression.left.computed) {
         ctx.indent = '';

@@ -49,8 +49,8 @@ function s_update_game_timer() {
 				}
 				if (current_time > other.gametimer + sec) {
 					other.gametimer = current_time;
-					s_subtract_time(1, 1, "Tick");
-					s_update_game_clock();
+					method(other, s_subtract_time)(1, 1, "Tick");
+					method(other, s_update_game_clock)();
 				}
 				break;
 		}

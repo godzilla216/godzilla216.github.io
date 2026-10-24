@@ -1,2 +1,2 @@
-view_enable = true;
-g_pBuiltIn.view_visible[0] = true;
+view_enabled = true;
+view_visible[0] = true;

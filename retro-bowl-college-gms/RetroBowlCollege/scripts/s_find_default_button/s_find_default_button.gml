@@ -8,7 +8,7 @@ function s_find_default_button(_arg0, _arg1) {
 	if (_arg0) {
 		_arg1.ui_selected = -4;
 	}
-	if (current_room != rm_details && (obj_master.intro || current_room == rm_master)) {
+	if (room != rm_details && (obj_master.intro || room == rm_master)) {
 		with (obj_button) {
 			if (!visible) {
 				continue;
@@ -68,7 +68,7 @@ function s_find_default_button(_arg0, _arg1) {
 			}
 		}
 	}
-	switch (current_room) {
+	switch (room) {
 		case rm_halloffame:
 		case rm_halloffame_player_records:
 		case rm_halloffame_players:
@@ -81,7 +81,7 @@ function s_find_default_button(_arg0, _arg1) {
 			}
 			break;
 	}
-	var lsi = s_get_last_selected(current_room);
+	var lsi = s_get_last_selected(room);
 	if (lsi != -1) {
 		slog("last selected: " + string(lsi));
 		with (obj_button) {

@@ -1,4 +1,3 @@
-profile[5] = obj_player_profile;
 if (obj_master.rm_winners_do_awards == 1) {
 	s_do_player_awards();
 }
@@ -40,7 +39,7 @@ inst_100613.text = s_str("short_STAFF_DF");
 inst_100614.text = s_str("short_STAFF_OF");
 obj_master.roster = s_sort_players(obj_master.roster, 4);
 var size = ds_list_size(obj_master.roster);
-var px = round(g_pBuiltIn.room_width * 0.5);
+var px = round(room_width * 0.5);
 var py = 138;
 var pw = sprite_get_width(spr_light_001);
 if (size > 5) {
@@ -65,7 +64,7 @@ for (var r = 0; r < size; r++) {
 	px += pw * 2;
 	if (r == 4) {
 		var sz = size - 5;
-		px = g_pBuiltIn.room_width * 0.5;
+		px = room_width * 0.5;
 		px -= (sz - 1) * (pw * 1);
 		py += 64;
 		dpth -= 1;

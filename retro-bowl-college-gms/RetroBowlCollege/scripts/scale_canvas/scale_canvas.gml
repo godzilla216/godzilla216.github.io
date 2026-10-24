@@ -16,6 +16,6 @@ function scale_canvas(_arg0, _arg1, _arg2, _arg3, _arg4) {
 	if (_arg4) {
 		window_center();
 	}
-	surface_resize(g_pBuiltIn.application_surface, min(window_get_width(), _arg0), min(window_get_height(), _arg1));
+	surface_resize(application_surface, min(window_get_width(), _arg0), min(window_get_height(), _arg1));
 }
 

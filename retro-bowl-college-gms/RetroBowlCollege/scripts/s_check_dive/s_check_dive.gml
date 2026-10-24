@@ -13,11 +13,11 @@ function s_check_dive() {
 			jump_max = 6;
 		}
 		if (anim == 2 && balldist < 60 && point_distance(x, y, obj_metaball.jump_x, obj_metaball.jump_y) < jump_max) {
-			s_set_anim(10);
+			method(other, s_set_anim)(10);
 		} else if (facing == 1 && x > cont.x_scrim || facing == -1 && x < cont.x_scrim) {
 			if (anim == 2 && ball.zvel < 0 && ball.height < 30 && bouncedist > balldist && balldist > 20 && bouncedist < 40) {
 				other.jdir = point_direction(other.x, other.y, obj_metaball.bounce_x, obj_metaball.bounce_y);
-				s_set_anim(5);
+				method(other, s_set_anim)(5);
 			}
 		}
 	} else if (ball.holder.offense != offense && !ball.holder.dead) {

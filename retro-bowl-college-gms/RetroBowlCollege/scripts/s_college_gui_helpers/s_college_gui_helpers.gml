@@ -245,7 +245,7 @@ function btn_response_cut_player_for_RC_yes() {
 		var patt = ds_map_find_value(player_profile, "attitude");
 		var RC_to_add = s_get_college_player_cut_RC(player_profile);
 		recruitment_credits_add(RC_to_add);
-		if (current_room == rm_profile_player) {
+		if (room == rm_profile_player) {
 			var del = s_remove_player(player_profile, "cut", s_pick_epilogue_story("epi_admisscut"));
 			if (del) {
 				player_profile = -1;
@@ -260,7 +260,7 @@ function btn_response_cut_player_for_RC_yes() {
 			s_meter_change(4, s_get_morale(), rm_roster, "");
 			var i = -s_get_attitude_icon(patt);
 			s_adjust_team_morale_ignore_freshman(i * 2, i);
-			if (current_room == rm_profile_player) {
+			if (room == rm_profile_player) {
 				return;
 			}
 		}

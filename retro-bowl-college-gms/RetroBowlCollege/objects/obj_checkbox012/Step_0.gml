@@ -23,7 +23,7 @@ if (global.gamepad) {
 			state = 0;
 		}
 		if (onClickAction) {
-			script_execute(self, other, onClickAction);
+			script_execute(onClickAction);
 		}
 		if (state && click_info != "") {
 			s_create_message("", s_str(click_info), s_str("ui_Continue"), "", s_msg_clear, "", global.c_background, 1);
@@ -43,7 +43,7 @@ if (global.gamepad) {
 				state = 0;
 			}
 			if (onClickAction) {
-				script_execute(self, other, onClickAction);
+				script_execute(onClickAction);
 			}
 			if (state && click_info != "") {
 				s_create_message("", s_str(click_info), s_str("ui_Continue"), "", s_msg_clear, "", global.c_background, 1);

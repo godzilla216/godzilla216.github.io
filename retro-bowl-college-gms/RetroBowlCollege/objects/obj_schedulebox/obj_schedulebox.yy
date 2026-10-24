@@ -56,7 +56,7 @@
   "properties": [
     {
       "varType": 4,
-      "value": "str_fix_a",
+      "value": "[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, \"0\"]",
       "rangeEnabled": false,
       "rangeMin": 0,
       "rangeMax": 10,
@@ -70,7 +70,7 @@
     },
     {
       "varType": 4,
-      "value": "str_fix_h",
+      "value": "[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, \"0\"]",
       "rangeEnabled": false,
       "rangeMin": 0,
       "rangeMax": 10,
@@ -84,7 +84,7 @@
     },
     {
       "varType": 4,
-      "value": "srt_fix_vs",
+      "value": "[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, \"0\"]",
       "rangeEnabled": false,
       "rangeMin": 0,
       "rangeMax": 10,
@@ -98,7 +98,7 @@
     },
     {
       "varType": 4,
-      "value": "str_scr_a",
+      "value": "[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, \"0\"]",
       "rangeEnabled": false,
       "rangeMin": 0,
       "rangeMax": 10,
@@ -112,7 +112,7 @@
     },
     {
       "varType": 4,
-      "value": "str_scr_h",
+      "value": "[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, \"0\"]",
       "rangeEnabled": false,
       "rangeMin": 0,
       "rangeMax": 10,
@@ -154,7 +154,7 @@
     },
     {
       "varType": 4,
-      "value": "str_fix_alf",
+      "value": "[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]",
       "rangeEnabled": false,
       "rangeMin": 0,
       "rangeMax": 10,
