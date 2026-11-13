@@ -1,0 +1,51 @@
+﻿html,
+body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #231f20;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+#game-container {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 100vw;
+    height: 100vh;
+    max-width: 177.777778vh;
+    max-height: 177.777778vw;
+}
+
+#game,
+#game canvas {
+    width: 100%;
+    height: 100%;
+}
+
+#game canvas {
+    display: block;
+}
+
+#loading {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    background: #231f20;
+}
+
+#loading[hidden] {
+    display: none;
+}
+
+#loading-progress {
+    width: min(20rem, 80vw);
+    accent-color: #e8b454;
+}

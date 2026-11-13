@@ -25761,6 +25761,11 @@ function gml_Script_rm_stats_player_configure_college(_inst, _other) {
     }
     var gmlforceShowStatsTab = yyGetBool(gmlhasCurriculumVitae) || yyGetBool(gmlhasLeft);
     var gmlpos = real(ds_map_find_value(_inst.gmlpmap, "position"));
+    var gmlcanPass = RetroPassingStats.eligible(_inst.gmlpmap);
+    if (gmlcanPass) {
+      RetroPassingStats.button(_inst, gmlpx, gmlpy);
+      gmlpx = yyfminus(gmlpx, gmldeltaX);
+    }
     var ___sw168___ = gmlpos;
     var ___swc169___ = -1;
     if (yyCompareVal(___sw168___, 1, g_GMLMathEpsilon, false) == 0) {
@@ -25801,7 +25806,7 @@ function gml_Script_rm_stats_player_configure_college(_inst, _other) {
         break;
       }
       case 3: {
-        if (yyGetBool(gmlforceShowStatsTab)) {
+        if (yyGetBool(gmlforceShowStatsTab) || gmlcanPass) {
           {
             gml_Script_stats_player_button_entry(_inst, _other, gmlpx, gmlpy, "ui_Receiving", kgml_Script_btn_click_StatsView1, 0, 1);
             gmlpx = yyfminus(gmlpx, gmldeltaX);
@@ -57815,6 +57820,8 @@ function gml_Script_s_update_ball(_inst, _other) {
                 _inst.gmlzvel = yyftime(__yy_gml_errCheck(_inst.gmlvelocity), 0.35);
               }
             }
+            // Extend horizontal range without changing the native arc or hang time.
+            _inst.gmlvelocity = yyftime(_inst.gmlvelocity, 1.25);
             if (yyGetBool(gamepad_button_check_released(yyInst(_inst, _other, global.gmlgp).gmlslot, global.gmlgp_select))) {
               gml_Script_s_throw_ball(_inst, _other);
             }
@@ -57859,6 +57866,8 @@ function gml_Script_s_update_ball(_inst, _other) {
                   }
                 }
               }
+              // Extend horizontal range without changing the native arc or hang time.
+              _inst.gmlvelocity = yyftime(_inst.gmlvelocity, 1.25);
             } else {
               if (yyGetBool(yyfless(_inst.gmldragdist, 20)) || yyGetBool(gml_Script_s_opposite_aim(_inst, _other, _inst.gmldirec))) {
                 {
@@ -59131,11 +59140,12 @@ function gml_Script_s_check_ball_collision(_inst, _other) {
                 if (yyGetBool(!yyGetBool(yyInst(_inst, _other, gmlcont).gmlrunning_play)) && yyGetBool(!yyGetBool(yyInst(_inst, _other, YYASSET_REF(0x00000062)).gmlgamepractice)) && yyGetBool(yyfless(yyInst(_inst, _other, YYASSET_REF(0x00000069)).gmldown, 5)) && yyGetBool(!yyGetBool(yyInst(_inst, _other, YYASSET_REF(0x00000069)).gmldrop_happened))) {
                   {
                     {
+                      RetroPassingStats.complete(yyInst(_inst, _other, gmlball));
                       var __yy__v1099 = GetWithArray(YYASSET_REF(0x0000006c));
                       for (var __yy__v1100 in __yy__v1099) {
                         if (!__yy__v1099.hasOwnProperty(__yy__v1100)) continue;
                         var __yy__v1101 = __yy__v1099[__yy__v1100];
-                        if (yyGetBool(__yy__v1101.gmlpmap) && yyGetBool(yyGetBool(yyfequal(__yy__v1101.gmlposition, 1)) || yyGetBool(yyfequal(__yy__v1101.gmlposition, 5)))) {
+                        if (yyGetBool(__yy__v1101.gmlpmap) && yyGetBool(yyfequal(__yy__v1101.gmlposition, 5))) {
                           ds_map_set_post(__yy__v1101.gmlpmap, "stat_complete", yyfplus(__yy_gml_errCheck(ds_map_find_value(__yy__v1101.gmlpmap, "stat_complete")), 1));
                         }
                       }
@@ -59207,9 +59217,9 @@ function gml_Script_s_check_ball_collision(_inst, _other) {
                         RetroDefense.recordInterception(_inst);
                         if (yyGetBool(!yyGetBool(yyInst(_inst, _other, gmlcont).gmlrunning_play)) && yyGetBool(yyfless(yyInst(_inst, _other, gmlcont).gmldown, 5)) && yyGetBool(!yyGetBool(yyInst(_inst, _other, YYASSET_REF(0x00000062)).gmlgamepractice))) {
                           {
-                            var gmlqb = gml_Script_s_get_quarterback(_inst, _other);
+                            var gmlqb = RetroPassingStats.passer(yyInst(_inst, _other, gmlball), gml_Script_s_get_quarterback(_inst, _other));
                             if (yyGetBool(gmlqb) && yyGetBool(yyInst(_inst, _other, gmlqb).gmlpmap)) {
-                              ds_map_set_post(yyInst(_inst, _other, gmlqb).gmlpmap, "stat_int", yyfplus(__yy_gml_errCheck(ds_map_find_value(yyInst(_inst, _other, gmlqb).gmlpmap, "stat_int")), 1));
+                              RetroPassingStats.add(yyInst(_inst, _other, gmlqb), "int", 1);
                             }
                           }
                         }
@@ -59965,7 +59975,7 @@ function gml_Script_s_set_ball_down(_inst, _other) {
                     __yy__v1125.gmlxdead = gmlbx;
                     __yy__v1125.gmlstate = 11;
                     if (yyGetBool(yyInst(_inst, _other, __yy__v1125.gmlholder).gmlpmap) && yyGetBool(yyfless(yyInst(_inst, _other, YYASSET_REF(0x00000069)).gmldown, 5))) {
-                      ds_map_set_post(yyInst(_inst, _other, __yy__v1125.gmlholder).gmlpmap, "stat_sacks", yyfplus(__yy_gml_errCheck(ds_map_find_value(yyInst(_inst, _other, __yy__v1125.gmlholder).gmlpmap, "stat_sacks")), 1));
+                      RetroPassingStats.add(yyInst(_inst, _other, __yy__v1125.gmlholder), "sacks", 1);
                     }
                     {
                       var __yy__v1126 = GetWithArray(YYASSET_REF(0x0000006c));
@@ -67825,7 +67835,7 @@ function gml_Script_s_update_yard_gain(_inst, _other) {
         return;
       }
     }
-    var gmlqb = gml_Script_s_get_quarterback(_inst, _other);
+    var gmlqb = RetroPassingStats.passer(_inst, gml_Script_s_get_quarterback(_inst, _other));
     if (yyGetBool(!yyGetBool(yyInst(_inst, _other, YYASSET_REF(0x00000062)).gmlgamepractice)) && yyGetBool(_inst.gmlholder) && yyGetBool(yyfless(yyInst(_inst, _other, YYASSET_REF(0x00000069)).gmldown, 5))) {
       {
         var ___sw1246___ = yyInst(_inst, _other, _inst.gmlholder).gmlposition;
@@ -67837,7 +67847,7 @@ function gml_Script_s_update_yard_gain(_inst, _other) {
         }
         switch (___swc1247___) {
           case 0: {
-            if (yyGetBool(yyInst(_inst, _other, YYASSET_REF(0x00000069)).gmlrunning_play)) {
+            if (yyGetBool(yyInst(_inst, _other, YYASSET_REF(0x00000069)).gmlrunning_play) || RetroPassingStats.isNonQbSack(_inst)) {
               {
                 gml_Script_slog(_inst, _other, ">>> RUNNING_PLAY");
                 if (yyGetBool(yyInst(_inst, _other, _inst.gmlholder).gmlpmap)) {
@@ -67909,12 +67919,10 @@ function gml_Script_s_update_yard_gain(_inst, _other) {
                 }
                 if (yyGetBool(gmlqb) && yyGetBool(yyInst(_inst, _other, gmlqb).gmlpmap)) {
                   {
-                    ds_map_set(yyInst(_inst, _other, gmlqb).gmlpmap, "stat_yards", yyfplus(__yy_gml_errCheck(ds_map_find_value(yyInst(_inst, _other, gmlqb).gmlpmap, "stat_yards")), __yy_gml_errCheck(gmlgain)));
-                    if (yyfgreater(gmlgain, ds_map_find_value(yyInst(_inst, _other, gmlqb).gmlpmap, "stat_longest"))) {
-                      ds_map_set(yyInst(_inst, _other, gmlqb).gmlpmap, "stat_longest", gmlgain);
-                    }
+                    RetroPassingStats.add(yyInst(_inst, _other, gmlqb), "yards", gmlgain);
+                    RetroPassingStats.longest(yyInst(_inst, _other, gmlqb), gmlgain);
                     if (yyGetBool(yyfequal(yyInst(_inst, _other, gmlball).gmlstate, 6)) && yyGetBool(yyfless(yyInst(_inst, _other, YYASSET_REF(0x00000069)).gmldown, 6))) {
-                      ds_map_set(yyInst(_inst, _other, gmlqb).gmlpmap, "stat_touchdowns", yyfplus(__yy_gml_errCheck(ds_map_find_value(yyInst(_inst, _other, gmlqb).gmlpmap, "stat_touchdowns")), 1));
+                      RetroPassingStats.add(yyInst(_inst, _other, gmlqb), "touchdowns", 1);
                     }
                   }
                 }
@@ -69046,6 +69054,7 @@ function gml_Script_s_update_stats(_inst, _other) {
                   continue;
                 }
               }
+              RetroPassingStats.tally(gmlpmap);
               ds_map_set_post(gmlpmap, "season_games", yyfplus(__yy_gml_errCheck(ds_map_find_value(gmlpmap, "season_games")), 1));
               ds_map_set(gmlpmap, "season_attempts", yyfplus(__yy_gml_errCheck(ds_map_find_value(gmlpmap, "season_attempts")), __yy_gml_errCheck(ds_map_find_value(gmlpmap, "stat_attempts"))));
               ds_map_set(gmlpmap, "season_complete", yyfplus(__yy_gml_errCheck(ds_map_find_value(gmlpmap, "season_complete")), __yy_gml_errCheck(ds_map_find_value(gmlpmap, "stat_complete"))));
@@ -72959,6 +72968,7 @@ function gml_GlobalScript_s_throw_ball(_inst, _other) {
 }
 function gml_Script_s_throw_ball(_inst, _other) {
   if (!RetroPhillySpecial.allowThrow(_inst)) return;
+  _inst._passingPlayer = _inst.gmlholder;
   {
     var gmlcont = YYASSET_REF(0x00000069);
     {
@@ -72973,7 +72983,7 @@ function gml_Script_s_throw_ball(_inst, _other) {
           if (yyGetBool(!yyGetBool(yyInst(_inst, _other, YYASSET_REF(0x00000062)).gmlgamepractice)) && yyGetBool(yyfless(yyInst(_inst, _other, gmlcont).gmldown, 5))) {
             {
               if (yyGetBool(__yy__v1470.gmlpmap)) {
-                ds_map_set(__yy__v1470.gmlpmap, "stat_attempts", yyfplus(__yy_gml_errCheck(ds_map_find_value(__yy__v1470.gmlpmap, "stat_attempts")), 1));
+                RetroPassingStats.add(__yy__v1470, "attempts", 1);
               }
             }
           }
@@ -78401,6 +78411,7 @@ function gml_Script_s_reset_match_stats(_inst, _other, argument0) {
           for (; yyfless(gmli, ds_list_size(__yy__v1686.gmlroster)); g_yyPrePostObject__ = gmli, gmli = g_yyPrePostObject__ instanceof Long ? gmli.add(1) : ++gmli, g_yyPrePostObject__) {
             {
               var gmlpmap = ds_list_find_value(__yy__v1686.gmlroster, gmli);
+              RetroPassingStats.reset(gmlpmap, yyGetBool(argument0));
               ds_map_set(gmlpmap, "stat_attempts", 0);
               ds_map_set(gmlpmap, "stat_complete", 0);
               ds_map_set(gmlpmap, "stat_yards", 0);
@@ -107615,6 +107626,9 @@ function gml_Object_obj_stats_player_Create_0(_inst, _other) {
     }
   }
   var gmlpos = ds_map_find_value(_inst.gmlpmap, "position");
+  if (yyInst(_inst, _other, YYASSET_REF(0x00000062)).gmlstat_view === 3 && !RetroPassingStats.eligible(_inst.gmlpmap)) {
+    yyInst(_inst, _other, YYASSET_REF(0x00000062)).gmlstat_view = 1;
+  }
   yyInst(_inst, _other, 100513).gmltext = yyfplus(yyfplus(yyfplus(yyfplus(__yy_gml_errCheck(gml_Script_s_get_string_position(_inst, _other, gmlpos)), " - "), __yy_gml_errCheck(ds_map_find_value(_inst.gmlpmap, "fname"))), " "), __yy_gml_errCheck(ds_map_find_value(_inst.gmlpmap, "lname")));
   var gmlgms = "";
   var gmlatt = string(ds_map_find_value(_inst.gmlpmap, "stat_attempts"));
@@ -107744,6 +107758,7 @@ function gml_Object_obj_stats_player_Create_0(_inst, _other) {
       break;
     }
   }
+  if (RetroPassingStats.populate(_inst, gmlvrs, gmlgms)) return;
   var ___sw2178___ = gmlpos;
   var ___swc2179___ = -1;
   if (yyCompareVal(___sw2178___, 1, g_GMLMathEpsilon, false) == 0) {

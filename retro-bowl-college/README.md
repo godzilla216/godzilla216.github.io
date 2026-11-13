@@ -76,6 +76,8 @@ Checks: `node --test tests/lateral.test.cjs` and `node tests/lateral.browser.cjs
 
 ## Halfback pass
 
+RBs, TEs and WRs have a **Passing** tab on their player stats screen. Trick-play throws track attempts, completions and completion percentage, yards, average yards per completion, longest completion, passing touchdowns, interceptions and sacks separately from receiving and rushing. Game totals roll into season and career totals and save with the player. Backward pitches do not count as forward passes. Existing saves start these separate passing counters at zero; earlier mixed totals cannot be reconstructed. Verify with `node tests/passing-stats.browser.cjs`.
+
 Normal offensive scrimmage plays have a **1 in 15 chance** of becoming a halfback pass. The pre-snap message identifies it. Snap to automatically pitch backward to the RB, then release the snap gesture and use the normal aim-and-throw controls from the RB. The QB runs a route and can catch the pass. The pitch does not use up the forward pass; after a completion, normal running controls take over. Practice, quarterback careers and simulated games retain their usual plays.
 
 After releasing the snap, start the RB's aim by dragging anywhere on the field or moving your configured controller aim stick. A short tap cancels aiming and lets you try again without restarting the play.

@@ -1,0 +1,30 @@
+#nflTeam {
+    position: absolute;
+    outline: 2px black solid;
+    height: 200px;
+    left: 850px;
+}
+
+#collegeTeam {
+    position: absolute;
+    outline: 2px black solid;
+    height: 200px;
+    left: 650px;
+}
+
+#headshot {
+    position: absolute;
+    outline: 2px black solid;
+    height: 200px;
+    left: 1050px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    background-image: url("/background.jpg");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    font: 20px Arial;
+}
