@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#702d3b">
+  <meta name="description" content="A quiet place for a good game. Play classic, two-player chess in your browser.">
+  <title>The Chess Room</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="chess.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="./" aria-label="The Chess Room home"><span class="brand-mark" aria-hidden="true">♞</span> THE CHESS ROOM<span class="brand-period">.</span></a>
+    <span class="header-note"><span class="live-dot"></span> OFFLINE &amp; AT YOUR OWN PACE</span>
+  </header>
+  <main>
+    <section class="intro">
+      <div><p class="eyebrow">A TABLE FOR TWO</p><h1>Make your next move<span>.</span></h1><p class="subtitle">A classic game. A little friendly rivalry. Your move.</p></div>
+      <div class="mode-badge"><span aria-hidden="true">♙ ♟</span><div>Local two-player<small>Same screen. Good company.</small></div></div>
+    </section>
+    <div class="game-layout">
+      <section class="play-area" aria-label="Chess game">
+        <div class="player-bar" id="top-player"></div>
+        <div class="board-frame"><div id="board" class="board" role="group" aria-label="Chessboard. Select a piece, then a highlighted square."></div></div>
+        <div class="player-bar bottom-player" id="bottom-player"></div>
+        <p class="board-hint"><span aria-hidden="true">✦</span> Select a piece to see its legal moves.</p>
+      </section>
+      <aside class="sidebar">
+        <section class="status-card">
+          <p class="eyebrow">ON THE BOARD</p>
+          <div class="turn-line"><span class="turn-indicator" id="turn-indicator"></span><h2 id="status" aria-live="polite" aria-atomic="true">White to move</h2></div>
+          <p id="status-detail">Every great game starts with a single move.</p>
+          <button id="new-game" class="primary-button"><span aria-hidden="true">＋</span> New game</button>
+          <div class="secondary-actions"><button id="undo" disabled><span aria-hidden="true">↶</span> Undo move</button><button id="flip"><span aria-hidden="true">⇅</span> Flip board</button></div>
+        </section>
+        <section class="moves-card" aria-labelledby="moves-title">
+          <div class="section-heading"><h2 id="moves-title">The moves</h2><span id="move-count">0 PLAYED</span></div>
+          <div class="move-columns" aria-hidden="true"><span>#</span><span>WHITE</span><span>BLACK</span></div>
+          <div id="moves" class="moves-list" role="log" aria-label="Move history" aria-live="polite"></div>
+        </section>
+        <div class="little-note"><span aria-hidden="true">♔</span><p>Take your time.<br><strong>The best move is worth a moment.</strong></p></div>
+      </aside>
+    </div>
+    <footer><span>64 SQUARES. ENDLESS POSSIBILITIES.</span><button id="rules-button">A quick guide <span aria-hidden="true">↗</span></button></footer>
+  </main>
+  <dialog id="promotion-dialog" aria-labelledby="promotion-title"><p class="eyebrow">A WELL-EARNED UPGRADE</p><h2 id="promotion-title">Choose your piece.</h2><p>Your pawn has reached the other side.</p><div id="promotion-options" class="promotion-options"></div></dialog>
+  <dialog id="new-game-dialog" aria-labelledby="new-game-title"><p class="eyebrow">A FRESH START</p><h2 id="new-game-title">Another round?</h2><p>This will clear the current game and move history.</p><div class="dialog-actions"><button id="cancel-new" class="plain-button">Keep playing</button><button id="confirm-new" class="primary-button">Start new game</button></div></dialog>
+  <dialog id="rules-dialog" aria-labelledby="rules-title"><p class="eyebrow">THE SHORT VERSION</p><h2 id="rules-title">Welcome to the table.</h2><p>Two people share this board. White moves first. Select a piece, then select one of its highlighted legal squares.</p><ul><li><strong>The goal:</strong> checkmate the opposing king, leaving it under attack with no legal escape.</li><li><strong>Special moves:</strong> castling, en passant, and pawn promotion are all included.</li><li><strong>Draws:</strong> stalemate, insufficient material, threefold repetition, and the 50-move rule end the game automatically here.</li><li><strong>Keyboard:</strong> use Tab to reach the board, arrow keys to explore, and Enter or Space to select. Escape clears your selection.</li></ul><p>Use Undo for a second thought, or Flip board for a new perspective. Your game is saved in this browser automatically.</p><button id="close-rules" class="primary-button">Let's play</button></dialog>
+</body>
+</html>
