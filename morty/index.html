@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="referrer" content="no-referrer">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'">
+        <title>Elastic Face</title>
+        <link rel="icon" href="data:,">
+        <link rel="stylesheet" href="app.css">
+    </head>
+    <body>
+        <script type="text/template" id="loading-template">
+            <div id="loading-bar" class="loading-bar-visible">
+                <div id="loading-fill"></div>
+            </div>
+        </script>
+        <script type="text/template" id="no-support-template">
+            <div id="error" role="alert">This game requires WebAssembly, WebGL, and Web Audio. Try a browser or device that supports them.</div>
+        </script>
+        <noscript><div id="error">Enable JavaScript to play.</div></noscript>
+        <div id="placeholder"></div>
+        <script src="app.js"></script>
+    </body>
+</html>
