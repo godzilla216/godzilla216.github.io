@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' blob: 'unsafe-eval'; worker-src 'self' blob:; connect-src 'self' blob:; img-src 'self' data: blob:; media-src 'self' blob:; style-src 'self' 'unsafe-inline'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'">
+    <title>Unity WebGL Player | Drift Hunters</title>
+    <link rel="shortcut icon" href="TemplateData/favicon.ico">
+    <link rel="stylesheet" href="TemplateData/style.css">
+    <script defer src="TemplateData/UnityProgress.js"></script>
+    <script defer src="Build/UnityLoader.js"></script>
+    <script defer src="TemplateData/game.js"></script>
+  </head>
+  <body>
+    <div class="webgl-content">
+      <div id="gameContainer"></div>
+      <div id="gameError" role="alert" hidden>
+        <p id="gameErrorMessage"></p>
+        <button id="retry" type="button">Reload game</button>
+      </div>
+      <div class="footer">
+        <div class="webgl-logo"></div>
+        <button class="fullscreen" id="fullscreen" type="button" aria-label="Full screen" disabled></button>
+        <div class="title">Drift Hunters</div>
+      </div>
+    </div>
+  </body>
+</html>

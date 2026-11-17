@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <!-- Keep game assets local; only Photon multiplayer may connect externally. -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' blob:; script-src 'self' blob: 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self' blob: https://*.exitgames.com/photon/ wss://*.exitgames.com:* wss://*.photonengine.com:* wss://*.photonengine.io:*; worker-src 'self' blob:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'">
+    <meta name="referrer" content="no-referrer">
+    <title>Unity WebGL Player | Sonic Revert</title>
+    <script src="Build/UnityLoader.js"></script>
+    <script>
+      UnityLoader.instantiate("unityContainer", "Build/Sonic Revert.json");
+    </script>
+  </head>
+  <body>
+    <div id="unityContainer" style="width: 900px; height: 506px; margin: auto"></div>
+  </body>
+</html>

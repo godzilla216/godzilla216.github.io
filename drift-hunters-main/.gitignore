@@ -1,0 +1,3 @@
+# Temporary full archive used only when rebuilding the packaged data parts.
+/Build/ItchIO.data.unityweb
+__pycache__/

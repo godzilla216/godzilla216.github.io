@@ -1,0 +1,4 @@
+# These are ordinary Git blobs, including the split game data. Override any
+# inherited LFS filters and prevent line-ending conversions of binary assets.
+Build/*.unityweb -filter -diff -merge -text
+Build/*.unityweb.part* -filter -diff -merge -text

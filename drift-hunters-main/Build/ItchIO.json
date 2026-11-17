@@ -1,0 +1,49 @@
+{
+  "TOTAL_MEMORY": 1073741824,
+  "dataUrl": "ItchIO.data.unityweb.part00",
+  "asmCodeUrl": "ItchIO.asm.code.unityweb",
+  "asmMemoryUrl": "ItchIO.asm.memory.unityweb",
+  "asmFrameworkUrl": "ItchIO.asm.framework.unityweb",
+  "backgroundUrl": "ItchIO.jpg",
+  "splashScreenStyle": "Light",
+  "backgroundColor": "#FFFFFF",
+  "dataParts": [
+    {
+      "url": "ItchIO.data.unityweb.part00",
+      "size": 16777216
+    },
+    {
+      "url": "ItchIO.data.unityweb.part01",
+      "size": 16777216
+    },
+    {
+      "url": "ItchIO.data.unityweb.part02",
+      "size": 16777216
+    },
+    {
+      "url": "ItchIO.data.unityweb.part03",
+      "size": 16777216
+    },
+    {
+      "url": "ItchIO.data.unityweb.part04",
+      "size": 16777216
+    },
+    {
+      "url": "ItchIO.data.unityweb.part05",
+      "size": 16777216
+    },
+    {
+      "url": "ItchIO.data.unityweb.part06",
+      "size": 16777216
+    },
+    {
+      "url": "ItchIO.data.unityweb.part07",
+      "size": 16777216
+    },
+    {
+      "url": "ItchIO.data.unityweb.part08",
+      "size": 2158971
+    }
+  ],
+  "dataSha256": "474cb92b5eb1815aa90dc68e6472bc204829b6265fd37e95aaf9fd872c75a491"
+}
