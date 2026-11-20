@@ -17,6 +17,43 @@ let ready = false;
 let saving = false;
 let resultsRequest = 0;
 
+const ESPN_STANDINGS_URL = 'https://site.api.espn.com/apis/v2/sports/football/college-football/standings?season=2026&group=80';
+let teamRecords = new Map();
+
+// ESPN groups standings by conference. Read overall (not conference) records by team ID.
+function collectTeamRecords(group, records) {
+  for (const entry of group?.standings?.entries ?? []) {
+    const stats = Array.isArray(entry.stats) ? entry.stats : [];
+    const overall = stats.find(stat => stat.name === 'overall' || stat.type === 'overall')
+      ?? stats.find(stat => stat.abbreviation === 'W-L' && stat.name !== 'vs. conf.');
+    const record = overall?.displayValue ?? entry.team?.record?.summary;
+    if (entry.team?.id != null && typeof record === 'string' &&
+        /^\d+-\d+(?:-\d+)?$/.test(record.trim())) {
+      records.set(String(entry.team.id), record.trim());
+    }
+  }
+  for (const child of group?.children ?? []) collectTeamRecords(child, records);
+}
+
+async function loadTeamRecords() {
+  try {
+    const response = await fetch(ESPN_STANDINGS_URL);
+    if (!response.ok) throw new Error('ESPN standings returned HTTP ' + response.status);
+    const records = new Map();
+    collectTeamRecords(await response.json(), records);
+    if (!records.size) throw new Error('No overall team records were returned.');
+    teamRecords = records;
+    // Update visible labels without rebuilding the ballot or interrupting focus/dragging.
+    for (const badge of document.querySelectorAll('[data-record-for]')) {
+      const record = records.get(badge.dataset.recordFor);
+      badge.textContent = record ? ' (' + record + ')' : '';
+    }
+  } catch (error) {
+    // Voting still works when the third-party standings service is unavailable.
+    console.warn('2026 team records unavailable:', error);
+  }
+}
+
 function node(tag, className, content) {
   const item = document.createElement(tag);
   if (className) item.className = className;
@@ -40,7 +77,12 @@ function teamInfo(team, subtitle = team.conference) {
   logo.alt = '';
   logo.loading = 'lazy';
   const label = node('span', 'label');
-  label.append(node('b', '', team.name), node('small', '', subtitle));
+  const name = node('b', '', team.name);
+  const record = node('span', 'team-record', teamRecords.has(team.id) ? ' (' + teamRecords.get(team.id) + ')' : '');
+  record.dataset.recordFor = team.id;
+  record.title = '2026 overall win-loss record';
+  name.append(record);
+  label.append(name, node('small', '', subtitle));
   return [logo, label];
 }
 
@@ -270,6 +312,9 @@ submit.addEventListener('click', async () => {
     status.textContent = message;
   }
 });
+
+// Standings are optional and load independently of ballots and fan rankings.
+void loadTeamRecords();
 
 const initializedTeams = read('./teams.json').then(data => {
   teams = data;
