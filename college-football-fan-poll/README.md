@@ -22,13 +22,15 @@ from a branch**. `index.html` must be directly inside the selected publishing
 folder. The frontend files have also been uploaded to
 [`fan-poll/` on your repository's main branch](https://github.com/godzilla216/godzilla216.github.io/tree/main/fan-poll)
 in commit `41f2308ead6708d82006c555e82fa4ff37bd12fe`.
-GitHub Pages is currently disabled (`has_pages: false`). Enable **Deploy from a
-branch**, select **main** and **/(root)** in
-[Pages settings](https://github.com/godzilla216/godzilla216.github.io/settings/pages),
-then open https://godzilla216.github.io/fan-poll/ after the deployment completes.
-This is a private repository; if GitHub requires a plan upgrade, use a separate
-public repository for the poll or choose a plan that supports private-repository
-Pages. Making this existing repository public would expose its other source files.
+GitHub Pages is enabled and serves https://godzilla216.github.io/fan-poll/.
+It also serves your uploaded source app at
+https://godzilla216.github.io/college-football-fan-poll/app/.
+The source configuration selects the deployed API on `godzilla216.github.io`
+and keeps same-origin API requests for local development and Sites. Both Pages
+entry points use the same browser voter token and shared Cloudflare database.
+The source folder's top-level `index.html` directs visitors to the built poll.
+If you change the Pages domain, update `ALLOWED_ORIGIN` in `wrangler.jsonc`
+and the direct-upload hostname in `app/config.js` before publishing again.
 
 Local `npm.cmd start` continues to use its local SQLite database and same-origin
 API; it does not send local votes to the deployed poll.
