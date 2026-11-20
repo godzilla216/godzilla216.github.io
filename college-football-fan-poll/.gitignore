@@ -1,0 +1,8 @@
+dist/
+node_modules/
+.data/
+github-pages/
+.wrangler/
+.dev.vars
+.env*
+fan-poll-github-pages.zip

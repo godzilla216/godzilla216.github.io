@@ -1,0 +1,21 @@
+{
+  "name": "saturday-top25",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "build:pages": "node scripts/build-pages.mjs",
+    "build:api": "node scripts/build-cloudflare.mjs",
+    "deploy:api": "wrangler deploy",
+    "db:migrate": "wrangler d1 migrations apply DB --remote",
+    "dev": "node scripts/dev.mjs",
+    "start": "node scripts/dev.mjs",
+    "test": "node --test"
+  },
+  "devDependencies": {
+    "wrangler": "^4.165.0"
+  }
+}

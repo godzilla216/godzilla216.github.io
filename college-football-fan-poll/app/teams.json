@@ -1,0 +1,979 @@
+[
+  {
+    "id": "2005",
+    "name": "Air Force",
+    "mascot": "Falcons",
+    "conference": "Mountain West",
+    "abbr": "AF"
+  },
+  {
+    "id": "2006",
+    "name": "Akron",
+    "mascot": "Zips",
+    "conference": "MAC",
+    "abbr": "AKR"
+  },
+  {
+    "id": "333",
+    "name": "Alabama",
+    "mascot": "Crimson Tide",
+    "conference": "SEC",
+    "abbr": "ALA"
+  },
+  {
+    "id": "2026",
+    "name": "Appalachian State",
+    "mascot": "Mountaineers",
+    "conference": "Sun Belt",
+    "abbr": "APP",
+    "searchName": "App State"
+  },
+  {
+    "id": "12",
+    "name": "Arizona",
+    "mascot": "Wildcats",
+    "conference": "Big 12",
+    "abbr": "ARIZ"
+  },
+  {
+    "id": "9",
+    "name": "Arizona State",
+    "mascot": "Sun Devils",
+    "conference": "Big 12",
+    "abbr": "ASU"
+  },
+  {
+    "id": "8",
+    "name": "Arkansas",
+    "mascot": "Razorbacks",
+    "conference": "SEC",
+    "abbr": "ARK"
+  },
+  {
+    "id": "2032",
+    "name": "Arkansas State",
+    "mascot": "Red Wolves",
+    "conference": "Sun Belt",
+    "abbr": "ARST"
+  },
+  {
+    "id": "349",
+    "name": "Army",
+    "mascot": "Black Knights",
+    "conference": "American",
+    "abbr": "ARMY"
+  },
+  {
+    "id": "2",
+    "name": "Auburn",
+    "mascot": "Tigers",
+    "conference": "SEC",
+    "abbr": "AUB"
+  },
+  {
+    "id": "2050",
+    "name": "Ball State",
+    "mascot": "Cardinals",
+    "conference": "MAC",
+    "abbr": "BALL"
+  },
+  {
+    "id": "239",
+    "name": "Baylor",
+    "mascot": "Bears",
+    "conference": "Big 12",
+    "abbr": "BAY"
+  },
+  {
+    "id": "68",
+    "name": "Boise State",
+    "mascot": "Broncos",
+    "conference": "Pac-12",
+    "abbr": "BOIS"
+  },
+  {
+    "id": "103",
+    "name": "Boston College",
+    "mascot": "Eagles",
+    "conference": "ACC",
+    "abbr": "BC"
+  },
+  {
+    "id": "189",
+    "name": "Bowling Green",
+    "mascot": "Falcons",
+    "conference": "MAC",
+    "abbr": "BGSU"
+  },
+  {
+    "id": "2084",
+    "name": "Buffalo",
+    "mascot": "Bulls",
+    "conference": "MAC",
+    "abbr": "BUF"
+  },
+  {
+    "id": "252",
+    "name": "BYU",
+    "mascot": "Cougars",
+    "conference": "Big 12",
+    "abbr": "BYU",
+    "searchName": "Brigham Young"
+  },
+  {
+    "id": "25",
+    "name": "California",
+    "mascot": "Golden Bears",
+    "conference": "ACC",
+    "abbr": "CAL"
+  },
+  {
+    "id": "2117",
+    "name": "Central Michigan",
+    "mascot": "Chippewas",
+    "conference": "MAC",
+    "abbr": "CMU"
+  },
+  {
+    "id": "2429",
+    "name": "Charlotte",
+    "mascot": "49ers",
+    "conference": "American",
+    "abbr": "CLT"
+  },
+  {
+    "id": "2132",
+    "name": "Cincinnati",
+    "mascot": "Bearcats",
+    "conference": "Big 12",
+    "abbr": "CIN"
+  },
+  {
+    "id": "228",
+    "name": "Clemson",
+    "mascot": "Tigers",
+    "conference": "ACC",
+    "abbr": "CLEM"
+  },
+  {
+    "id": "324",
+    "name": "Coastal Carolina",
+    "mascot": "Chanticleers",
+    "conference": "Sun Belt",
+    "abbr": "CCU"
+  },
+  {
+    "id": "38",
+    "name": "Colorado",
+    "mascot": "Buffaloes",
+    "conference": "Big 12",
+    "abbr": "COLO"
+  },
+  {
+    "id": "36",
+    "name": "Colorado State",
+    "mascot": "Rams",
+    "conference": "Pac-12",
+    "abbr": "CSU"
+  },
+  {
+    "id": "48",
+    "name": "Delaware",
+    "mascot": "Fightin' Blue Hens",
+    "conference": "CUSA",
+    "abbr": "DEL"
+  },
+  {
+    "id": "150",
+    "name": "Duke",
+    "mascot": "Blue Devils",
+    "conference": "ACC",
+    "abbr": "DUKE"
+  },
+  {
+    "id": "151",
+    "name": "East Carolina",
+    "mascot": "Pirates",
+    "conference": "American",
+    "abbr": "ECU"
+  },
+  {
+    "id": "2199",
+    "name": "Eastern Michigan",
+    "mascot": "Eagles",
+    "conference": "MAC",
+    "abbr": "EMU"
+  },
+  {
+    "id": "2226",
+    "name": "Florida Atlantic",
+    "mascot": "Owls",
+    "conference": "American",
+    "abbr": "FAU"
+  },
+  {
+    "id": "2229",
+    "name": "FIU",
+    "mascot": "Panthers",
+    "conference": "CUSA",
+    "abbr": "FIU",
+    "searchName": "Florida International"
+  },
+  {
+    "id": "57",
+    "name": "Florida",
+    "mascot": "Gators",
+    "conference": "SEC",
+    "abbr": "FLA"
+  },
+  {
+    "id": "52",
+    "name": "Florida State",
+    "mascot": "Seminoles",
+    "conference": "ACC",
+    "abbr": "FSU"
+  },
+  {
+    "id": "278",
+    "name": "Fresno State",
+    "mascot": "Bulldogs",
+    "conference": "Pac-12",
+    "abbr": "FRES"
+  },
+  {
+    "id": "61",
+    "name": "Georgia",
+    "mascot": "Bulldogs",
+    "conference": "SEC",
+    "abbr": "UGA"
+  },
+  {
+    "id": "290",
+    "name": "Georgia Southern",
+    "mascot": "Eagles",
+    "conference": "Sun Belt",
+    "abbr": "GASO"
+  },
+  {
+    "id": "2247",
+    "name": "Georgia State",
+    "mascot": "Panthers",
+    "conference": "Sun Belt",
+    "abbr": "GAST"
+  },
+  {
+    "id": "59",
+    "name": "Georgia Tech",
+    "mascot": "Yellow Jackets",
+    "conference": "ACC",
+    "abbr": "GT"
+  },
+  {
+    "id": "62",
+    "name": "Hawaiʻi",
+    "mascot": "Rainbow Warriors",
+    "conference": "Mountain West",
+    "abbr": "HAW"
+  },
+  {
+    "id": "248",
+    "name": "Houston",
+    "mascot": "Cougars",
+    "conference": "Big 12",
+    "abbr": "HOU"
+  },
+  {
+    "id": "356",
+    "name": "Illinois",
+    "mascot": "Fighting Illini",
+    "conference": "Big Ten",
+    "abbr": "ILL"
+  },
+  {
+    "id": "84",
+    "name": "Indiana",
+    "mascot": "Hoosiers",
+    "conference": "Big Ten",
+    "abbr": "IU"
+  },
+  {
+    "id": "2294",
+    "name": "Iowa",
+    "mascot": "Hawkeyes",
+    "conference": "Big Ten",
+    "abbr": "IOWA"
+  },
+  {
+    "id": "66",
+    "name": "Iowa State",
+    "mascot": "Cyclones",
+    "conference": "Big 12",
+    "abbr": "ISU"
+  },
+  {
+    "id": "55",
+    "name": "Jacksonville State",
+    "mascot": "Gamecocks",
+    "conference": "CUSA",
+    "abbr": "JXST"
+  },
+  {
+    "id": "256",
+    "name": "James Madison",
+    "mascot": "Dukes",
+    "conference": "Sun Belt",
+    "abbr": "JMU"
+  },
+  {
+    "id": "2305",
+    "name": "Kansas",
+    "mascot": "Jayhawks",
+    "conference": "Big 12",
+    "abbr": "KU"
+  },
+  {
+    "id": "2306",
+    "name": "Kansas State",
+    "mascot": "Wildcats",
+    "conference": "Big 12",
+    "abbr": "KSU"
+  },
+  {
+    "id": "338",
+    "name": "Kennesaw State",
+    "mascot": "Owls",
+    "conference": "CUSA",
+    "abbr": "KENN"
+  },
+  {
+    "id": "2309",
+    "name": "Kent State",
+    "mascot": "Golden Flashes",
+    "conference": "MAC",
+    "abbr": "KENT"
+  },
+  {
+    "id": "96",
+    "name": "Kentucky",
+    "mascot": "Wildcats",
+    "conference": "SEC",
+    "abbr": "UK"
+  },
+  {
+    "id": "2335",
+    "name": "Liberty",
+    "mascot": "Flames",
+    "conference": "CUSA",
+    "abbr": "LIB"
+  },
+  {
+    "id": "309",
+    "name": "Louisiana",
+    "mascot": "Ragin' Cajuns",
+    "conference": "Sun Belt",
+    "abbr": "UL"
+  },
+  {
+    "id": "2348",
+    "name": "Louisiana Tech",
+    "mascot": "Bulldogs",
+    "conference": "Sun Belt",
+    "abbr": "LT"
+  },
+  {
+    "id": "97",
+    "name": "Louisville",
+    "mascot": "Cardinals",
+    "conference": "ACC",
+    "abbr": "LOU"
+  },
+  {
+    "id": "99",
+    "name": "LSU",
+    "mascot": "Tigers",
+    "conference": "SEC",
+    "abbr": "LSU",
+    "searchName": "Louisiana State"
+  },
+  {
+    "id": "276",
+    "name": "Marshall",
+    "mascot": "Thundering Herd",
+    "conference": "Sun Belt",
+    "abbr": "MRSH"
+  },
+  {
+    "id": "120",
+    "name": "Maryland",
+    "mascot": "Terrapins",
+    "conference": "Big Ten",
+    "abbr": "MD"
+  },
+  {
+    "id": "235",
+    "name": "Memphis",
+    "mascot": "Tigers",
+    "conference": "American",
+    "abbr": "MEM"
+  },
+  {
+    "id": "2390",
+    "name": "Miami (FL)",
+    "mascot": "Hurricanes",
+    "conference": "ACC",
+    "abbr": "MIA",
+    "searchName": "Miami Florida"
+  },
+  {
+    "id": "193",
+    "name": "Miami (OH)",
+    "mascot": "RedHawks",
+    "conference": "MAC",
+    "abbr": "M-OH",
+    "searchName": "Miami Ohio"
+  },
+  {
+    "id": "130",
+    "name": "Michigan",
+    "mascot": "Wolverines",
+    "conference": "Big Ten",
+    "abbr": "MICH"
+  },
+  {
+    "id": "127",
+    "name": "Michigan State",
+    "mascot": "Spartans",
+    "conference": "Big Ten",
+    "abbr": "MSU"
+  },
+  {
+    "id": "2393",
+    "name": "Middle Tennessee",
+    "mascot": "Blue Raiders",
+    "conference": "CUSA",
+    "abbr": "MTSU"
+  },
+  {
+    "id": "135",
+    "name": "Minnesota",
+    "mascot": "Golden Gophers",
+    "conference": "Big Ten",
+    "abbr": "MINN"
+  },
+  {
+    "id": "344",
+    "name": "Mississippi State",
+    "mascot": "Bulldogs",
+    "conference": "SEC",
+    "abbr": "MSST"
+  },
+  {
+    "id": "142",
+    "name": "Missouri",
+    "mascot": "Tigers",
+    "conference": "SEC",
+    "abbr": "MIZ"
+  },
+  {
+    "id": "2623",
+    "name": "Missouri State",
+    "mascot": "Bears",
+    "conference": "CUSA",
+    "abbr": "MOST"
+  },
+  {
+    "id": "2426",
+    "name": "Navy",
+    "mascot": "Midshipmen",
+    "conference": "American",
+    "abbr": "NAVY"
+  },
+  {
+    "id": "152",
+    "name": "NC State",
+    "mascot": "Wolfpack",
+    "conference": "ACC",
+    "abbr": "NCSU"
+  },
+  {
+    "id": "158",
+    "name": "Nebraska",
+    "mascot": "Cornhuskers",
+    "conference": "Big Ten",
+    "abbr": "NEB"
+  },
+  {
+    "id": "2440",
+    "name": "Nevada",
+    "mascot": "Wolf Pack",
+    "conference": "Mountain West",
+    "abbr": "NEV"
+  },
+  {
+    "id": "167",
+    "name": "New Mexico",
+    "mascot": "Lobos",
+    "conference": "Mountain West",
+    "abbr": "UNM"
+  },
+  {
+    "id": "166",
+    "name": "New Mexico State",
+    "mascot": "Aggies",
+    "conference": "CUSA",
+    "abbr": "NMSU"
+  },
+  {
+    "id": "153",
+    "name": "North Carolina",
+    "mascot": "Tar Heels",
+    "conference": "ACC",
+    "abbr": "UNC"
+  },
+  {
+    "id": "2449",
+    "name": "North Dakota State",
+    "mascot": "Bison",
+    "conference": "Mountain West",
+    "abbr": "NDSU"
+  },
+  {
+    "id": "249",
+    "name": "North Texas",
+    "mascot": "Mean Green",
+    "conference": "American",
+    "abbr": "UNT"
+  },
+  {
+    "id": "2459",
+    "name": "Northern Illinois",
+    "mascot": "Huskies",
+    "conference": "Mountain West",
+    "abbr": "NIU"
+  },
+  {
+    "id": "77",
+    "name": "Northwestern",
+    "mascot": "Wildcats",
+    "conference": "Big Ten",
+    "abbr": "NU"
+  },
+  {
+    "id": "87",
+    "name": "Notre Dame",
+    "mascot": "Fighting Irish",
+    "conference": "Independent",
+    "abbr": "ND"
+  },
+  {
+    "id": "195",
+    "name": "Ohio",
+    "mascot": "Bobcats",
+    "conference": "MAC",
+    "abbr": "OHIO"
+  },
+  {
+    "id": "194",
+    "name": "Ohio State",
+    "mascot": "Buckeyes",
+    "conference": "Big Ten",
+    "abbr": "OSU"
+  },
+  {
+    "id": "201",
+    "name": "Oklahoma",
+    "mascot": "Sooners",
+    "conference": "SEC",
+    "abbr": "OU"
+  },
+  {
+    "id": "197",
+    "name": "Oklahoma State",
+    "mascot": "Cowboys",
+    "conference": "Big 12",
+    "abbr": "OKST"
+  },
+  {
+    "id": "295",
+    "name": "Old Dominion",
+    "mascot": "Monarchs",
+    "conference": "Sun Belt",
+    "abbr": "ODU"
+  },
+  {
+    "id": "145",
+    "name": "Ole Miss",
+    "mascot": "Rebels",
+    "conference": "SEC",
+    "abbr": "MISS"
+  },
+  {
+    "id": "2483",
+    "name": "Oregon",
+    "mascot": "Ducks",
+    "conference": "Big Ten",
+    "abbr": "ORE"
+  },
+  {
+    "id": "204",
+    "name": "Oregon State",
+    "mascot": "Beavers",
+    "conference": "Pac-12",
+    "abbr": "ORST"
+  },
+  {
+    "id": "213",
+    "name": "Penn State",
+    "mascot": "Nittany Lions",
+    "conference": "Big Ten",
+    "abbr": "PSU"
+  },
+  {
+    "id": "221",
+    "name": "Pittsburgh",
+    "mascot": "Panthers",
+    "conference": "ACC",
+    "abbr": "PITT"
+  },
+  {
+    "id": "2509",
+    "name": "Purdue",
+    "mascot": "Boilermakers",
+    "conference": "Big Ten",
+    "abbr": "PUR"
+  },
+  {
+    "id": "242",
+    "name": "Rice",
+    "mascot": "Owls",
+    "conference": "American",
+    "abbr": "RICE"
+  },
+  {
+    "id": "164",
+    "name": "Rutgers",
+    "mascot": "Scarlet Knights",
+    "conference": "Big Ten",
+    "abbr": "RUTG"
+  },
+  {
+    "id": "16",
+    "name": "Sacramento State",
+    "mascot": "Hornets",
+    "conference": "MAC",
+    "abbr": "SAC"
+  },
+  {
+    "id": "2534",
+    "name": "Sam Houston",
+    "mascot": "Bearkats",
+    "conference": "CUSA",
+    "abbr": "SHSU"
+  },
+  {
+    "id": "21",
+    "name": "San Diego State",
+    "mascot": "Aztecs",
+    "conference": "Pac-12",
+    "abbr": "SDSU"
+  },
+  {
+    "id": "23",
+    "name": "San Jose State",
+    "mascot": "Spartans",
+    "conference": "Mountain West",
+    "abbr": "SJSU"
+  },
+  {
+    "id": "2567",
+    "name": "SMU",
+    "mascot": "Mustangs",
+    "conference": "ACC",
+    "abbr": "SMU"
+  },
+  {
+    "id": "6",
+    "name": "South Alabama",
+    "mascot": "Jaguars",
+    "conference": "Sun Belt",
+    "abbr": "USA"
+  },
+  {
+    "id": "2579",
+    "name": "South Carolina",
+    "mascot": "Gamecocks",
+    "conference": "SEC",
+    "abbr": "SC"
+  },
+  {
+    "id": "58",
+    "name": "South Florida",
+    "mascot": "Bulls",
+    "conference": "American",
+    "abbr": "USF"
+  },
+  {
+    "id": "2572",
+    "name": "Southern Miss",
+    "mascot": "Golden Eagles",
+    "conference": "Sun Belt",
+    "abbr": "USM"
+  },
+  {
+    "id": "24",
+    "name": "Stanford",
+    "mascot": "Cardinal",
+    "conference": "ACC",
+    "abbr": "STAN"
+  },
+  {
+    "id": "183",
+    "name": "Syracuse",
+    "mascot": "Orange",
+    "conference": "ACC",
+    "abbr": "SYR"
+  },
+  {
+    "id": "2628",
+    "name": "TCU",
+    "mascot": "Horned Frogs",
+    "conference": "Big 12",
+    "abbr": "TCU"
+  },
+  {
+    "id": "218",
+    "name": "Temple",
+    "mascot": "Owls",
+    "conference": "American",
+    "abbr": "TEM"
+  },
+  {
+    "id": "2633",
+    "name": "Tennessee",
+    "mascot": "Volunteers",
+    "conference": "SEC",
+    "abbr": "TENN"
+  },
+  {
+    "id": "251",
+    "name": "Texas",
+    "mascot": "Longhorns",
+    "conference": "SEC",
+    "abbr": "TEX"
+  },
+  {
+    "id": "245",
+    "name": "Texas A&M",
+    "mascot": "Aggies",
+    "conference": "SEC",
+    "abbr": "TA&M"
+  },
+  {
+    "id": "326",
+    "name": "Texas State",
+    "mascot": "Bobcats",
+    "conference": "Pac-12",
+    "abbr": "TXST"
+  },
+  {
+    "id": "2641",
+    "name": "Texas Tech",
+    "mascot": "Red Raiders",
+    "conference": "Big 12",
+    "abbr": "TTU"
+  },
+  {
+    "id": "2649",
+    "name": "Toledo",
+    "mascot": "Rockets",
+    "conference": "MAC",
+    "abbr": "TOL"
+  },
+  {
+    "id": "2653",
+    "name": "Troy",
+    "mascot": "Trojans",
+    "conference": "Sun Belt",
+    "abbr": "TROY"
+  },
+  {
+    "id": "2655",
+    "name": "Tulane",
+    "mascot": "Green Wave",
+    "conference": "American",
+    "abbr": "TULN"
+  },
+  {
+    "id": "202",
+    "name": "Tulsa",
+    "mascot": "Golden Hurricane",
+    "conference": "American",
+    "abbr": "TLSA"
+  },
+  {
+    "id": "5",
+    "name": "UAB",
+    "mascot": "Blazers",
+    "conference": "American",
+    "abbr": "UAB"
+  },
+  {
+    "id": "2116",
+    "name": "UCF",
+    "mascot": "Knights",
+    "conference": "Big 12",
+    "abbr": "UCF",
+    "searchName": "Central Florida"
+  },
+  {
+    "id": "26",
+    "name": "UCLA",
+    "mascot": "Bruins",
+    "conference": "Big Ten",
+    "abbr": "UCLA"
+  },
+  {
+    "id": "41",
+    "name": "UConn",
+    "mascot": "Huskies",
+    "conference": "Independent",
+    "abbr": "CONN",
+    "searchName": "Connecticut"
+  },
+  {
+    "id": "2433",
+    "name": "ULM",
+    "mascot": "Warhawks",
+    "conference": "Sun Belt",
+    "abbr": "ULM",
+    "searchName": "Louisiana Monroe UL Monroe"
+  },
+  {
+    "id": "113",
+    "name": "UMass",
+    "mascot": "Minutemen",
+    "conference": "MAC",
+    "abbr": "MASS",
+    "searchName": "Massachusetts"
+  },
+  {
+    "id": "2439",
+    "name": "UNLV",
+    "mascot": "Rebels",
+    "conference": "Mountain West",
+    "abbr": "UNLV"
+  },
+  {
+    "id": "30",
+    "name": "USC",
+    "mascot": "Trojans",
+    "conference": "Big Ten",
+    "abbr": "USC",
+    "searchName": "Southern California"
+  },
+  {
+    "id": "254",
+    "name": "Utah",
+    "mascot": "Utes",
+    "conference": "Big 12",
+    "abbr": "UTAH"
+  },
+  {
+    "id": "328",
+    "name": "Utah State",
+    "mascot": "Aggies",
+    "conference": "Pac-12",
+    "abbr": "USU"
+  },
+  {
+    "id": "2638",
+    "name": "UTEP",
+    "mascot": "Miners",
+    "conference": "Mountain West",
+    "abbr": "UTEP"
+  },
+  {
+    "id": "2636",
+    "name": "UTSA",
+    "mascot": "Roadrunners",
+    "conference": "American",
+    "abbr": "UTSA"
+  },
+  {
+    "id": "238",
+    "name": "Vanderbilt",
+    "mascot": "Commodores",
+    "conference": "SEC",
+    "abbr": "VAN"
+  },
+  {
+    "id": "258",
+    "name": "Virginia",
+    "mascot": "Cavaliers",
+    "conference": "ACC",
+    "abbr": "UVA"
+  },
+  {
+    "id": "259",
+    "name": "Virginia Tech",
+    "mascot": "Hokies",
+    "conference": "ACC",
+    "abbr": "VT"
+  },
+  {
+    "id": "154",
+    "name": "Wake Forest",
+    "mascot": "Demon Deacons",
+    "conference": "ACC",
+    "abbr": "WAKE"
+  },
+  {
+    "id": "264",
+    "name": "Washington",
+    "mascot": "Huskies",
+    "conference": "Big Ten",
+    "abbr": "WASH"
+  },
+  {
+    "id": "265",
+    "name": "Washington State",
+    "mascot": "Cougars",
+    "conference": "Pac-12",
+    "abbr": "WSU"
+  },
+  {
+    "id": "277",
+    "name": "West Virginia",
+    "mascot": "Mountaineers",
+    "conference": "Big 12",
+    "abbr": "WVU"
+  },
+  {
+    "id": "98",
+    "name": "Western Kentucky",
+    "mascot": "Hilltoppers",
+    "conference": "CUSA",
+    "abbr": "WKU"
+  },
+  {
+    "id": "2711",
+    "name": "Western Michigan",
+    "mascot": "Broncos",
+    "conference": "MAC",
+    "abbr": "WMU"
+  },
+  {
+    "id": "275",
+    "name": "Wisconsin",
+    "mascot": "Badgers",
+    "conference": "Big Ten",
+    "abbr": "WIS"
+  },
+  {
+    "id": "2751",
+    "name": "Wyoming",
+    "mascot": "Cowboys",
+    "conference": "Mountain West",
+    "abbr": "WYO"
+  }
+]

@@ -1,0 +1,21 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "college-football-fan-poll-api",
+  "account_id": "f458a5ecab34a3b7649cfe6fbfd6a48f",
+  "main": "cloudflare/worker.js",
+  "compatibility_date": "2026-11-19",
+  "workers_dev": true,
+  "build": {"command": "node scripts/build-cloudflare.mjs"},
+  "vars": {
+    // Your Pages origin only: omit the repository path and trailing slash.
+    "ALLOWED_ORIGIN": "https://godzilla216.github.io"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "college-football-fan-poll",
+      "database_id": "1d2731ca-1a1c-4784-9ff3-8deab0f0f0a1",
+      "migrations_dir": "drizzle"
+    }
+  ]
+}
