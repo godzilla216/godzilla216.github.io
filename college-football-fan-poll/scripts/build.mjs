@@ -3,6 +3,7 @@ import {readFile, readdir, mkdir, writeFile, copyFile} from 'node:fs/promises';
 const assets = {};
 for (const [route, filename, type] of [
   ['/', 'index.html', 'text/html; charset=utf-8'],
+  ['/favicon.svg', 'favicon.svg', 'image/svg+xml'],
   ['/style.css', 'style.css', 'text/css; charset=utf-8'],
   ['/client.js', 'client.js', 'text/javascript; charset=utf-8'],
   ['/api.js', 'api.js', 'text/javascript; charset=utf-8'],

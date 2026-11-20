@@ -14,7 +14,7 @@ export async function buildPages({output = new URL('../github-pages/', import.me
   }
   const dest = name => new URL(name, output);
   await mkdir(output, {recursive: true});
-  for (const file of ['index.html', 'style.css', 'client.js', 'api.js', 'teams.json']) {
+  for (const file of ['index.html', 'favicon.svg', 'style.css', 'client.js', 'api.js', 'teams.json']) {
     await copyFile(new URL('../app/' + file, import.meta.url), dest(file));
   }
   const teams = JSON.parse(await readFile(dest('teams.json'), 'utf8'));
