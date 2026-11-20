@@ -28,3 +28,6 @@
 #results-tab:focus-visible {
   outline-color: var(--lime);
 }
+
+/* Show each school's overall season record beside its name across all poll views. */
+.team-record{font-size:.81em;font-weight:600;color:var(--muted);margin-left:.25em;white-space:nowrap}
