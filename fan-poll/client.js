@@ -158,10 +158,11 @@ function updateBallot(focus) {
     );
     row.classList.add('draggable-rank');
     if (index < 12) row.classList.add('playoff-rank');
+    if (index === 12 || index === 13) row.classList.add('teams-out');
     row.addEventListener('pointerdown', event => {
       if (!event.target.closest('.rank-controls')) startDrag(event, row, index);
     });
-    const subtitle = team.conference + (index < 12 ? ' · Seed ' + (index + 1) + (index < 4 ? ' · Bye' : '') : '');
+    const subtitle = team.conference + (index < 12 ? ' · Seed ' + (index + 1) + (index < 4 ? ' · Bye' : '') : index === 12 ? ' · First team out' : index === 13 ? ' · Second team out' : '');
     row.append(...teamInfo(team, subtitle), controls);
     return row;
   });
@@ -267,12 +268,14 @@ function showRankings(data) {
   const rows = data.rankings.map((entry, index) => {
     const seed = index + 1;
     const row = node('div', 'team' + (seed <= 12 ? ' playoff-team' : '') + (seed === 12 ? ' playoff-cutoff' : ''));
+    if (seed === 13 || seed === 14) row.classList.add('teams-out');
     const points = node('span', 'points', entry.points + ' ');
     points.append(node('small', '', entry.points === 1 ? 'pt' : 'pts'));
     const firsts = entry.firsts ? ' · ' + entry.firsts + ' first-place ' + (entry.firsts === 1 ? 'vote' : 'votes') : '';
     const team = byId.get(entry.id);
     row.append(node('span', 'position', seed), ...teamInfo(team, team.conference + firsts));
     if (seed <= 12) row.append(seedBadge(seed));
+    if (seed === 13 || seed === 14) row.append(node('span', 'seed-badge out-badge', seed === 13 ? 'First team out' : 'Second team out'));
     row.append(points);
     return row;
   });

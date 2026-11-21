@@ -43,6 +43,11 @@
 .playoff-team .position,.playoff-rank .position{background:var(--lime);color:var(--deep)}
 .leaderboard .playoff-cutoff{border-bottom:2px solid #9aba68}
 .playoff-rank{background:#f4f9ed}
+.rank.teams-out,.leaderboard .teams-out{background:#fff1f2;box-shadow:inset 4px 0 #dc3545}
+.leaderboard .teams-out:hover{background:#ffe4e6}
+.teams-out .position{background:#b42332;color:#fff}
+.teams-out .label small{color:#a11d2c}
+.out-badge{background:#ffe4e6;border-color:#ef9aa3;color:#a11d2c}
 .playoff-card{overflow:hidden;border:1px solid #28473b;border-radius:12px;background:#0c211b;color:#f3f8f4;box-shadow:0 8px 28px #08271d12}
 .bracket-banner{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:25px 26px;border-bottom:1px solid #ffffff15;background:linear-gradient(110deg,#173e2c,#0c211b)}
 .bracket-banner .eyebrow{color:var(--lime);margin-bottom:7px}
