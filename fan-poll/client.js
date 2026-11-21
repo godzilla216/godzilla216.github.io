@@ -157,10 +157,12 @@ function updateBallot(focus) {
       }, saving)
     );
     row.classList.add('draggable-rank');
+    if (index < 12) row.classList.add('playoff-rank');
     row.addEventListener('pointerdown', event => {
       if (!event.target.closest('.rank-controls')) startDrag(event, row, index);
     });
-    row.append(...teamInfo(team), controls);
+    const subtitle = team.conference + (index < 12 ? ' · Seed ' + (index + 1) + (index < 4 ? ' · Bye' : '') : '');
+    row.append(...teamInfo(team, subtitle), controls);
     return row;
   });
   ranks.replaceChildren(...rows);
@@ -255,34 +257,113 @@ for (const type of ['pointercancel', 'lostpointercapture']) {
   });
 }
 
-async function view(results) {
-  el('ballot-view').hidden = results;
-  el('results-view').hidden = !results;
-  for (const [id, active] of [['ballot-tab', !results], ['results-tab', results]]) {
-    const tab = el(id);
+function seedBadge(seed) {
+  const badge = node('span', 'seed-badge' + (seed <= 4 ? ' bye-badge' : ''), 'SEED ' + seed);
+  badge.title = seed <= 4 ? 'First-round bye' : 'First-round matchup';
+  return badge;
+}
+
+function showRankings(data) {
+  const rows = data.rankings.map((entry, index) => {
+    const seed = index + 1;
+    const row = node('div', 'team' + (seed <= 12 ? ' playoff-team' : '') + (seed === 12 ? ' playoff-cutoff' : ''));
+    const points = node('span', 'points', entry.points + ' ');
+    points.append(node('small', '', entry.points === 1 ? 'pt' : 'pts'));
+    const firsts = entry.firsts ? ' · ' + entry.firsts + ' first-place ' + (entry.firsts === 1 ? 'vote' : 'votes') : '';
+    const team = byId.get(entry.id);
+    row.append(node('span', 'position', seed), ...teamInfo(team, team.conference + firsts));
+    if (seed <= 12) row.append(seedBadge(seed));
+    row.append(points);
+    return row;
+  });
+  el('leaderboard').replaceChildren(...(rows.length ? rows : [node('p', 'empty', 'The fan rankings will appear after the first ballot is submitted.')]));
+}
+
+function showPlayoff(data) {
+  const board = el('playoff-board');
+  if (!data.rankings.length) {
+    board.replaceChildren(node('p', 'card empty', 'The playoff bracket will appear after the first ballot is submitted.'));
+    return;
+  }
+  const field = data.rankings.slice(0, 12);
+  const slot = (seed, placeholder) => {
+    const team = seed && field[seed - 1] ? byId.get(field[seed - 1].id) : null;
+    const row = node('div', 'bracket-team' + (!team ? ' bracket-placeholder' : '') + (seed && seed <= 4 ? ' bracket-bye' : ''));
+    if (team) {
+      row.append(...teamInfo(team, seed <= 4 ? 'First-round bye' : team.conference));
+    } else {
+      row.append(node('span', 'bracket-placeholder-label', seed ? 'Awaiting No. ' + seed : placeholder));
+    }
+    row.append(node('span', 'bracket-seed', seed || '—'));
+    return row;
+  };
+  const game = (label, slots) => {
+    const match = node('div', 'bracket-game');
+    match.setAttribute('role', 'group');
+    match.setAttribute('aria-label', label);
+    match.append(...slots);
+    return match;
+  };
+  const round = (title, subtitle, className, games) => {
+    const column = node('section', 'bracket-round ' + className);
+    const heading = node('div', 'round-heading');
+    heading.append(node('h3', '', title), node('p', '', subtitle));
+    const matches = node('div', 'round-matches');
+    matches.append(...games);
+    column.append(heading, matches);
+    return column;
+  };
+  // Keep the same fixed paths as the reference; there is no reseeding between rounds.
+  const paths = [[8, 9, 1], [5, 12, 4], [6, 11, 3], [7, 10, 2]];
+  const bracket = node('div', 'bracket-grid');
+  bracket.append(
+    round('First round', 'Seeds 5–8 host', 'first-round', paths.map(([a, b]) =>
+      game('First round: seed ' + a + ' vs. seed ' + b, [slot(a), slot(b)]))),
+    round('Quarterfinals', 'Top four enter', 'quarterfinals', paths.map(([a, b, bye]) =>
+      game('Quarterfinal: seed ' + bye + ' vs. winner of ' + a + ' / ' + b, [slot(bye), slot(null, 'Winner ' + a + ' / ' + b)]))),
+    round('Semifinals', 'The final four', 'semifinals', [
+      game('Semifinal 1: winners of quarterfinals 1 and 2', [slot(null, 'Winner QF 1'), slot(null, 'Winner QF 2')]),
+      game('Semifinal 2: winners of quarterfinals 3 and 4', [slot(null, 'Winner QF 3'), slot(null, 'Winner QF 4')])
+    ]),
+    round('Championship', 'For the national title', 'championship', [
+      game('National championship: semifinal winners', [slot(null, 'Winner SF 1'), slot(null, 'Winner SF 2')])
+    ])
+  );
+  const scroll = node('div', 'bracket-scroll');
+  scroll.tabIndex = 0;
+  scroll.setAttribute('role', 'region');
+  scroll.setAttribute('aria-label', '12-team playoff bracket. Scroll horizontally to see every round.');
+  scroll.append(bracket);
+  const heading = node('div', 'bracket-banner');
+  const title = node('div');
+  title.append(node('p', 'eyebrow', 'FAN POLL PLAYOFF'), node('h3', '', '12 teams. One champion.'));
+  heading.append(title, node('span', 'bracket-projection', 'PROJECTED FIELD'));
+  const card = node('div', 'playoff-card');
+  card.append(heading, scroll, node('p', 'bracket-note', 'Seeds are based only on fan-poll order. Later-round teams are determined by game results. Scroll to explore all rounds on smaller screens.'));
+  board.replaceChildren(card);
+}
+
+async function view(selected) {
+  const request = ++resultsRequest;
+  for (const name of ['ballot', 'results', 'playoff']) {
+    const active = name === selected;
+    el(name + '-view').hidden = !active;
+    const tab = el(name + '-tab');
     tab.classList.toggle('active', active);
     tab.setAttribute('aria-pressed', active);
   }
   if (drag) endDrag();
-  if (!results) return;
-  const request = ++resultsRequest;
-  const board = el('leaderboard');
-  el('voter-count').textContent = '';
-  board.replaceChildren(node('p', 'empty', 'Loading fan rankings…'));
+  if (selected === 'ballot') return;
+  const board = el(selected === 'results' ? 'leaderboard' : 'playoff-board');
+  const count = el(selected === 'results' ? 'voter-count' : 'playoff-voter-count');
+  count.textContent = '';
+  board.replaceChildren(node('p', 'empty', selected === 'results' ? 'Loading fan rankings…' : 'Loading playoff bracket…'));
   try {
     const [data] = await Promise.all([read('/api/rankings'), initializedTeams]);
     if (request !== resultsRequest) return;
-    el('voter-count').textContent = data.count + (data.count === 1 ? ' BALLOT' : ' BALLOTS');
-    const rows = data.rankings.map((entry, index) => {
-      const row = node('div', 'team');
-      const points = node('span', 'points', entry.points + ' ');
-      points.append(node('small', '', entry.points === 1 ? 'pt' : 'pts'));
-      const firsts = entry.firsts ? ' · ' + entry.firsts + ' first-place ' + (entry.firsts === 1 ? 'vote' : 'votes') : '';
-      const team = byId.get(entry.id);
-      row.append(node('span', 'position', index + 1), ...teamInfo(team, team.conference + firsts), points);
-      return row;
-    });
-    board.replaceChildren(...(rows.length ? rows : [node('p', 'empty', 'The fan rankings will appear after the first ballot is submitted.')]));
+    count.textContent = data.count + (data.count === 1 ? ' BALLOT' : ' BALLOTS');
+    if (selected === 'results') showRankings(data);
+    else showPlayoff(data);
   } catch (error) {
     if (request === resultsRequest) board.replaceChildren(node('p', 'empty', error.message));
   }
@@ -290,8 +371,9 @@ async function view(results) {
 
 search.addEventListener('input', showDirectory);
 conference.addEventListener('change', showDirectory);
-el('ballot-tab').addEventListener('click', () => view(false));
-el('results-tab').addEventListener('click', () => view(true));
+el('ballot-tab').addEventListener('click', () => view('ballot'));
+el('results-tab').addEventListener('click', () => view('results'));
+el('playoff-tab').addEventListener('click', () => view('playoff'));
 submit.addEventListener('click', async () => {
   saving = true;
   updateBallot();

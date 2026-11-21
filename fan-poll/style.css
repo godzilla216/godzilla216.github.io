@@ -31,3 +31,50 @@
 
 /* Show each school's overall season record beside its name across all poll views. */
 .team-record{font-size:.81em;font-weight:600;color:var(--muted);margin-left:.25em;white-space:nowrap}
+
+/* The fan-poll playoff field. */
+.view-note{font-size:.9rem;line-height:1.65;color:var(--muted);margin-bottom:18px;max-width:58rem}
+.playoff-legend{display:flex;align-items:center;flex-wrap:wrap;gap:9px;margin-bottom:10px;font-size:.85rem;color:var(--muted)}
+.playoff-legend .seed-badge:nth-of-type(3){margin-left:12px}
+.seed-badge{display:inline-flex;align-items:center;justify-content:center;flex:none;min-width:68px;padding:7px 9px;border:1px solid #c6ddc7;border-radius:5px;background:#e9f3e7;color:#285743;font-size:.75rem;font-weight:800;white-space:nowrap}
+.bye-badge{background:var(--lime);border-color:#bedb43;color:var(--deep)}
+.leaderboard .playoff-team{background:#f0f7e9;box-shadow:inset 4px 0 #8bb73d}
+.leaderboard .playoff-team:hover{background:#e7f2dc}
+.playoff-team .position,.playoff-rank .position{background:var(--lime);color:var(--deep)}
+.leaderboard .playoff-cutoff{border-bottom:2px solid #9aba68}
+.playoff-rank{background:#f4f9ed}
+.playoff-card{overflow:hidden;border:1px solid #28473b;border-radius:12px;background:#0c211b;color:#f3f8f4;box-shadow:0 8px 28px #08271d12}
+.bracket-banner{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:25px 26px;border-bottom:1px solid #ffffff15;background:linear-gradient(110deg,#173e2c,#0c211b)}
+.bracket-banner .eyebrow{color:var(--lime);margin-bottom:7px}
+.bracket-banner h3{font-size:2.2rem;margin:0}
+.bracket-projection{border:1px solid #729355;border-radius:5px;color:#e2f6b0;padding:8px 10px;font-size:.75rem;font-weight:800;letter-spacing:.06em;white-space:nowrap}
+.bracket-scroll{overflow-x:auto;scrollbar-color:#729355 #142d23;scrollbar-width:thin}
+.bracket-grid{display:grid;grid-template-columns:repeat(4,minmax(215px,1fr));gap:32px;min-width:1030px;padding:26px}
+.bracket-round{min-width:0}
+.round-heading{min-height:69px}
+.round-heading h3{font-size:1.65rem;margin:0 0 6px}
+.round-heading p{font-size:.85rem;color:#a8beb1;margin:0}
+.round-matches{display:grid;grid-template-rows:repeat(4,172px);gap:16px}
+.bracket-game{position:relative;align-self:center;display:grid;gap:8px;min-width:0}
+.bracket-game::after{content:'';position:absolute;top:50%;left:100%;width:32px;border-top:1px solid #81978a;pointer-events:none}
+.quarterfinals .bracket-game:nth-child(odd)::after{width:16px;height:188px;border-right:1px solid #81978a}
+.quarterfinals .bracket-game:nth-child(even)::after,.semifinals .bracket-game:nth-child(2)::after,.championship .bracket-game::after{display:none}
+.semifinals .bracket-game{grid-row:span 2}
+.semifinals .bracket-game:first-child::after{width:16px;height:376px;border-right:1px solid #81978a}
+.semifinals .bracket-game::before,.championship .bracket-game::before{content:'';position:absolute;top:50%;right:100%;width:16px;border-top:1px solid #81978a;pointer-events:none}
+.championship .bracket-game{grid-row:span 4}
+.bracket-team{display:flex;align-items:center;gap:8px;min-width:0;height:58px;padding:7px 0 7px 10px;border-radius:7px;background:#f2f6f1;color:var(--ink);overflow:hidden}
+.bracket-team .logo{width:36px;height:36px}
+.bracket-team .label b{font-size:.85rem}
+.bracket-team .label small{font-size:.75rem}
+.bracket-seed{display:grid;align-items:center;justify-content:center;align-self:stretch;flex:none;width:38px;margin-block:-7px;background:white;color:#102a20;font:800 1.7rem/1 'Barlow Condensed',Impact,sans-serif}
+.bracket-bye{background:#e5f2d6}
+.bracket-bye .bracket-seed{background:var(--lime)}
+.bracket-placeholder{background:#263c33;color:#c3d1c8}
+.bracket-placeholder .bracket-seed{background:#354c40;color:#a8beb1}
+.bracket-placeholder-label{flex:1;font-size:.85rem;min-width:0;line-height:1.4}
+.championship .bracket-team{border:1px solid #89a44d;background:#2c422a}
+.championship .bracket-seed{color:var(--lime)}
+.bracket-note{margin:0;padding:16px 26px 21px;border-top:1px solid #ffffff15;color:#a8beb1;font-size:.85rem;line-height:1.65}
+@media(max-width:800px){.header nav .tab{padding-inline:12px}.season{display:none}}
+@media(max-width:520px){.header .season{display:block}.header nav{justify-content:space-between}.header nav .tab{padding-inline:9px;font-size:.82rem}#results-tab{margin-inline:0}.leaderboard .team{gap:8px;flex-wrap:wrap;padding-block:12px}.leaderboard .label{flex-basis:calc(100% - 92px)}.leaderboard .seed-badge{margin-left:84px}.leaderboard .points{margin-left:auto}.bracket-banner{padding:20px 18px;align-items:start;flex-direction:column}.bracket-note{padding-inline:18px}.bracket-banner h3{font-size:2rem}.playoff-legend{gap:7px;font-size:.8rem}.playoff-legend .seed-badge:nth-of-type(3){margin-left:4px}.view-note{font-size:.85rem}}

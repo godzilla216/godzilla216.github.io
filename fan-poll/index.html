@@ -15,7 +15,7 @@
 <body>
 <header class="header"><div class="wrap header-inner">
 <a href="./" class="brand" aria-label="College Football Fan Poll home"><span class="mark" aria-hidden="true">25</span><span>FAN <strong>POLL</strong></span></a>
-<nav aria-label="Poll views"><button class="tab active" id="ballot-tab" aria-pressed="true">My Ballot</button><button class="tab" id="results-tab" aria-pressed="false">Fan Rankings</button></nav>
+<nav aria-label="Poll views"><button class="tab active" id="ballot-tab" aria-pressed="true" aria-controls="ballot-view">My Ballot</button><button class="tab" id="results-tab" aria-pressed="false" aria-controls="results-view">Fan Rankings</button><button class="tab" id="playoff-tab" aria-pressed="false" aria-controls="playoff-view">Playoff Bracket</button></nav>
 <span class="season">2026 SEASON</span>
 </div></header>
 <main class="wrap">
@@ -31,7 +31,7 @@
 <div class="list" id="team-list" aria-label="Available teams" tabindex="0"><p class="empty">Loading team directory…</p></div>
 </section>
 <section class="card ballot" aria-labelledby="ballot-title">
-<div class="card-head"><div><h3 id="ballot-title">Your Top 25</h3><p>Drag a team row or use the arrows to reorder.</p></div><span class="count progress-count" id="progress-count">0 / 25</span></div>
+<div class="card-head"><div><h3 id="ballot-title">Your Top 25</h3><p>Drag or use the arrows to reorder. Your top 12 are highlighted.</p></div><span class="count progress-count" id="progress-count">0 / 25</span></div>
 <progress id="progress" max="25" value="0" aria-label="Ballot completion"></progress>
 <div id="ranks" class="ranks" tabindex="0" aria-label="Your ranked teams"></div>
 <div class="ballot-footer"><button class="submit" id="submit" disabled>Submit ballot</button><p id="status" role="status">Choose 25 teams to submit your ballot.</p></div>
@@ -40,7 +40,14 @@
 </div>
 <section id="results-view" hidden>
 <div class="poll-head"><div><p class="eyebrow">THE COMMUNITY POLL</p><h2>Fan rankings</h2></div><span class="count" id="voter-count"></span></div>
+<div class="playoff-legend"><span class="seed-badge bye-badge">1–4</span><span>First-round bye</span><span class="seed-badge">5–12</span><span>First-round matchup</span></div>
+<p class="view-note">The highlighted top 12 make the fan-poll playoff. Seeds follow the fan rankings.</p>
 <div class="card leaderboard" id="leaderboard" aria-live="polite"></div>
+</section>
+<section id="playoff-view" hidden aria-labelledby="playoff-title">
+<div class="poll-head"><div><p class="eyebrow">THE ROAD TO THE TITLE</p><h2 id="playoff-title">Playoff bracket</h2></div><span class="count" id="playoff-voter-count"></span></div>
+<p class="view-note">A 12-team projection from the current fan rankings. Seeds 1–4 receive a first-round bye. Winners advance along the bracket.</p>
+<div id="playoff-board" aria-live="polite"></div>
 </section>
 <footer><span>COLLEGE FOOTBALL FAN POLL</span><span>Independent fan poll · Team logos and 2026 records via ESPN</span></footer>
 </main>

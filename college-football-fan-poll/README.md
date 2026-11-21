@@ -135,6 +135,12 @@ Search or filter the directory, choose 25 teams, reorder them by dragging or usi
 the arrows, then submit. Fan Rankings awards 25 points for first place through
 1 point for 25th. Updating a ballot replaces that visitor's previous vote.
 
+The top 12 are highlighted on your ballot and in Fan Rankings. The Playoff
+Bracket tab seeds the current fan-poll top 12, with first-round byes for seeds
+1–4 and opening games of 8 vs. 9, 5 vs. 12, 6 vs. 11, and 7 vs. 10. This is a
+fan-poll projection based on ranking order; later rounds show the advancing
+game's winner as a placeholder.
+
 Each browser profile keeps its own ballot using an HTTP-only cookie. Submitted
 ballots are saved in `.data/ballots.sqlite` and survive server restarts. Keep this
 folder to preserve the poll. Clearing cookies or using another browser creates
