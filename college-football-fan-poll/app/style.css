@@ -32,6 +32,24 @@
 /* Show each school's overall season record beside its name across all poll views. */
 .team-record{font-size:.81em;font-weight:600;color:var(--muted);margin-left:.25em;white-space:nowrap}
 
+.ratings-guide{margin-top:18px;padding:14px 18px;border:1px solid var(--line);border-radius:9px;background:#fff;font-size:.875rem;line-height:1.6}
+.ratings-guide summary{cursor:pointer;color:var(--green);font-weight:700}
+.ratings-guide details p{margin:12px 0 0;max-width:65rem;color:var(--muted)}
+.ratings-loading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:8px}
+.ratings-loading p{margin:0;color:var(--muted);font-size:.8125rem}
+#refresh-ratings{flex:none;border:1px solid #c6ddc7;border-radius:5px;background:#edf5e8;color:var(--green);padding:7px 10px;font-size:.875rem;font-weight:700}
+#refresh-ratings:disabled{opacity:.6}
+.team-rating{display:flex;align-items:center;gap:7px;margin-top:4px;min-height:18px;white-space:nowrap}
+.rating-stars{position:relative;display:inline-block;font-size:1rem;line-height:1;letter-spacing:1px}
+.rating-empty{color:#b6beb8}
+.rating-filled{position:absolute;left:0;top:0;width:var(--rating-fill);overflow:hidden;color:#916400;white-space:nowrap}
+.rating-number{font-size:.8125rem;font-weight:700;color:var(--ink)}
+.rating-pending{font-size:.75rem;color:var(--muted);font-weight:500}
+.team-choice,.leaderboard .team{min-height:82px}
+.rank:not(.slot){min-height:76px}
+.bracket-grid .bracket-team{height:80px}
+@media(max-width:520px){.ratings-loading{align-items:start;flex-direction:column}.ratings-guide{padding:12px 14px}.rank{gap:6px}.rank-controls{gap:2px}.rank-button{min-width:24px}}
+
 /* The fan-poll playoff field. */
 .view-note{font-size:.9rem;line-height:1.65;color:var(--muted);margin-bottom:18px;max-width:58rem}
 .playoff-legend{display:flex;align-items:center;flex-wrap:wrap;gap:9px;margin-bottom:10px;font-size:.85rem;color:var(--muted)}

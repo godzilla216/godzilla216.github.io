@@ -2,6 +2,16 @@
 
 Requires Node.js 24 or newer. Local use needs no packages or database service.
 
+## Run on localhost
+
+Double-click `start.cmd`, or run `npm.cmd start` in this folder. Keep the server
+running and open http://localhost:4173. On macOS/Linux, use `npm start`.
+
+The local server serves both the app and its voting API. A static preview such
+as Live Server cannot save ballots by itself. Opening the top-level `index.html`
+locally sends you to http://localhost:4173, so start the server first.
+Local ballots are saved in `.data/ballots.sqlite`.
+
 ## Your configured deployment
 
 The voting API is deployed at
@@ -28,7 +38,8 @@ https://godzilla216.github.io/college-football-fan-poll/app/.
 The source configuration selects the deployed API on `godzilla216.github.io`
 and keeps same-origin API requests for local development and Sites. Both Pages
 entry points use the same browser voter token and shared Cloudflare database.
-The source folder's top-level `index.html` directs visitors to the built poll.
+The source folder's top-level `index.html` directs hosted visitors to the built
+poll and local visitors to the local server.
 If you change the Pages domain, update `ALLOWED_ORIGIN` in `wrangler.jsonc`
 and the direct-upload hostname in `app/config.js` before publishing again.
 
@@ -117,7 +128,7 @@ Deployment references: [GitHub Pages workflows](https://docs.github.com/en/pages
 ## Run on Windows
 
 Double-click `start.cmd` in this folder, keep its window open, and open
-http://127.0.0.1:4173 in your browser.
+http://localhost:4173 in your browser.
 
 From PowerShell, you can also run:
 
@@ -130,6 +141,29 @@ Stop the server with Ctrl+C. Run the start command again after editing source fi
 Opening `app/index.html` directly will not work: voting needs the local server.
 
 ## Vote
+
+Every team shows an independent 1-to-5-star resume rating in the directory,
+ballot, rankings, and playoff bracket. Ratings use 2026 ESPN records and completed
+game scores: 50% team win percentage, 30% opponents' average win percentage, and
+20% performance against strong opponents. Stars equal `1 + 4 * weighted score`,
+rounded to one decimal place. They do not change fan-poll points or seeds.
+
+Opponent records exclude every head-to-head game against the team being rated.
+A strong opponent has a win percentage of at least two-thirds across at least
+three other games. Performance against those opponents combines 75% win
+percentage and 25% scoring margin, with each margin capped at +/-21 and scaled
+to 0–1. That component is 50% when no strong opponents have been faced; opponents
+with no other games also count as 50%. Ties count as half a win. Both FBS and FCS
+opponent records are included. Regular-season and postseason results count.
+
+Ratings load independently of voting and are cached in the browser for one hour.
+The voting API proxies only the allowed ESPN standings and team schedules, so
+browser CORS restrictions do not block ratings. Successful source responses are
+also cached by the server for an hour.
+Use **Refresh ratings** to fetch fresh data. Missing, inconsistent, or unavailable
+data shows **Rating unavailable**, and teams with no completed games show
+**Not rated yet**. Expand **How team stars are calculated** for the formula or
+hover over a team's stars for its breakdown.
 
 Search or filter the directory, choose 25 teams, reorder them by dragging or using
 the arrows, then submit. Fan Rankings awards 25 points for first place through

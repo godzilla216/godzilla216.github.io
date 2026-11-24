@@ -5,7 +5,53 @@ const json = (value, status = 200) => Response.json(value, {
   headers: {'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff'}
 });
 
+// Only these ESPN resources can be fetched; visitors cannot supply an upstream URL.
+const ratingsCache = new Map();
+const ratingsRequests = new Map();
+async function handleRatingsData(request, env, path) {
+  if (request.method !== 'GET') return json({error: 'Method not allowed.'}, 405);
+  const params = new URL(request.url).searchParams;
+  const root = 'https://site.api.espn.com/apis';
+  let url;
+  if (path === '/api/ratings-data/standings') {
+    const group = params.get('group');
+    if (!['80', '81'].includes(group)) return json({error: 'Choose FBS or FCS standings.'}, 400);
+    url = root + '/v2/sports/football/college-football/standings?season=' + RATING_SEASON + '&group=' + group;
+  } else if (path === '/api/ratings-data/schedule') {
+    const team = params.get('team');
+    const type = params.get('seasontype');
+    if (!teamById.has(team) || !['2', '3'].includes(type)) return json({error: 'Choose a valid team and season type.'}, 400);
+    url = root + '/site/v2/sports/football/college-football/teams/' + team +
+      '/schedule?season=' + RATING_SEASON + '&seasontype=' + type;
+  } else {
+    return json({error: 'Not found.'}, 404);
+  }
+  const cached = ratingsCache.get(url);
+  if (params.get('refresh') !== '1' && cached && Date.now() - cached.updatedAt < 3600000) return json(cached.data);
+  if (!ratingsRequests.has(url)) {
+    const pending = (async () => {
+      const response = await (env.RATINGS_FETCH ?? fetch)(url, {
+        headers: {Accept: 'application/json'}, signal: AbortSignal.timeout(15000)
+      });
+      if (!response.ok) throw new Error('ESPN returned HTTP ' + response.status);
+      const data = await response.json();
+      if (Number(data.season?.year) !== RATING_SEASON) throw new Error('The season data is unavailable.');
+      ratingsCache.set(url, {data, updatedAt: Date.now()});
+      return data;
+    })();
+    ratingsRequests.set(url, pending);
+  }
+  try {
+    return json(await ratingsRequests.get(url));
+  } catch {
+    return json({error: 'Team records and game results are temporarily unavailable.'}, 503);
+  } finally {
+    ratingsRequests.delete(url);
+  }
+}
+
 async function handleApi(request, env, path) {
+  if (path.startsWith('/api/ratings-data/')) return handleRatingsData(request, env, path);
   const tokenMode = env.BROWSER_VOTERS_ONLY === true;
   const secure = new URL(request.url).protocol === 'https:';
   const cookieName = secure ? '__Host-fan-ballot' : 'fan-ballot';

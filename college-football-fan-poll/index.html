@@ -6,9 +6,17 @@
   <title>College Football Fan Poll</title>
   <link rel="icon" href="https://godzilla216.github.io/fan-poll/favicon.svg" type="image/svg+xml">
   <link rel="canonical" href="https://godzilla216.github.io/fan-poll/">
-  <meta http-equiv="refresh" content="0;url=https://godzilla216.github.io/fan-poll/">
 </head>
 <body>
-  <p><a href="https://godzilla216.github.io/fan-poll/">Open the College Football Fan Poll</a></p>
+  <p><a id="open-poll" href="https://godzilla216.github.io/fan-poll/">Open the College Football Fan Poll</a></p>
+  <script>
+    const local = location.protocol === 'file:' ||
+      ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
+    const pollUrl = local
+      ? 'http://localhost:4173/'
+      : 'https://godzilla216.github.io/fan-poll/';
+    document.getElementById('open-poll').href = pollUrl;
+    location.replace(pollUrl);
+  </script>
 </body>
 </html>

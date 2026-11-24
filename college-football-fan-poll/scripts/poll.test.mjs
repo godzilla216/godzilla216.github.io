@@ -88,6 +88,7 @@ test('ballots are isolated, scored, updated, validated, and persisted across res
     const response = await api('/');
     assert.match(await response.text(), /College Football Fan Poll/);
     assert.equal((await api('/client.js')).headers.get('content-type'), 'text/javascript; charset=utf-8');
+    assert.equal((await api('/ratings.js')).headers.get('content-type'), 'text/javascript; charset=utf-8');
     assert.equal((await (await api('/teams.json')).json()).length, 138);
     for (const team of teams) {
       const image = await api('/assets/' + team.id + '.webp');
@@ -124,6 +125,55 @@ test('hosted HTTPS visitors retain secure cookies and authenticated identities',
   const cookie = response.headers.get('set-cookie').split(';')[0];
   await worker.fetch(new Request('https://poll.example/api/ballot', {headers: {Cookie: cookie}}), {DB});
   assert.equal(voter, 'guest:' + cookie.split('=')[1]);
+});
+
+test('ratings proxy restricts upstream resources, strips visitor credentials, and caches requests', async t => {
+  let requests = 0;
+  let lastUrl;
+  const RATINGS_FETCH = async (url, options) => {
+    requests++;
+    lastUrl = url;
+    assert.deepEqual(options.headers, {Accept: 'application/json'});
+    await new Promise(resolve => setTimeout(resolve, 20));
+    return Response.json({season: {year: 2026}, events: [], children: []});
+  };
+  const server = await startServer({port: 0, databasePath: ':memory:', apiEnv: {RATINGS_FETCH}});
+  t.after(() => stop(server));
+  const base = 'http://localhost:' + server.address().port;
+  const path = '/api/ratings-data/standings?group=80';
+  const responses = await Promise.all(Array.from({length: 3}, () => fetch(base + path, {
+    headers: {Cookie: 'private-cookie', Authorization: 'Bearer private-token'}
+  })));
+  assert.ok(responses.every(response => response.status === 200));
+  assert.equal(requests, 1, 'concurrent upstream requests are shared');
+  assert.equal((await fetch(base + path)).status, 200);
+  assert.equal(requests, 1, 'successful source data is cached');
+  assert.equal((await fetch(base + path + '&refresh=1')).status, 200);
+  assert.equal(requests, 2);
+  assert.equal((await fetch(base + '/api/ratings-data/schedule?team=' + teams[0].id + '&seasontype=2')).status, 200);
+  assert.match(lastUrl, new RegExp('/teams/' + teams[0].id + '/schedule\\?season=2026&seasontype=2$'));
+  for (const bad of ['/standings?group=https://evil.example', '/schedule?team=999999&seasontype=2',
+    '/schedule?team=' + teams[0].id + '&seasontype=99']) {
+    assert.equal((await fetch(base + '/api/ratings-data' + bad)).status, 400);
+  }
+  assert.equal((await fetch(base + path, {method: 'POST'})).status, 405);
+  assert.equal((await fetch(base + '/api/ratings-data/missing')).status, 404);
+  assert.equal(requests, 3, 'invalid routes never reach upstream');
+});
+
+test('ratings proxy reports failed or wrong-season sources and can retry them', async t => {
+  let mode = 'failure';
+  const server = await startServer({port: 0, databasePath: ':memory:', apiEnv: {
+    RATINGS_FETCH: async () => mode === 'failure' ? new Response('offline', {status: 503})
+      : Response.json({season: {year: mode === 'old' ? 2025 : 2026}, children: []})
+  }});
+  t.after(() => stop(server));
+  const url = 'http://localhost:' + server.address().port + '/api/ratings-data/standings?group=81&refresh=1';
+  assert.equal((await fetch(url)).status, 503);
+  mode = 'old';
+  assert.equal((await fetch(url)).status, 503);
+  mode = 'current';
+  assert.equal((await fetch(url)).status, 200);
 });
 
 test('Pages client submits and updates independent ballots through the cross-origin API', async t => {
@@ -245,7 +295,7 @@ test('Pages build serves every asset from a repository subpath and rejects missi
   const client = await (await fetch(new URL('./client.js', base))).text();
   assert.ok(client.includes("logo.src = './assets/'"));
   assert.ok(client.includes("read('./teams.json')"));
-  for (const file of ['api.js', 'config.js', 'teams.json', 'assets/game-day.webp', ...teams.map(team => 'assets/' + team.id + '.webp')]) {
+  for (const file of ['api.js', 'ratings.js', 'config.js', 'teams.json', 'assets/game-day.webp', ...teams.map(team => 'assets/' + team.id + '.webp')]) {
     const response = await fetch(new URL(file, base));
     assert.equal(response.status, 200, file);
     assert.ok((await response.arrayBuffer()).byteLength > 0);

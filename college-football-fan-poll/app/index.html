@@ -22,6 +22,15 @@
 <section class="hero">
 <div class="hero-copy"><p class="eyebrow"><span></span> THE COLLEGE FOOTBALL FAN POLL</p><h1>BUILD YOUR <em>TOP 25</em></h1><p>Rank your top 25 FBS teams and see where they land in the fan poll.</p></div>
 </section>
+<section class="ratings-guide" aria-label="Team star ratings">
+<details>
+<summary>How team stars are calculated</summary>
+<p>Each team's 1&ndash;5 star rating uses its <b>2026 season results</b>: 50% overall win percentage, 30% opponents' average win percentage, and 20% performance against strong opponents. The weighted score is converted to stars as 1 + 4 &times; score.</p>
+<p>A strong opponent has won at least two-thirds of its other games, with at least three played. Opponent records exclude all games against the team being rated. Strong-opponent performance is 75% win percentage and 25% scoring margin, with each margin capped at &plusmn;21 points and scaled from 0 to 1. With no strong opponents faced, that component is neutral (50%). Opponents with no other games also count as 50%.</p>
+<p>Only completed games count. Ties count as half a win. Data comes from ESPN and is cached for one hour; missing or inconsistent results show as unavailable. Hover over a rating for the team's breakdown. Stars are independent of fan votes and playoff seeds.</p>
+</details>
+<div class="ratings-loading"><p id="ratings-status" role="status">Loading 2026 records and game results&hellip;</p><button id="refresh-ratings" type="button" disabled>Refresh ratings</button></div>
+</section>
 <div id="ballot-view">
 <div class="poll-head"><div><p class="eyebrow">THE BALLOT BOX</p><h2>Cast your ballot</h2></div><div class="scoring"><span aria-hidden="true">★</span> <b>AP-style scoring</b><small>No. 1 earns 25 points · No. 25 earns 1</small></div></div>
 <div class="columns">

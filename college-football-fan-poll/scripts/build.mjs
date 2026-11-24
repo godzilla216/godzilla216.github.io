@@ -1,4 +1,5 @@
 import {readFile, readdir, mkdir, writeFile, copyFile} from 'node:fs/promises';
+import {RATING_SEASON} from '../app/ratings.js';
 
 const assets = {};
 for (const [route, filename, type] of [
@@ -7,6 +8,7 @@ for (const [route, filename, type] of [
   ['/style.css', 'style.css', 'text/css; charset=utf-8'],
   ['/client.js', 'client.js', 'text/javascript; charset=utf-8'],
   ['/api.js', 'api.js', 'text/javascript; charset=utf-8'],
+  ['/ratings.js', 'ratings.js', 'text/javascript; charset=utf-8'],
   ['/config.js', 'config.js', 'text/javascript; charset=utf-8'],
   ['/teams.json', 'teams.json', 'application/json; charset=utf-8']
 ]) {
@@ -30,6 +32,6 @@ await copyFile('.openai/hosting.json', 'dist/.openai/hosting.json');
 for (const file of (await readdir('drizzle')).sort()) {
   if (file.endsWith('.sql')) await copyFile('drizzle/' + file, 'dist/drizzle/' + file);
 }
-await writeFile('dist/server/index.js', 'const ASSETS = ' + JSON.stringify(assets) + ';\n' +
+await writeFile('dist/server/index.js', 'const RATING_SEASON = ' + RATING_SEASON + ';\nconst ASSETS = ' + JSON.stringify(assets) + ';\n' +
   await readFile('app/worker.js', 'utf8'));
 console.log('Built poll with ' + teams.length + ' FBS teams and logos.');

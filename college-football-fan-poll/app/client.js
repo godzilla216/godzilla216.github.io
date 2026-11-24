@@ -1,5 +1,6 @@
 import {API_BASE_URL} from './config.js';
 import {createPollApi} from './api.js';
+import {loadRatings, describeRating, RATING_SEASON} from './ratings.js';
 
 const read = createPollApi({apiBaseUrl: API_BASE_URL});
 const el = id => document.getElementById(id);
@@ -17,40 +18,85 @@ let ready = false;
 let saving = false;
 let resultsRequest = 0;
 
-const ESPN_STANDINGS_URL = 'https://site.api.espn.com/apis/v2/sports/football/college-football/standings?season=2026&group=80';
 let teamRecords = new Map();
+let teamRatings = new Map();
+let ratingsLoading = true;
 
-// ESPN groups standings by conference. Read overall (not conference) records by team ID.
-function collectTeamRecords(group, records) {
-  for (const entry of group?.standings?.entries ?? []) {
-    const stats = Array.isArray(entry.stats) ? entry.stats : [];
-    const overall = stats.find(stat => stat.name === 'overall' || stat.type === 'overall')
-      ?? stats.find(stat => stat.abbreviation === 'W-L' && stat.name !== 'vs. conf.');
-    const record = overall?.displayValue ?? entry.team?.record?.summary;
-    if (entry.team?.id != null && typeof record === 'string' &&
-        /^\d+-\d+(?:-\d+)?$/.test(record.trim())) {
-      records.set(String(entry.team.id), record.trim());
-    }
-  }
-  for (const child of group?.children ?? []) collectTeamRecords(child, records);
+function ratingDescription(id) {
+  const rating = teamRatings.get(id);
+  if (rating) return describeRating(rating, teamRecords.get(id));
+  if (ratingsLoading && !teamRatings.has(id)) return 'Star rating loading';
+  return teamRecords.get(id)?.played === 0 ? 'Not rated: no completed games' : 'Star rating unavailable';
 }
 
-async function loadTeamRecords() {
+function paintRating(badge) {
+  const id = badge.dataset.ratingFor;
+  const description = ratingDescription(id);
+  if (badge.dataset.ratingState === description) return;
+  badge.dataset.ratingState = description;
+  badge.title = description;
+  badge.setAttribute('aria-label', description);
+  const rating = teamRatings.get(id);
+  badge.classList.toggle('rating-pending', !rating);
+  if (rating) {
+    const stars = node('span', 'rating-stars');
+    stars.setAttribute('aria-hidden', 'true');
+    stars.append(node('span', 'rating-empty', '\u2605\u2605\u2605\u2605\u2605'),
+      node('span', 'rating-filled', '\u2605\u2605\u2605\u2605\u2605'));
+    stars.style.setProperty('--rating-fill', rating.stars / 5 * 100 + '%');
+    const number = node('span', 'rating-number', rating.stars.toFixed(1) + '/5');
+    number.setAttribute('aria-hidden', 'true');
+    badge.replaceChildren(stars, number);
+  } else {
+    badge.textContent = ratingsLoading && !teamRatings.has(id) ? 'Rating loading\u2026'
+      : teamRecords.get(id)?.played === 0 ? 'Not rated yet' : 'Rating unavailable';
+  }
+  const choice = badge.closest('.team-choice');
+  if (choice) choice.setAttribute('aria-label', 'Add ' + byId.get(id).name + '. ' + description);
+}
+
+function updateTeamBadges() {
+  for (const badge of document.querySelectorAll('[data-record-for]')) {
+    const record = teamRecords.get(badge.dataset.recordFor);
+    badge.textContent = record ? ' (' + record.summary + ')' : '';
+  }
+  for (const badge of document.querySelectorAll('[data-rating-for]')) paintRating(badge);
+}
+
+async function refreshTeamRatings(force = false) {
+  ratingsLoading = true;
+  teamRatings = new Map();
+  el('refresh-ratings').disabled = true;
+  el('ratings-status').textContent = 'Loading ' + RATING_SEASON + ' records and game results\u2026';
+  updateTeamBadges();
   try {
-    const response = await fetch(ESPN_STANDINGS_URL);
-    if (!response.ok) throw new Error('ESPN standings returned HTTP ' + response.status);
-    const records = new Map();
-    collectTeamRecords(await response.json(), records);
-    if (!records.size) throw new Error('No overall team records were returned.');
-    teamRecords = records;
-    // Update visible labels without rebuilding the ballot or interrupting focus/dragging.
-    for (const badge of document.querySelectorAll('[data-record-for]')) {
-      const record = records.get(badge.dataset.recordFor);
-      badge.textContent = record ? ' (' + record + ')' : '';
-    }
+    await loadRatings(teams.map(team => team.id), {force, readData(url) {
+      const source = new URL(url);
+      const teamId = source.pathname.match(/\/teams\/([^/]+)\/schedule$/)?.[1];
+      const query = new URLSearchParams(teamId
+        ? {team: teamId, seasontype: source.searchParams.get('seasontype')}
+        : {group: source.searchParams.get('group')});
+      if (force) query.set('refresh', '1');
+      return read('/api/ratings-data/' + (teamId ? 'schedule' : 'standings') + '?' + query);
+    }, onUpdate(data) {
+      teamRecords = data.records;
+      teamRatings = data.ratings;
+      const done = data.completed === data.total;
+      ratingsLoading = !done;
+      updateTeamBadges();
+      const rated = [...teamRatings.values()].filter(Boolean).length;
+      el('ratings-status').textContent = done
+        ? rated + ' of ' + data.total + ' teams rated \u00b7 Updated ' + new Date(data.updatedAt).toLocaleString() +
+          (data.failures ? ' \u00b7 Some results unavailable; try Refresh ratings.' : '')
+        : 'Loading game results: ' + data.completed + ' of ' + data.total + ' teams';
+    }});
   } catch (error) {
-    // Voting still works when the third-party standings service is unavailable.
-    console.warn('2026 team records unavailable:', error);
+    el('ratings-status').textContent = 'Ratings unavailable. Try Refresh ratings; you can still vote.';
+    console.warn('Team ratings unavailable:', error);
+  } finally {
+    ratingsLoading = false;
+    updateTeamBadges();
+    el('refresh-ratings').disabled = false;
   }
 }
 
@@ -78,11 +124,16 @@ function teamInfo(team, subtitle = team.conference) {
   logo.loading = 'lazy';
   const label = node('span', 'label');
   const name = node('b', '', team.name);
-  const record = node('span', 'team-record', teamRecords.has(team.id) ? ' (' + teamRecords.get(team.id) + ')' : '');
+  const record = node('span', 'team-record', teamRecords.has(team.id) ? ' (' + teamRecords.get(team.id).summary + ')' : '');
   record.dataset.recordFor = team.id;
-  record.title = '2026 overall win-loss record';
+  record.title = RATING_SEASON + ' overall win-loss record';
   name.append(record);
   label.append(name, node('small', '', subtitle));
+  const rating = node('span', 'team-rating');
+  rating.dataset.ratingFor = team.id;
+  rating.setAttribute('role', 'img');
+  paintRating(rating);
+  label.append(rating);
   return [logo, label];
 }
 
@@ -101,7 +152,7 @@ function showDirectory() {
   const directory = el('team-list');
   el('team-count').textContent = visible.length + (visible.length === 1 ? ' TEAM' : ' TEAMS');
   const rows = visible.map((team, index) => {
-    const row = button('team team-choice', '', 'Add ' + team.name, () => {
+    const row = button('team team-choice', '', 'Add ' + team.name + '. ' + ratingDescription(team.id), () => {
       ballot.push(team.id);
       updateBallot();
       const chosen = ranks.children[ballot.length - 1];
@@ -398,14 +449,17 @@ submit.addEventListener('click', async () => {
   }
 });
 
-// Standings are optional and load independently of ballots and fan rankings.
-void loadTeamRecords();
-
 const initializedTeams = read('./teams.json').then(data => {
   teams = data;
   byId = new Map(data.map(team => [team.id, team]));
   const conferences = [...new Set(data.map(team => team.conference))].sort();
   for (const name of conferences) conference.add(new Option(name, name));
+});
+
+// Ratings load independently and never delay ballot editing or fan rankings.
+el('refresh-ratings').addEventListener('click', () => void refreshTeamRatings(true));
+void initializedTeams.then(() => refreshTeamRatings()).catch(() => {
+  el('ratings-status').textContent = 'Ratings unavailable: the team directory could not be loaded.';
 });
 
 try {
